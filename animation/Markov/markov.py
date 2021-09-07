@@ -3,6 +3,7 @@ from manim import *
 from numpy.ma.core import left_shift 
 import pydtmc.markov_chain as mark
 import itertools
+from fractions import Fraction
 
 class Markov(MovingCameraScene):
     def markovChain(self,p,states):
@@ -34,29 +35,28 @@ class Markov(MovingCameraScene):
         return VGroup(arrow,prob)
     def createDiagramm(self,states,transition_matrix):
         diagramm = Triangle().scale(3)
-        nodes = [self.createNode(s) for s in states ]
+        nodes = [(s,self.createNode(s)) for s in states ]
         # print(nodes[0][0].get_all_points())
         vertices = diagramm.get_vertices()
         for i, n in enumerate(nodes) : 
-            n.move_to(vertices[i])
+            n[1].move_to(vertices[i])
         arrows = []
-        print(vertices[0])
         for comb in itertools.product(range(len(nodes)),range(len(nodes))):
             leftOrRight = 1
             if comb[0]>comb[1]:
                leftOrRight =-1 
             if comb[0]==comb[1]:
-                if nodes[comb[0]][0].get_center()[0]-2.5>0:
-                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][0].get_all_points()[-4],end=nodes[comb[1]][0].get_all_points()[-27],p=transition_matrix[comb],leftOrRight=-1)
+                if nodes[comb[0]][1][0].get_center()[0]-2.5>0:
+                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][1][0].get_all_points()[-4],end=nodes[comb[1]][1][0].get_all_points()[-27],p=transition_matrix[comb],leftOrRight=-1)
                     arrow.shift([0.4,0,0])
                 else:
-                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][0].get_all_points()[4],end=nodes[comb[1]][0].get_all_points()[27],p=transition_matrix[comb])
+                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][1][0].get_all_points()[4],end=nodes[comb[1]][1][0].get_all_points()[27],p=transition_matrix[comb])
                     arrow.shift([-1,0,0])
             else:
-                arrow = self.drawArrows(start=nodes[comb[0]][0],end=nodes[comb[1]][0],p=transition_matrix[comb],leftOrRight=leftOrRight)                 
-            arrows.append(arrow)
+                arrow = self.drawArrows(start=nodes[comb[0]][1][0],end=nodes[comb[1]][1][0],p=transition_matrix[comb],leftOrRight=leftOrRight)                 
+            arrows.append((comb,arrow))
             # print(comb)
-        return VGroup(*nodes,*arrows)
+        return VGroup(VDict(nodes),VDict(arrows,show_keys=False))
     def construct(self):
         transition_matrix=np.array(
             [
@@ -65,8 +65,23 @@ class Markov(MovingCameraScene):
                 ["1","0","0"]
             ]
         )
+        STEPS = 10
+        transition_matrixFloat = [list(map(lambda x :float(Fraction(x)),t )) for t in transition_matrix]
         diagram = self.createDiagramm(['1','2','3'],transition_matrix)
-
+        mc = self.markovChain(transition_matrixFloat,['1','2','3'])
         self.add(diagram)
-        self.wait(5)
+        dot = Dot(color=RED).scale(2)
+        # self.add(dot)
+        mcString = mc.walk(steps=STEPS)
+        currentState = mcString[0]
+        for state in mcString[1:]:
+            path = (int(currentState)-1,int(state)-1)
+            currentState = state
+            diagram[1][path][0].set_color(RED)
+            diagram[0][state].set_color(RED)
+            self.play(MoveAlongPath(dot,diagram[1][path][0]),rate_func=rate_functions.rush_from)
+            # self.play(Flash(diagram[0][state],0.5,color=RED,run_time=0.5))
+            diagram[1][path].set_color(WHITE)
+            diagram[0][state].set_color(YELLOW)
+        # self.wait(5)
         
