@@ -21,9 +21,6 @@ class Markov(MovingCameraScene):
     def drawArrows(self,start,end,p,leftOrRight):
         arrow = Arrow(start,end).scale(0.9)
         prob  = MathTex(rf"{p}").scale(0.7)
-        # print(start.get_center()[1])
-        # print(end.get_center()[1])
-        # print(start.get_center()[1]==end.get_center()[1])
         cS = start.get_center()
         cE = end.get_center()
         if np.isclose(cS[1],cE[1],atol=0.0001):
@@ -57,6 +54,8 @@ class Markov(MovingCameraScene):
             arrows.append((comb,arrow))
             # print(comb)
         return VGroup(VDict(nodes),VDict(arrows,show_keys=False))
+    def transitionMatrix(self,transition_matrix):
+        return Matrix(transition_matrix)
     def construct(self):
         transition_matrix=np.array(
             [
@@ -74,14 +73,16 @@ class Markov(MovingCameraScene):
         # self.add(dot)
         mcString = mc.walk(steps=STEPS)
         currentState = mcString[0]
+        matrix = self.transitionMatrix(transition_matrix).scale(0.6)
+        self.add(matrix.move_to([-5,3,0]))
         for state in mcString[1:]:
             path = (int(currentState)-1,int(state)-1)
-            currentState = state
             diagram[1][path][0].set_color(RED)
             diagram[0][state].set_color(RED)
             self.play(MoveAlongPath(dot,diagram[1][path][0]),rate_func=rate_functions.rush_from)
             # self.play(Flash(diagram[0][state],0.5,color=RED,run_time=0.5))
             diagram[1][path].set_color(WHITE)
             diagram[0][state].set_color(YELLOW)
-        # self.wait(5)
+            currentState = state
+# self.wait(5)
         
