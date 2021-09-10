@@ -1,11 +1,16 @@
 import itertools
+from math import sqrt
 from manim import *
 from numpy.ma.core import left_shift 
 import pydtmc.markov_chain as mark
 import itertools
 from fractions import Fraction
 
-class Markov(MovingCameraScene):
+class Markov(GraphScene):
+    CONFIG = {
+        "y_axis_label": r"State",
+        "x_axis_labe": "Time"
+    }
     def markovChain(self,p,states):
         return mark.MarkovChain(p,states)
     def createNode(self,state):
@@ -56,6 +61,16 @@ class Markov(MovingCameraScene):
         return VGroup(VDict(nodes),VDict(arrows,show_keys=False))
     def transitionMatrix(self,transition_matrix):
         return Matrix(transition_matrix)
+    def graph(self,steps):
+        grid = Axes(
+            x_range = [0,steps,1],
+            y_range = [1,3,1],
+            x_length= sqrt(steps) ,
+            y_length= 3,
+            tips=False
+        )
+        grid.add_coordinates([],[1,2,3],None)
+        return grid
     def construct(self):
         transition_matrix=np.array(
             [
@@ -64,18 +79,24 @@ class Markov(MovingCameraScene):
                 ["1","0","0"]
             ]
         )
-        STEPS = 10
+        STEPS = 25
+        graph =  self.graph(25).scale(0.6).shift(RIGHT*3)
+        self.add(graph)
         transition_matrixFloat = [list(map(lambda x :float(Fraction(x)),t )) for t in transition_matrix]
-        diagram = self.createDiagramm(['1','2','3'],transition_matrix)
-        mc = self.markovChain(transition_matrixFloat,['1','2','3'])
+        diagram = self.createDiagramm(['1','2','3'],transition_matrix).scale(0.5).shift(LEFT*2)
         self.add(diagram)
+        mc = self.markovChain(transition_matrixFloat,['1','2','3'])
         dot = Dot(color=RED).scale(2)
-        # self.add(dot)
+        #MARKOVCHAIN 
         mcString = mc.walk(steps=STEPS)
         currentState = mcString[0]
-        matrix = self.transitionMatrix(transition_matrix).scale(0.6)
+        #GRAPH INITIAL STATE
+        self.add(Dot(point=graph.c2p(0,int(currentState),0)))  
+        
+        matrix = self.transitionMatrix(transition_matrix).scale(0.4)
         self.add(matrix.move_to([-5,3,0]))
-        for state in mcString[1:]:
+        for i,state in enumerate(mcString[1:]):
+            self.add(Dot(point=graph.c2p(i+1,int(state),0)))
             path = (int(currentState)-1,int(state)-1)
             diagram[1][path][0].set_color(RED)
             diagram[0][state].set_color(RED)
@@ -84,5 +105,22 @@ class Markov(MovingCameraScene):
             diagram[1][path].set_color(WHITE)
             diagram[0][state].set_color(YELLOW)
             currentState = state
+            #ADD POINT ON GRAPH
+        bar = BarChart(
+            [mcString.count(i) for i in ['1','2','3']],
+            height=5 , 
+            width = 3,
+            max_value= 25 , 
+            bar_names = ["1","2","3"]
+
+        ).scale(0.7).shift(LEFT)
+        self.remove(diagram,dot)
+        self.add(bar)
+        # for i in range(int(len(mcString[STEPS:])/10)) :
+        #     c1,c2,c3 = [mcString[STEPS+i:STEPS+ (i+1)*10].count(s) for s in ["1","2","3"]]
+        #     bar.change_bar_values([c1,c2,c3])
+        #     self.wait(0.2)
+             
+        self.wait(3)
 # self.wait(5)
         
