@@ -5,12 +5,52 @@ from numpy.ma.core import left_shift
 import pydtmc.markov_chain as mark
 import itertools
 from fractions import Fraction
+class Ani(Scene):
+    def construct(self):
+        sc1 = MarkovMatrix()
+        sc2 = MarkovGraph()
+        sc1.construct()
+        sc2.construct()
+class MarkovMatrix(Scene):
+    def construct(self):
+        transition_matrix=np.array(
+            [
+                ["1/2","1/2","0"],
+                ["1/3","1/3","1/3"],
+                ["1","0","0"]
+            ]
+        )
 
-class Markov(GraphScene):
+        matrix = self.transitionMatrix(transition_matrix).scale(1)
+        title = Tex("Übergangsmatrix").shift(UP*3)
+        P = Tex("P = ")
+        P.next_to(matrix,LEFT)
+        self.add(matrix,P,title)
+        self.wait(2)
+        self.clear()
+    def transitionMatrix(self,transition_matrix):
+        return Matrix(transition_matrix)
+class MarkovGraph(GraphScene):
     CONFIG = {
         "y_axis_label": r"State",
         "x_axis_labe": "Time"
     }
+    def construct1(self):
+        transition_matrix=np.array(
+            [
+                ["1/2","1/2","0"],
+                ["1/3","1/3","1/3"],
+                ["1","0","0"]
+            ]
+        )
+
+        matrix = self.transitionMatrix(transition_matrix).scale(1)
+        title = Tex("Übergangsmatrix").shift(UP*3)
+        P = Tex("P = ")
+        P.next_to(matrix,LEFT)
+        self.add(matrix,P,title)
+        self.wait(3)
+        self.clear()
     def markovChain(self,p,states):
         return mark.MarkovChain(p,states)
     def createNode(self,state):
@@ -72,6 +112,7 @@ class Markov(GraphScene):
         grid.add_coordinates([],[1,2,3],None)
         return grid
     def construct(self):
+        self.construct1()
         transition_matrix=np.array(
             [
                 ["1/2","1/2","0"],
@@ -79,6 +120,8 @@ class Markov(GraphScene):
                 ["1","0","0"]
             ]
         )
+        invariantMeasure =  [4/8,3/8,1/8]
+        invariantMeasureText = MathTex("\pi = ")
         STEPS = 25
         graph =  self.graph(25).scale(0.6).shift(RIGHT*3)
         self.add(graph)
@@ -116,11 +159,11 @@ class Markov(GraphScene):
         ).scale(0.7).shift(LEFT)
         self.remove(diagram,dot)
         self.add(bar)
-        # for i in range(int(len(mcString[STEPS:])/10)) :
-        #     c1,c2,c3 = [mcString[STEPS+i:STEPS+ (i+1)*10].count(s) for s in ["1","2","3"]]
-        #     bar.change_bar_values([c1,c2,c3])
-        #     self.wait(0.2)
-             
+        invMeasureRow = MathTex(invariantMeasure).scale(0.6)
+        invariantMeasureText.next_to(invMeasureRow,LEFT)
+        invMeasure = VGroup(invMeasureRow,invariantMeasureText)
+        invMeasure.shift(LEFT*4)
+        self.add(invMeasure)
         self.wait(3)
 # self.wait(5)
         
