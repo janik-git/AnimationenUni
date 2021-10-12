@@ -1,0 +1,43 @@
+import itertools
+from manim import * 
+import pydtmc.markov_chain as mark
+import itertools
+
+class Markov(MovingCameraScene):
+    def markovChain(self,p,states):
+        return mark.MarkovChain(p,states)
+    def createNode(self,state):
+        node = Circle(radius=0.5,color=YELLOW).set_fill(YELLOW,opacity=0.5)
+        nodeText = Tex(state).move_to(node.get_center()) 
+        return VGroup(node,nodeText)
+        
+    def drawArrows(self,start,end,p):
+        arrow = CurvedArrow(start_point=start,end_point=end).scale(1.1)
+        prob  = MathTex(rf"{p}").scale(0.7)
+        prob.move_to(arrow.get_center()+[-0.5,0.1,0])
+        return VGroup(arrow,prob)
+    def createDiagramm(self,states,transition_matrix):
+        diagramm = Triangle().scale(2)
+        nodes = [self.createNode(s) for s in states ]
+        # print(nodes[0][0].get_all_points())
+        vertices = diagramm.get_vertices()
+        for i, n in enumerate(nodes) : 
+            n.move_to(vertices[i])
+        arrows = []
+        for comb in itertools.product(range(len(nodes)),range(len(nodes))):
+            arrow = self.drawArrows(start=nodes[comb[0]][0],end=nodes[comb[0]][0],p=transition_matrix[comb]) 
+            arrows.append(arrow.shift([-1,0,0]))
+        return VGroup(*nodes,arrows[0])
+    def construct(self):
+        transition_matrix=np.array(
+            [
+                [1/2,1/2,0],
+                [1/3,1/3,1/3],
+                [1,0,0]
+            ]
+        )
+        diagram = self.createDiagramm(['1','2','3'],[[1/2,1/2,1]])
+
+        self.add(diagram)
+        self.wait(5)
+        

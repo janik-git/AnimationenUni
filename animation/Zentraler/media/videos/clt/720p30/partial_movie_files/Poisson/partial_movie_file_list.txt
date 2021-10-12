@@ -1,0 +1,3 @@
+# This file is used internally by FFMPEG.
+file 'file:/home/janik/AnimationenUni/animation/Zentraler/media/videos/clt/720p30/partial_movie_files/Poisson/1342159004_3730414289_522978902.mp4'
+file 'file:/home/janik/AnimationenUni/animation/Zentraler/media/videos/clt/720p30/partial_movie_files/Poisson/1353618911_2513419429_6920656.mp4'

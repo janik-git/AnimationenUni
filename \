@@ -1,0 +1,73 @@
+import itertools
+from manim import *
+from numpy.ma.core import left_shift 
+import pydtmc.markov_chain as mark
+import itertools
+
+class Markov(MovingCameraScene):
+    def markovChain(self,p,states):
+        return mark.MarkovChain(p,states)
+    def createNode(self,state):
+        node = Circle(radius=0.5,color=YELLOW).set_fill(YELLOW,opacity=0.5)
+        nodeText = Tex(state).move_to(node.get_center()) 
+        return VGroup(node,nodeText)
+        
+    def drawCurvedArrows(self,start,end,p):
+        arrow = CurvedArrow(start_point=start,end_point=end).scale(1.1)
+        prob  = MathTex(rf"{p}").scale(0.7)
+        prob.move_to(arrow.get_center()+[-0.5,0.1,0])
+        return VGroup(arrow,prob)
+    def drawArrows(self,start,end,p,leftOrRight):
+        arrow = Arrow(start,end).scale(0.9)
+        prob  = MathTex(rf"{p}").scale(0.7)
+        # print(start.get_center()[1])
+        # print(end.get_center()[1])
+        # print(start.get_center()[1]==end.get_center()[1])
+        cS = start.get_center()
+        cE = end.get_center()
+        if cS[1] != cE[1] and np.isclose(cS[1],cE[1],atol=0.0001):
+            arrow.shift([0,leftOrRight*0.2,0])
+            prob.move_to(arrow.get_center()+[0,leftOrRight*0.3,0])
+        else:
+            arrow.shift([leftOrRight*0.2,0,0])
+            prob.move_to(arrow.get_center()+[leftOrRight * 0.5,0,0])
+        return VGroup(arrow,prob)
+    def createDiagramm(self,states,transition_matrix):
+        diagramm = Triangle().scale(3)
+        nodes = [self.createNode(s) for s in states ]
+        # print(nodes[0][0].get_all_points())
+        vertices = diagramm.get_vertices()
+        for i, n in enumerate(nodes) : 
+            n.move_to(vertices[i])
+        arrows = []
+        print(vertices[0])
+        for comb in itertools.product(range(len(nodes)),range(len(nodes))):
+            leftOrRight = 1
+            if comb[0]>comb[1]:
+               leftOrRight =-1 
+            if comb[0]==comb[1]:
+                if nodes[comb[0]][0].get_center()[0]-2.5>0:
+                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][0].get_all_points()[-4],end=nodes[comb[1]][0].get_all_points()[-27],p=transition_matrix[comb])
+                    arrow[0].shift([0.4,0,0])
+                    arrow[1].shift([0.8])
+                else:
+                    arrow = self.drawCurvedArrows(start=nodes[comb[0]][0].get_all_points()[4],end=nodes[comb[1]][0].get_all_points()[27],p=transition_matrix[comb])
+                    arrow.shift([-1,0,0])
+            else:
+                arrow = self.drawArrows(start=nodes[comb[0]][0],end=nodes[comb[1]][0],p=transition_matrix[comb],leftOrRight=leftOrRight)                 
+            arrows.append(arrow)
+            # print(comb)
+        return VGroup(*nodes,*arrows)
+    def construct(self):
+        transition_matrix=np.array(
+            [
+                ["1/2","1/2","0"],
+                ["1/3","1/3","1/3"],
+                ["1","0","0"]
+            ]
+        )
+        diagram = self.createDiagramm(['1','2','3'],transition_matrix)
+
+        self.add(diagram)
+        self.wait(5)
+        

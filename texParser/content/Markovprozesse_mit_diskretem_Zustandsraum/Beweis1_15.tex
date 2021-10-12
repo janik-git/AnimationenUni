@@ -1,0 +1,27 @@
+Sei also $ A \in \varepsilon^{ \otimes \mathbb{N}_{0}}$, $F \in \mathfrak{F}_{T}^{X}$ und $x \in E$ mit $\mathbb{P}_{\nu}[F, X_{T} = x, T < \infty] > 0$. Dann gibt es zu jedem $n \in \mathbb{N}_{0}$ ein $B \subseteq E^{n}$ mit
+\begin{equation*}
+F \cap \lbrace T = n \rbrace \cap \lbrace X_{T} = x \rbrace = \lbrace (X_{0},...,X_{n-1}) \in B, X_{n} = x \rbrace
+\end{equation*}
+Falls zudem $\mathbb{P}_{\nu}[(X_{0},...,X_{n-1}) \in B, X_{n} = x] > 0$ ist, so folgt aus Satz $\ref{vorangegangene und zukünftige Ereignisse}$
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T = n]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: (X_{0},...,X_{n-1}) \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \mathbb{P}_{x}[(X_{0},X_{1},...) \in A]
+\end{equation*}
+Also,
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T < \infty]
+\end{equation*}
+\begin{equation*}
+= \sum_{n=0}^{\infty} \dfrac{\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T = n] \cdot \mathbb{P}_{\nu}[F, X_{T} = x, T = n]}{ \mathbb{P}_{\nu}[F, X_{T} = x, T < \infty]} 
+\end{equation*}
+\begin{equation*}
+= \sum_{n=0}^{\infty} \dfrac{\mathbb{P}_{x}[(X_{0},X_{1},...) \in A] \cdot \mathbb{P}_{\nu}[F, X_{T} = x, T = n]}{ \mathbb{P}_{\nu}[F, X_{T} = x, T < \infty]} 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[(X_{0},X_{1},...) \in A]
+\end{equation*}

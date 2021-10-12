@@ -1,0 +1,202 @@
+Sei $(\Omega, \mathfrak{F}, \mathbb{P})$ ein Wahrscheinlichkeitsraum, $(E, \varepsilon)$ ein meßbarer Raum und I eine nichtleere Indexmenge z.B 
+\begin{itemize}
+    \item E ist endlich oder abzählbar unendlich
+    \item E = $\mathbb{R},\: \mathbb{R}^{d}$
+    \item E ist ein Funktionsraum
+    \item I = endlich, $\: \mathbb{N}_{0},\: \mathbb{Z}$ (diskret)
+    \item I = $\: [0,\infty), \:\mathbb{R}, \:\mathbb{R}^{d}$ (kontinuierlich)
+\end{itemize}
+Interpretation: E ist der Zustandsraum(\glqq Ort\grqq{}) und I ist die \glqq Zeit\grqq{}.
+
+\textbf{Definition 1.1}[Stochastischer Prozess]
+Ein stochastischer Prozess auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Werten im Zustandsraum $(E, \varepsilon)$ ist eine Familie $(X_{t})_{t\in I}$ von E-wertigen Zufallsvariablen. Für festes $\omega \in \Omega$ heißt die Abbildung
+\\
+\begin{equation*}
+I \ni t \mapsto X_{t}(\omega)
+\end{equation*}
+\\
+eine Trajektorie(Pfad, Realisierung) von $(X_{t})_{t\in I}$. Falls I = $\mathbb{N}_{0}$ oder I = $[0,\infty)$, so heißt die Verteilung von $X_{0}$ die Startverteilung des stochastischen Prozesses.
+
+\textbf{Bemerkung 1.6}
+Falls E diskret ist, so bezeichnet man eine Verteilung auch als Wahrscheinlichkeitsvektor.
+ 
+\noindent 
+Unser Ziel ist es die Verteilung des stochastischen Prozesses $(X_{t})_{t\in I}$ zu charakterisieren. Zunächst einmal lässt sich der Produktraum $E^{I}$ auch als Menge $\lbrace x: I \to E\rbrace$ aller Abbildungen von I nach E interpretieren. 
+\\
+\\
+\textcolor{red}{Frage?} Wie lässt sich die zugehörige Produkt-$\sigma$-Algebra $\varepsilon^{ \otimes I}$ charakterisieren?
+\textbf{Definition 1.1}[Produkt-$\sigma$-Algebra]
+Die Produkt-$\sigma$-Algebra $\varepsilon^{ \otimes I}$ ist die kleinste $\sigma$-Algebra über $E^{I}$, die die Menge $\mathcal{Z}$ aller endlich-dimensionalen Rechtecke(Zylindermenge) der Form
+\begin{equation*}
+\lbrace x \in E^{I} : x_{t_{1}} \in B_{1}, x_{t_{2}} \in B_{2},..., x_{t_{n}} \in B_{n}   \rbrace 
+\end{equation*}
+mit n $\in \mathbb{N}$, $t_{1},..., t_{n} \in I \: und \:B_{1},...,B_{n} \in \varepsilon $ enthält.
+
+
+\textbf{Lemma 1.4}
+Sei $(X_{t})_{t\in I}$ ein stochastischer Prozess mit Zustandsraum $(E,\varepsilon)$, und definiere die Abbildung $X:(\Omega,\mathfrak{F}) \to (E^{I},\varepsilon^{ \otimes I})$ durch $X(\omega) := (X_{t}(\omega))_{t\in I} $. 
+Dann ist X meßbar. 
+
+\textbf{Beweis 1.6}
+Übungsaufgabe.
+
+\noindent 
+
+\textbf{Definition 1.1}[Verteilung eines stochastischen Prozesses]
+Die Verteilung eines stochastischen Prozesses $(X_{t})_{t\in I}$ auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum $(E, \varepsilon)$ ist das Bildmaß $\mathbb{P}$ unter der in Lemma 1.1 definierten Abbildung X, d.h.
+\begin{equation*} 
+{{\mathbb{P}}_{X}}[B] := (\mathbb{P} \circ X^{-1})[B] = \mathbb{P}[ \lbrace \omega \in \Omega : X(\omega) \in B\rbrace] , \: B \in \varepsilon^{ \otimes I}
+\end{equation*}
+
+\noindent
+\textcolor{red}{Frage?} Welcher Zusammenhang besteht zwischen der Verteilung eines stochastischen Prozesses und der Verteilung des Prozesses an endlich vielen Zeitpunkten?
+\\
+\\
+Betrachte zwei nicht-leere, endliche Teilmengen $J,k \subseteq I$ mit $k \subseteq J$. Definiere
+\begin{equation*}
+\pi_{J}: E^{I} \to E^{J}, \qquad  {(X_{t})}_{t\in I} \mapsto \pi_{J}{(X_{t})}_{t\in I}:= {(X_{t})}_{t\in J}
+\end{equation*}
+\begin{equation*}
+{\pi_{k}}^{J}: E^{J} \to E^{k}, \qquad  {(X_{t})}_{t\in J} \mapsto {\pi_{k}}^{J}{(X_{t})}_{t\in J}:= {(X_{t})}_{t\in k}
+\end{equation*}
+die endlich-dimensionale Projektionen.
+\\
+\\
+Da $\varepsilon^{ \otimes I}$ von den Mengen ${({\pi_{\lbrace t \rbrace}}^{J})}^{-1}(A)$, $t \in J, \: A \in \varepsilon$ erzeugt wird und
+\begin{equation*}
+{\pi_{J}}^{-1}({({\pi_{\lbrace t \rbrace}}^{J})}^{-1}(A)) = {({\pi_{\lbrace t \rbrace}}^{J} \circ \pi_{J})}^{-1}(A) = {\pi_{\lbrace t \rbrace}}^{-1}(A) \in \varepsilon^{ \otimes I} 
+\end{equation*}
+ist folglich $\pi_{J} \: \:  (\varepsilon^{ \otimes I}, \varepsilon^{ \otimes J})$-meßbar.
+\textbf{Definition 1.1}[endlich-dimensionale Verteilung eines stochastischen Prozesses]
+Sei $X = {(X_{t})}_{t\in I}$ ein stochastischer Prozess mit Verteilung ${\mathbb{P}}_X$ auf $(E^{I},\varepsilon^{ \otimes I})$ und $J \subseteq I$ eine nichtleere, endliche Teilmenge von I. Setze $X_{J} := {(X_{t})}_{t\in J} = \pi_{J}(X)$. Die Wahrscheinlichkeitsverteilung ${{\mathbb{P}}_X}_{J}$ heißt endlich-dimensionale Verteilung von X.
+
+\textbf{Notation 1.2}
+Für $B \in \varepsilon^{ \otimes J}$ ist ${{\mathbb{P}}_{X_{J}}}[B] = {\mathbb{P} \circ {{(X_{t})}}_{t\in J}^{-1}[B] = \mathbb{P}[(X_{t})}_{t\in J} \in B]$. 
+
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\textbf{Lemma 1.4}
+\label{Teilmengen Lemma}
+Sei $X = {(X_{t})}_{t\in I}$ ein stochastischer Prozess mit Zustandsraum $(E,\varepsilon)$.
+\begin{itemize}
+\item[(i)] Für jede endliche Teilmenge $J \neq \emptyset$ von I gilt
+\begin{equation*}
+{{\mathbb{P}}_{X_{J}}} = {\mathbb{P}}_{X} \circ {\pi_{J}}^{-1}
+\end{equation*}
+\item[(ii)] Für je zwei nicht-leere, endliche Teilmengen $J_{1},J_{2} \subseteq I$ mit $J_{1} \subseteq J_{2}$ gilt
+\begin{equation*}
+{{\mathbb{P}}_{X_{J_{1}}}} = {\mathbb{P}}_{X_{J_{2}}} \circ {({\pi_{J_{1}}}^{J_{2}})}^{-1}
+\end{equation*}
+\end{itemize}
+
+\textbf{Beweis 1.6}                                                                                                  
+\mbox{}
+\begin{itemize}
+\item[(i)] Wegen $X_{J} = \pi_{J}({(X_{t})}_{t\in I}) = \pi_{J} \circ X$ gilt 
+\begin{equation*}
+{\mathbb{P}}_{X_{J}} = \mathbb{P} \circ {X_{J}}^{-1} = \mathbb{P} \circ {(\pi_{J} \circ X)}^{-1} = (\mathbb{P} \circ X^{-1}) \circ {\pi_{J}}^{-1} = \mathbb{P}_{X} \circ {\pi_{J}}^{-1} 
+\end{equation*}
+
+\item[(ii)] Wegen $X_{J_{1}} = {\pi_{J_{1}}}^{J_{2}} \circ X_{J_{2}}$ folgt die Behauptung aus (i).
+
+\end{itemize}
+
+\noindent
+\textcolor{red}{Frage?} Ist es auch möglich die unendlich-dimensionale Verteilung eindeutig durch die endlich-dimensionale Verteilung festzulegen?
+\textbf{Lemma 1.4}
+Für jedes $J \subseteq I$ sei ein Wahrscheinlichkeitsmaß $\mathbb{Q}_{J}$ auf  $(E^{J},\varepsilon^{ \otimes J})$ gegeben. Dann existiert höchstens ein Wahrscheinlichkeitsmaß $\mathbb{Q}$ auf $(E^{I},\varepsilon^{ \otimes I})$ mit
+\begin{equation*}
+{\mathbb{Q}}_{J} = \mathbb{Q} \circ {\pi_{J}}^{-1} 
+\end{equation*}
+für alle endlichen $\emptyset \neq J \subseteq J$.
+
+\textbf{Beweis 1.6}
+Da nach Aufgabe 2 die Menge $\mathcal{Z}$ der endlich-dimensionalen Rechtecke einen $\cap$-stabilen Erzeuger von $\varepsilon^{ \otimes I}$ bilden und
+\begin{equation*}
+\mathbb{Q}[\lbrace x \in E^{I} : x_{j} \in A_{j}, \: \forall j \in J\rbrace] = \mathbb{Q}[{\pi_{J}}^{-1}(\times_{j \in J} \: A_{j})] = (\mathbb{Q} \circ {\pi_{J}}^{-1})[\times_{j \in J} \: A_{j}] = \mathbb{Q}_{J}[\times_{j \in J} \: A_{j}]  
+\end{equation*}
+für alle $\emptyset \neq J \subseteq I$ endlich und $A_{j} \in \varepsilon$ für alle $j \in J$, folgt die Aussage aus dem Eindeutigkeitssatz für Maße. 
+
+\noindent
+\textcolor{red}{Warnung!} Die eindimensionalen Verteilungen legen $\mathbb{Q}$ im Allgemeinen nicht fest.
+\textbf{Beispiel 1.3}
+Betrachte eine Folge ${(X_{n})}_{n \in N_{0}}$ von unabhängig, identisch verteilten Zufallsvariablen und ${(Y_{n})}_{n \in N_{0}}$ sei definiert durch $Y_{n} = X_{0}$ für alle $n \in \mathbb{N}$.
+
+\textbf{Definition 1.1}[konsistente Familie von Wahrscheinlichkeitsmaßen]
+Für jedes $\emptyset \neq J \subseteq I$ endlich sei $\mathbb{Q}_{J}$ ein Wahrscheinlichkeitsmaß auf $(E^{J},\varepsilon^{ \otimes J})$. Die Familie $\lbrace \mathbb{Q}_{J} : J \subseteq I \: \mathrm{endlich}\rbrace$ heißt konsistent, wenn
+\begin{equation*}
+\mathbb{Q}_{J_{1}} = {\mathbb{Q}}_{J_{2}} \circ {({\pi_{J_{1}}}^{J_{2}})}^{-1} \qquad \forall \: J_{1} \subseteq J_{2} \subseteq I, \emptyset \neq J_{1},J_{2} \: \mathrm{endlich}
+\end{equation*}
+
+\textbf{Bemerkung 1.6}
+\mbox{}
+\begin{itemize}
+\item[(i)] Die endlich-dimensionalen Verteilungen eines stochastischen Prozesses bilden eine konsistente Familie
+\item[(ii)] Falls $I = \mathbb{N}_{0}$ ist, so genügt es $J \subseteq I $ endlich der Form $ J = \lbrace 0,1,..,n \rbrace$, $n \in \mathbb{N}_{0}$ zu wählen.
+\end{itemize}
+
+\textbf{Beispiel 1.3}
+Sei $I = \mathbb{N}_{0}$, $E = \mathbb{Z}^{2}$ und $\mathbb{Q}_{\lbrace 0,..,n \rbrace}$ die Gleichverteilung auf der Menge
+\begin{equation*}
+A_{n} = \lbrace (x_{0},...,x_{1}) \in E^{n+1} : x_{0} = 0, \; ||{x_{i} - x_{i-1}}|| = 1  \; \forall i = 1,..,n,\; x_{i} \neq x_{j} \; \forall i,j \in \lbrace 0,...,n \rbrace \rbrace
+\end{equation*}
+für $n \in \mathbb{N}_{0}$. Dann ist die zugehörige Familie $\lbrace \mathbb{Q}_{\lbrace 0,..,n \rbrace} : n \in \mathbb{N}_{0} \rbrace$ $\underline{\mathrm{NICHT}}$ konsistent.
+\begin{figure}[H]
+\includegraphics[scale=0.55]{beispiel12}
+\caption{Systemzustände n=1,...,4}
+\end{figure}
+
+Denn es gilt
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,..,3 \rbrace}[\lbrace x_{0},x_{1},x_{2},x_{3} \rbrace] = \dfrac{1}{36} \neq \dfrac{2}{100} = \mathbb{Q}_{\lbrace 0,..,4 \rbrace}[{({\pi_{\lbrace 0,..3 \rbrace}}^{ \lbrace 0,...4 \rbrace})}^{-1}(\lbrace x_{0},x_{1},x_{2},x_{3} \rbrace)]
+\end{equation*}
+
+\textbf{Definition 1.1}[Polnischer Raum]
+Ein topologischer Raum $(E,\tau)$ heißt polnischer Raum, falls er vollständig metrisierbar und seperabel ist
+
+\textbf{Bemerkung 1.6}
+\mbox{}  
+\begin{itemize}
+\item $(E,\tau)$ heißt vollständig metrisierbar, falls eine vollständige Metrik d auf E existiert, die $\tau$ erzeugt.
+\item $(E,\tau)$ heißt separabel, falls es eine abzählbare dichte Teilmenge $A \subseteq E$ gibt, d.h $\bar{A} = E$ 
+\end{itemize}
+
+\textbf{Bemerkung 1.6}
+Praktisch alle Räume, die in der Wahrscheinlichkeitstheorie bedeutsam sind, sind polnisch, z.B
+\begin{itemize}
+\item abzählbar, diskrete Räume, euklidische Räume $\mathbb{R}^{d}$
+\item $C([0,1]) = \lbrace f:[0,1] \to \mathbb{R} \: \: stetig \rbrace$ bzgl. Supremumsnorm
+\end{itemize}
+
+\textbf{Satz 1.1}[Existenzsatz von Daniel und Kolmogorov]
+\label{Existenzsatz von Daniel und Kolmogorov}
+Sei $(E, \varepsilon)$ ein polnischer Raum und $\lbrace \mathbb{Q}_{J} : J \subseteq I \: \mathrm{endlich}\rbrace$ eine konsistente Familie von Wahrscheinlichkeitsmaßen. Dann existiert genau ein Wahrscheinlichkeitsmaß $\mathbb{Q}$ auf $(E^{I},\varepsilon^{ \otimes I})$ mit der Eigenschaft
+\begin{equation}
+{\mathbb{Q}}_{J} = \mathbb{Q} \circ {\pi_{J}}^{-1} \qquad \forall J \subseteq I \: \: \mathrm{endlich}
+\label{eins}
+\end{equation}
+
+\textbf{Beweis 1.6}
+siehe Klenke, Satz 14.36
+
+\textbf{Bemerkung 1.6}
+Die Konstruktion von $\mathbb{Q}$ beruht auf dem Satz von Carathéodory
+\begin{itemize}
+\item $\mathcal{Z}$ ist eine Algebra und damit insbesondere ein Semiring. 
+\item Der Nachweis, dass die Mengenfunktion $\mathbb{Q}$ definiert durch (1) additiv ist, ist nicht allzu schwierig.
+\item Zum Nachweis der $\sigma$-Subadditivität von $\mathbb{Q}$ verwendet man ein Kompaktheitsargument, wobei hierzu benutzt wird, dass E polnisch ist.
+\end{itemize}
+\textbf{Korollar 1.2}
+Sei $(E,\varepsilon)$ ein polnischer Raum. Weiterhin sei $(X_{t})_{t\in I}$ ein stochastischer Prozess auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum $(E,\varepsilon)$. Dann existiert genau ein Wahrscheinlichkeitsmaß ${\mathbb{P}}_{X} = \mathbb{P} \circ {X}^{-1}$, dessen endlich-dimensionale Verteilung mit der gegebenen Familie 
+\begin{equation*}
+\lbrace \mathbb{P}_{X_{J}} : J \subseteq I \: \mathrm{endlich} \rbrace
+\end{equation*} 
+übereinstimmen.
+
+\textbf{Beweis 1.6}
+Nach Bemerkung 1.3 bilden die endlich-dimensionalen Verteilungen des stochastischen Prozesses $(X_{t})_{t\in I}$ eine konsistente Familie von Wahrscheinlichkeitsmaßen. Folglich ergibt sich die Aussage direkt aus Satz 1.1.
+

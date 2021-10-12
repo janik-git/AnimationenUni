@@ -1,0 +1,18 @@
+\label{Folgerung Dynkin Formel, (LR), (LT)}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette mit Zustandsraum E.
+\begin{itemize}
+\item[a)] Falls $\emptyset \neq A \subsetneq E$ und $h: E \to [0, \infty)$ existieren mit
+\begin{equation*}
+(Lh)(x) \leq 0 \quad \forall x \in A^{C} \quad und \quad h(y) < \inf_{z \in A} h(z) \: für \: ein \: y \in E \qquad (LT)
+\end{equation*} 
+so gilt
+\begin{equation*}
+\mathbb{P}_{y}[S_{A} < \infty] \leq \dfrac{h(y)}{\inf_{z \in A} h(z)} < 1
+\end{equation*}
+Insbesondere ist jeder Zustand $y \in E$ transient.
+\item[b)] Falls eine endliche Menge $\emptyset \neq A \subsetneq E$ und $h: E \to [0, \infty)$ existieren mit
+\begin{equation*}
+(Lh)(x) \leq 0 \quad \forall x \in A^{C} \quad und \quad \vert \lbrace x \: : \: h(x) \leq c \rbrace \vert < \infty \quad c \geq 0 \qquad (LR)
+\end{equation*}
+so gilt $\mathbb{P}_{x}[S_{A}< \infty] = 1$ für alle $x \in E$. Insbesondere ist jeder Zustand $y \in E$ rekurrent.
+\end{itemize}

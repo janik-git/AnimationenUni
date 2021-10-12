@@ -1,0 +1,49 @@
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, folgt $x \leftrightarrow y$ für alle $x,y \in E$. Insbesondere sind nach Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ und $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$ alle Zustände entweder rekurrent oder transient, d.h.
+\begin{itemize}
+\item[a)] $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] = 1 \: \forall y \in E$
+\item[b)] $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] < 1 \: \forall y \in E$
+\end{itemize}
+Sei nun $x,y \in E$ mit $x \neq y$. Dann existieren wegen $x \leftrightarrow y$ ein $n \in \mathbb{N}$ so, dass
+\begin{equation*}
+n = \min \lbrace k \in \mathbb{N} \: : \: p_{k}(y,x)>0 \rbrace.
+\end{equation*}
+Dann gilt für jedes N>n
+\begin{equation*}
+\mathbb{P}_{y}[S_{\lbrace y \rbrace} \leq N, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{N} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{n-1} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k]\mathbb{P}_{y}[X_{n} = x \: | \: X_{S_{\lbrace y \rbrace}} = y, S_{\lbrace y \rbrace} = k] + \sum_{k=n+1}^{N} \mathbb{P}_{y}[X_{n} =x]\mathbb{P}_{y}[S_{\lbrace y \rbrace} = k \: | \: X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{n-1} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k]\mathbb{P}_{y}[X_{n-k} = x] + \sum_{k=n+1}^{N} \mathbb{P}_{y}[X_{n} =x]\mathbb{P}_{y}[S_{\lbrace y \rbrace} = k-n]
+\end{equation*}
+wobei im letzten Schritt sowohl die Markoveigenschaft als auch die starke Markoveigenschaft benutzt wurde. Zudem gilt nach Wahl von n, dass
+\begin{equation*}
+\mathbb{P}_{y}[X_{n-k} = x] = 0 \quad \forall \; k \in \lbrace 1,2,...,n-1 \rbrace
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \lim_{N \to \infty} \mathbb{P}_{y}[S_{\lbrace y \rbrace} \leq N, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= p_{n}(y,x) \sum_{k=n+1}^{\infty}\mathbb{P}_{x}[S_{\lbrace y \rbrace} = k-n]
+\end{equation*}
+\begin{equation*}
+ = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty]
+\end{equation*}
+\begin{itemize}
+\item[a)] Ist nun $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] = 1$, so folgt
+\begin{equation*}
+p_{n}(y,x) = \mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x] = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] \: \Leftrightarrow \: \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] = 1 
+\end{equation*}
+\item[b)] Ist nun $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] < 1$, so gilt
+\begin{equation*}
+p_{n}(y,x) > \mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x] = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] \: \Leftrightarrow \: \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] < 1 
+\end{equation*}
+\end{itemize}

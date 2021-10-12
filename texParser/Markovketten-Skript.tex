@@ -1,0 +1,3244 @@
+\documentclass[a4paper,12pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsfonts}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{float} 
+\usepackage{graphicx}
+\usepackage{bbm}
+\usepackage{ulem}
+\usepackage[Optionen]{xcolor}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+
+\title{Markov-Ketten}
+\author{Martin Slowik}
+\date{15. März 2021}
+\theoremstyle{definition}
+\newtheorem{noti}{Notation}[section]
+\newtheorem{lemi}{Lemma}[section]
+\newtheorem{bem}{Bemerkung}[section]
+\newtheorem{sat}{Satz}[section]
+\newtheorem{kol}{Korollar}[section]
+\newtheorem{beti}{Erklärung}[section]
+\def\@bspAltI{\let\oldnewline\newline
+        \let\newline\relax
+        \@bspAlt\leavevmode\global\let\newline\oldnewline}
+\newtheorem{bsp}{Beispiel}[section]
+\newtheorem{defi}{Definition}[section]
+\usepackage{etoolbox}
+\usepackage[format=plain, indention=0cm,margin=0.7cm]{caption}
+\setkomafont{captionlabel}{\normalsize\bfseries}
+\let\bbordermatrix\bordermatrix
+\patchcmd{\bbordermatrix}{8.75}{4.75}{}{}
+\patchcmd{\bbordermatrix}{\left(}{\left[}{}{}
+\patchcmd{\bbordermatrix}{\right)}{\right]}{}{}
+
+\newcommand*\diff{\mathop{}\!\mathrm{d}}
+\newcommand*\Diff[1]{\mathop{}\!\mathrm{d^#1}}
+\usepackage[automark]{scrlayer-scrpage}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\setkomafont{disposition}{\normalcolor\bfseries}
+\setkomafont{section}{\huge}
+\renewcommand*\sectionformat{}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm}
+
+\begin{document}
+\maketitle
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.7]{randomWalk}
+\end{figure}
+\renewcommand{\thefootnote}{}
+\footnote{Skriptschreiber: Finn Jerg}\footnote{Besonderen Dank an Tilman Aach, Pius Carbon und Ryan Weber für das Finden von Tippfehlern.}
+\vspace{2cm}
+\noindent
+\tableofcontents
+
+\vspace*{13cm}
+%\vspace*{10cm}
+\clearpairofpagestyles
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+
+\section{Markovprozesse mit diskretem Zustandsraum}
+
+
+\subsection{Stochastische Prozesse und ihre Verteilung}
+Sei $(\Omega, \mathfrak{F}, \mathbb{P})$ ein Wahrscheinlichkeitsraum, $(E, \varepsilon)$ ein meßbarer Raum und I eine nichtleere Indexmenge z.B 
+\begin{itemize}
+    \item E ist endlich oder abzählbar unendlich
+    \item E = $\mathbb{R},\: \mathbb{R}^{d}$
+    \item E ist ein Funktionsraum
+    \item I = endlich, $\: \mathbb{N}_{0},\: \mathbb{Z}$ (diskret)
+    \item I = $\: [0,\infty), \:\mathbb{R}, \:\mathbb{R}^{d}$ (kontinuierlich)
+\end{itemize}
+Interpretation: E ist der Zustandsraum(\glqq Ort\grqq{}) und I ist die \glqq Zeit\grqq{}.
+
+\begin{defi}[Stochastischer Prozess]
+Ein stochastischer Prozess auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Werten im Zustandsraum $(E, \varepsilon)$ ist eine Familie $(X_{t})_{t\in I}$ von E-wertigen Zufallsvariablen. Für festes $\omega \in \Omega$ heißt die Abbildung
+\\
+\begin{equation*}
+I \ni t \mapsto X_{t}(\omega)
+\end{equation*}
+\\
+eine Trajektorie(Pfad, Realisierung) von $(X_{t})_{t\in I}$. Falls I = $\mathbb{N}_{0}$ oder I = $[0,\infty)$, so heißt die Verteilung von $X_{0}$ die Startverteilung des stochastischen Prozesses.
+\end{defi}
+\begin{bem}
+Falls E diskret ist, so bezeichnet man eine Verteilung auch als Wahrscheinlichkeitsvektor.
+\end{bem} 
+\noindent 
+Unser Ziel ist es die Verteilung des stochastischen Prozesses $(X_{t})_{t\in I}$ zu charakterisieren. Zunächst einmal lässt sich der Produktraum $E^{I}$ auch als Menge $\lbrace x: I \to E\rbrace$ aller Abbildungen von I nach E interpretieren. 
+\\
+\\
+\textcolor{red}{Frage?} Wie lässt sich die zugehörige Produkt-$\sigma$-Algebra $\varepsilon^{ \otimes I}$ charakterisieren?
+\begin{defi}[Produkt-$\sigma$-Algebra]
+Die Produkt-$\sigma$-Algebra $\varepsilon^{ \otimes I}$ ist die kleinste $\sigma$-Algebra über $E^{I}$, die die Menge $\mathcal{Z}$ aller endlich-dimensionalen Rechtecke(Zylindermenge) der Form
+\begin{equation*}
+\lbrace x \in E^{I} : x_{t_{1}} \in B_{1}, x_{t_{2}} \in B_{2},..., x_{t_{n}} \in B_{n}   \rbrace 
+\end{equation*}
+mit n $\in \mathbb{N}$, $t_{1},..., t_{n} \in I \: und \:B_{1},...,B_{n} \in \varepsilon $ enthält.
+\end{defi}
+
+\begin{lemi}
+Sei $(X_{t})_{t\in I}$ ein stochastischer Prozess mit Zustandsraum $(E,\varepsilon)$, und definiere die Abbildung $X:(\Omega,\mathfrak{F}) \to (E^{I},\varepsilon^{ \otimes I})$ durch $X(\omega) := (X_{t}(\omega))_{t\in I} $. 
+Dann ist X meßbar. 
+\end{lemi}
+\begin{proof}
+Übungsaufgabe.
+\end{proof}
+\noindent 
+
+\begin{defi}[Verteilung eines stochastischen Prozesses]
+Die Verteilung eines stochastischen Prozesses $(X_{t})_{t\in I}$ auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum $(E, \varepsilon)$ ist das Bildmaß $\mathbb{P}$ unter der in Lemma 1.1 definierten Abbildung X, d.h.
+\begin{equation*} 
+{{\mathbb{P}}_{X}}[B] := (\mathbb{P} \circ X^{-1})[B] = \mathbb{P}[ \lbrace \omega \in \Omega : X(\omega) \in B\rbrace] , \: B \in \varepsilon^{ \otimes I}
+\end{equation*}
+\end{defi}
+\noindent
+\textcolor{red}{Frage?} Welcher Zusammenhang besteht zwischen der Verteilung eines stochastischen Prozesses und der Verteilung des Prozesses an endlich vielen Zeitpunkten?
+\\
+\\
+Betrachte zwei nicht-leere, endliche Teilmengen $J,k \subseteq I$ mit $k \subseteq J$. Definiere
+\begin{equation*}
+\pi_{J}: E^{I} \to E^{J}, \qquad  {(X_{t})}_{t\in I} \mapsto \pi_{J}{(X_{t})}_{t\in I}:= {(X_{t})}_{t\in J}
+\end{equation*}
+\begin{equation*}
+{\pi_{k}}^{J}: E^{J} \to E^{k}, \qquad  {(X_{t})}_{t\in J} \mapsto {\pi_{k}}^{J}{(X_{t})}_{t\in J}:= {(X_{t})}_{t\in k}
+\end{equation*}
+die endlich-dimensionale Projektionen.
+\\
+\\
+Da $\varepsilon^{ \otimes I}$ von den Mengen ${({\pi_{\lbrace t \rbrace}}^{J})}^{-1}(A)$, $t \in J, \: A \in \varepsilon$ erzeugt wird und
+\begin{equation*}
+{\pi_{J}}^{-1}({({\pi_{\lbrace t \rbrace}}^{J})}^{-1}(A)) = {({\pi_{\lbrace t \rbrace}}^{J} \circ \pi_{J})}^{-1}(A) = {\pi_{\lbrace t \rbrace}}^{-1}(A) \in \varepsilon^{ \otimes I} 
+\end{equation*}
+ist folglich $\pi_{J} \: \:  (\varepsilon^{ \otimes I}, \varepsilon^{ \otimes J})$-meßbar.
+\begin{defi}[endlich-dimensionale Verteilung eines stochastischen Prozesses]
+Sei $X = {(X_{t})}_{t\in I}$ ein stochastischer Prozess mit Verteilung ${\mathbb{P}}_X$ auf $(E^{I},\varepsilon^{ \otimes I})$ und $J \subseteq I$ eine nichtleere, endliche Teilmenge von I. Setze $X_{J} := {(X_{t})}_{t\in J} = \pi_{J}(X)$. Die Wahrscheinlichkeitsverteilung ${{\mathbb{P}}_X}_{J}$ heißt endlich-dimensionale Verteilung von X.
+\end{defi}
+\begin{noti}
+Für $B \in \varepsilon^{ \otimes J}$ ist ${{\mathbb{P}}_{X_{J}}}[B] = {\mathbb{P} \circ {{(X_{t})}}_{t\in J}^{-1}[B] = \mathbb{P}[(X_{t})}_{t\in J} \in B]$. 
+\end{noti}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{lemi}
+\label{Teilmengen Lemma}
+Sei $X = {(X_{t})}_{t\in I}$ ein stochastischer Prozess mit Zustandsraum $(E,\varepsilon)$.
+\begin{itemize}
+\item[(i)] Für jede endliche Teilmenge $J \neq \emptyset$ von I gilt
+\begin{equation*}
+{{\mathbb{P}}_{X_{J}}} = {\mathbb{P}}_{X} \circ {\pi_{J}}^{-1}
+\end{equation*}
+\item[(ii)] Für je zwei nicht-leere, endliche Teilmengen $J_{1},J_{2} \subseteq I$ mit $J_{1} \subseteq J_{2}$ gilt
+\begin{equation*}
+{{\mathbb{P}}_{X_{J_{1}}}} = {\mathbb{P}}_{X_{J_{2}}} \circ {({\pi_{J_{1}}}^{J_{2}})}^{-1}
+\end{equation*}
+\end{itemize}
+\end{lemi}
+\begin{proof}                                                                                                  
+\mbox{}
+\begin{itemize}
+\item[(i)] Wegen $X_{J} = \pi_{J}({(X_{t})}_{t\in I}) = \pi_{J} \circ X$ gilt 
+\begin{equation*}
+{\mathbb{P}}_{X_{J}} = \mathbb{P} \circ {X_{J}}^{-1} = \mathbb{P} \circ {(\pi_{J} \circ X)}^{-1} = (\mathbb{P} \circ X^{-1}) \circ {\pi_{J}}^{-1} = \mathbb{P}_{X} \circ {\pi_{J}}^{-1} 
+\end{equation*}
+
+\item[(ii)] Wegen $X_{J_{1}} = {\pi_{J_{1}}}^{J_{2}} \circ X_{J_{2}}$ folgt die Behauptung aus (i).
+
+\end{itemize}
+\end{proof}
+\noindent
+\textcolor{red}{Frage?} Ist es auch möglich die unendlich-dimensionale Verteilung eindeutig durch die endlich-dimensionale Verteilung festzulegen?
+\begin{lemi}
+Für jedes $J \subseteq I$ sei ein Wahrscheinlichkeitsmaß $\mathbb{Q}_{J}$ auf  $(E^{J},\varepsilon^{ \otimes J})$ gegeben. Dann existiert höchstens ein Wahrscheinlichkeitsmaß $\mathbb{Q}$ auf $(E^{I},\varepsilon^{ \otimes I})$ mit
+\begin{equation*}
+{\mathbb{Q}}_{J} = \mathbb{Q} \circ {\pi_{J}}^{-1} 
+\end{equation*}
+für alle endlichen $\emptyset \neq J \subseteq J$.
+\end{lemi}
+\begin{proof}
+Da nach Aufgabe 2 die Menge $\mathcal{Z}$ der endlich-dimensionalen Rechtecke einen $\cap$-stabilen Erzeuger von $\varepsilon^{ \otimes I}$ bilden und
+\begin{equation*}
+\mathbb{Q}[\lbrace x \in E^{I} : x_{j} \in A_{j}, \: \forall j \in J\rbrace] = \mathbb{Q}[{\pi_{J}}^{-1}(\times_{j \in J} \: A_{j})] = (\mathbb{Q} \circ {\pi_{J}}^{-1})[\times_{j \in J} \: A_{j}] = \mathbb{Q}_{J}[\times_{j \in J} \: A_{j}]  
+\end{equation*}
+für alle $\emptyset \neq J \subseteq I$ endlich und $A_{j} \in \varepsilon$ für alle $j \in J$, folgt die Aussage aus dem Eindeutigkeitssatz für Maße. 
+\end{proof}
+\noindent
+\textcolor{red}{Warnung!} Die eindimensionalen Verteilungen legen $\mathbb{Q}$ im Allgemeinen nicht fest.
+\begin{bsp}
+Betrachte eine Folge ${(X_{n})}_{n \in N_{0}}$ von unabhängig, identisch verteilten Zufallsvariablen und ${(Y_{n})}_{n \in N_{0}}$ sei definiert durch $Y_{n} = X_{0}$ für alle $n \in \mathbb{N}$.
+\end{bsp}
+\begin{defi}[konsistente Familie von Wahrscheinlichkeitsmaßen]
+Für jedes $\emptyset \neq J \subseteq I$ endlich sei $\mathbb{Q}_{J}$ ein Wahrscheinlichkeitsmaß auf $(E^{J},\varepsilon^{ \otimes J})$. Die Familie $\lbrace \mathbb{Q}_{J} : J \subseteq I \: \mathrm{endlich}\rbrace$ heißt konsistent, wenn
+\begin{equation*}
+\mathbb{Q}_{J_{1}} = {\mathbb{Q}}_{J_{2}} \circ {({\pi_{J_{1}}}^{J_{2}})}^{-1} \qquad \forall \: J_{1} \subseteq J_{2} \subseteq I, \emptyset \neq J_{1},J_{2} \: \mathrm{endlich}
+\end{equation*}
+\end{defi}
+\begin{bem}
+\mbox{}
+\begin{itemize}
+\item[(i)] Die endlich-dimensionalen Verteilungen eines stochastischen Prozesses bilden eine konsistente Familie
+\item[(ii)] Falls $I = \mathbb{N}_{0}$ ist, so genügt es $J \subseteq I $ endlich der Form $ J = \lbrace 0,1,..,n \rbrace$, $n \in \mathbb{N}_{0}$ zu wählen.
+\end{itemize}
+\end{bem}
+\begin{bsp}
+Sei $I = \mathbb{N}_{0}$, $E = \mathbb{Z}^{2}$ und $\mathbb{Q}_{\lbrace 0,..,n \rbrace}$ die Gleichverteilung auf der Menge
+\begin{equation*}
+A_{n} = \lbrace (x_{0},...,x_{1}) \in E^{n+1} : x_{0} = 0, \; ||{x_{i} - x_{i-1}}|| = 1  \; \forall i = 1,..,n,\; x_{i} \neq x_{j} \; \forall i,j \in \lbrace 0,...,n \rbrace \rbrace
+\end{equation*}
+für $n \in \mathbb{N}_{0}$. Dann ist die zugehörige Familie $\lbrace \mathbb{Q}_{\lbrace 0,..,n \rbrace} : n \in \mathbb{N}_{0} \rbrace$ $\underline{\mathrm{NICHT}}$ konsistent.
+\begin{figure}[H]
+\includegraphics[scale=0.55]{beispiel12}
+\caption{Systemzustände n=1,...,4}
+\end{figure}
+
+Denn es gilt
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,..,3 \rbrace}[\lbrace x_{0},x_{1},x_{2},x_{3} \rbrace] = \dfrac{1}{36} \neq \dfrac{2}{100} = \mathbb{Q}_{\lbrace 0,..,4 \rbrace}[{({\pi_{\lbrace 0,..3 \rbrace}}^{ \lbrace 0,...4 \rbrace})}^{-1}(\lbrace x_{0},x_{1},x_{2},x_{3} \rbrace)]
+\end{equation*}
+\end{bsp}
+\begin{defi}[Polnischer Raum]
+Ein topologischer Raum $(E,\tau)$ heißt polnischer Raum, falls er vollständig metrisierbar und seperabel ist
+\end{defi}
+\begin{bem}
+\mbox{}  
+\begin{itemize}
+\item $(E,\tau)$ heißt vollständig metrisierbar, falls eine vollständige Metrik d auf E existiert, die $\tau$ erzeugt.
+\item $(E,\tau)$ heißt separabel, falls es eine abzählbare dichte Teilmenge $A \subseteq E$ gibt, d.h $\bar{A} = E$ 
+\end{itemize}
+\end{bem}
+\begin{bem}
+Praktisch alle Räume, die in der Wahrscheinlichkeitstheorie bedeutsam sind, sind polnisch, z.B
+\begin{itemize}
+\item abzählbar, diskrete Räume, euklidische Räume $\mathbb{R}^{d}$
+\item $C([0,1]) = \lbrace f:[0,1] \to \mathbb{R} \: \: stetig \rbrace$ bzgl. Supremumsnorm
+\end{itemize}
+\end{bem}
+\begin{sat}[Existenzsatz von Daniel und Kolmogorov]
+\label{Existenzsatz von Daniel und Kolmogorov}
+Sei $(E, \varepsilon)$ ein polnischer Raum und $\lbrace \mathbb{Q}_{J} : J \subseteq I \: \mathrm{endlich}\rbrace$ eine konsistente Familie von Wahrscheinlichkeitsmaßen. Dann existiert genau ein Wahrscheinlichkeitsmaß $\mathbb{Q}$ auf $(E^{I},\varepsilon^{ \otimes I})$ mit der Eigenschaft
+\begin{equation}
+{\mathbb{Q}}_{J} = \mathbb{Q} \circ {\pi_{J}}^{-1} \qquad \forall J \subseteq I \: \: \mathrm{endlich}
+\label{eins}
+\end{equation}
+\end{sat}
+\begin{proof}
+siehe Klenke, Satz 14.36
+\end{proof}
+\begin{bem}
+Die Konstruktion von $\mathbb{Q}$ beruht auf dem Satz von Carathéodory
+\begin{itemize}
+\item $\mathcal{Z}$ ist eine Algebra und damit insbesondere ein Semiring. 
+\item Der Nachweis, dass die Mengenfunktion $\mathbb{Q}$ definiert durch (1) additiv ist, ist nicht allzu schwierig.
+\item Zum Nachweis der $\sigma$-Subadditivität von $\mathbb{Q}$ verwendet man ein Kompaktheitsargument, wobei hierzu benutzt wird, dass E polnisch ist.
+\end{itemize}
+\begin{kol}
+Sei $(E,\varepsilon)$ ein polnischer Raum. Weiterhin sei $(X_{t})_{t\in I}$ ein stochastischer Prozess auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum $(E,\varepsilon)$. Dann existiert genau ein Wahrscheinlichkeitsmaß ${\mathbb{P}}_{X} = \mathbb{P} \circ {X}^{-1}$, dessen endlich-dimensionale Verteilung mit der gegebenen Familie 
+\begin{equation*}
+\lbrace \mathbb{P}_{X_{J}} : J \subseteq I \: \mathrm{endlich} \rbrace
+\end{equation*} 
+übereinstimmen.
+\end{kol}
+\begin{proof}
+Nach Bemerkung 1.3 bilden die endlich-dimensionalen Verteilungen des stochastischen Prozesses $(X_{t})_{t\in I}$ eine konsistente Familie von Wahrscheinlichkeitsmaßen. Folglich ergibt sich die Aussage direkt aus Satz 1.1.
+\end{proof}
+\end{bem}
+\subsection{Markovketten auf abzählbaren Zustandsräumen}
+Im folgenden sei E endlich oder abzählbar unendlich, $\varepsilon = 2^{E}$ die Potenzmenge und $I = \mathbb{N}_{0}$ 
+\begin{defi}[Markoveigenschaft]
+Ein stochastischer Prozess $(X_{n})_{n \in \mathbb{N}_{0}}$ auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Werten in E besitzt die (elementare) Markoveigenschaft, wenn für jedes $n \in \mathbb{N}_{0}$ und alle $x_{0},...,x_{n+1} \in E$ mit $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$ gilt
+\begin{equation*}
+\mathbb{P}[X_{n+1} = x_{n} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}] = \mathbb{P}[X_{n+1} = x_{n} \: | \: X_{n} = x_{n}] 
+\end{equation*}
+Falls zudem für alle $n \in \mathbb{N}_{0}$ und $x,y \in E$ gilt, dass
+\begin{equation*}
+\mathbb{P}[X_{n+1} = y \: | \: X_{n} = x] = \mathbb{P}[X_{1} = y \: | \: X_{0} = x]
+\end{equation*}
+so besitzt $(X_{n})_{n \in \mathbb{N}_{0}}$ die zeithomogene Markoveigenschaft.
+\end{defi}
+%Begin_Zusatz
+\begin{beti}
+Die Markov-Eigenschaft liefert uns, dass die Zukunft allein von der Gegenwart abhängt. Vorangegangene Ereignisse sind für den nächsten Übergang nicht von Bedeutung. Genügt die Markov-Kette zusätzlich der Zeithomogenität entspricht die Chance für einen bestimmten Zustandswechsel im ersten Schritt jener zum fünften, letzten oder
+jedem beliebigen anderen Zeitpunkt.
+\end{beti}
+%End_Zustatz
+\begin{bsp}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Folge von unabhängigen Zufallsvariablen mit Werten in E. Dann gilt für jedes $n \in \mathbb{N}_{0}$ und $x_{0},...,x_{n+1} \in E$ mit $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$
+\begin{equation*}
+\mathbb{P}[X_{n+1} = x_{n} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}] = \mathbb{P}[X_{n+1} = x_{n+1}] = \mathbb{P}[X_{n+1} = x_{n} \: | \: X_{n} = x_{n}]
+\end{equation*}
+Folglich besitzt die Folge $(X_{n})_{n \in \mathbb{N}_{0}}$ die Markoveigenschaft. Falls die Zufallsvariablen zudem identisch verteilt sind, d.h. $\mathbb{P}[X_{n+1} = x] = \mathbb{P}[X_{1} = x]$ für alle $n \in \mathbb{N}_{0}$, so hat $(X_{n})_{n \in \mathbb{N}_{0}}$ die zeithomogene Markoveigenschaft.
+\end{bsp}
+\begin{bsp}
+Sei $(Y_{n})_{n \in \mathbb{N}_{0}}$ eine Folge von unabhängigen Zufallsvariablen mit Werten in E. Setze $(X_{n})_{n \in \mathbb{N}_{0}} := \max \lbrace Y_{0},...,Y_{n} \rbrace, \: n \in \mathbb{N}_{0}$. Dabei besitzt $(X_{n})_{n \in \mathbb{N}_{0}}$ die Markoveigenschaft, denn für jedes $n \in \mathbb{N}_{0}$ und $x_{0},...,x_{n+1} \in E$ mit $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$ gilt 
+\begin{equation*}
+\mathbb{P}[X_{n+1} = x_{n+1} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}]  
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[\max\lbrace x_{n}, Y_{n+1} \rbrace = x_{n+1} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[\max\lbrace x_{n}, Y_{n+1} \rbrace 
+= x_{n+1}] 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[\max\lbrace x_{n}, Y_{n+1} \rbrace = x_{n+1} \: | \: X_{n} = x_{n}] 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[X_{n+1} = x_{n+1} \: | \: X_{n} = x_{n}]
+\end{equation*}
+\end{bsp}
+\begin{defi}[stochastiche Matrix]
+Eine Matrix $P=(p(x,y))_{x,y \in E}$ heißt stochastisch oder Übergangsmatrix, falls
+\begin{itemize}
+\item[(i)] $p(x,y) \ge 0$ für alle $x,y \in E$
+\item[(ii)] $\sum_{y \in E} \: p(x,y) = 1$ für alle $x \in E$
+\end{itemize}
+%begin_Zusatz
+Dabei beschreibt p(x,y) die Wahrscheinlichkeit eines Wechsels von x nach y. Folglich ist es sinnvoll in (ii) zu fordern, dass die Wahrscheinlichkeiten aller möglichen Übergänge, sich zu Eins summieren.
+%end_Zusatz
+\end{defi}
+\begin{sat}[Chapman-Kolmogorov Gleichung]
+\label{Chapman-Kolmogorov Gleichung}
+Für jede stochastische Matrix $P =(p(x,y))_{x,y \in E}$  sei $P^{n} =(p_{n}(x,y))_{x,y \in E}$, $n \in \mathbb{N}_{0}$. Dann gilt für alle $m,n \in \mathbb{N}_{0}$
+\begin{equation*}
+p_{m+n} (x,y) = \sum_{z \in E} \: p_{m}(x,z) p_{n}(z,y) \qquad \forall \: x,y \in E
+\end{equation*}
+\end{sat}
+\begin{proof}
+Dies folgt direkt aus der Beziehung $P^{m+n} = P^{m} \: \cdot \: P^{n}$ durch ausschreiben der Koeffizienten. 
+\end{proof}
+%Begin_Zusatz
+\noindent
+\begin{bsp}[Chapman-Kolmogorov Gleichung] Um die Motivation hinter der Chapman-Kolmogrov Gleichung zu verstehen, soll dieses einfache Beispiel dienen. Sei $ E = \lbrace A,B,C, \rbrace$ ein Zustandsraum und darauf folgende stochastische Matrix, die wir im folgenden mit $P$ bezeichnen:
+
+\begin{equation*}
+\bbordermatrix{
+  & A   & B   & C  \cr
+A & 0 & 0.5 & 0.5 \cr
+B & 1 & 0 & 0 \cr
+C & 0.5 & 0.5 & 0  \cr
+}
+\end{equation*}
+\newline
+\newline
+Man kann leicht nachprüfen, dass $P$ den Anforderungen in Definition 1.8 genügt. Im weiteren seien wir an $p_{2}(A,A)$ interessiert. Also der Wahrscheinlichkeit, nach zwei Durchläufen wieder im Startpunkt A zu sein. Chapman-Kolmogorov liefert uns:  
+\begin{equation*}
+p_{2} (A,A) = \sum_{z \in E} \: p_{1}(A,z) p_{1}(z,A) 
+\end{equation*}
+\begin{equation*}
+= p(A,A) \: \cdot \: p(A,A) \: + \: p(A,B) \: \cdot \: p(B,A) \: + \: p(A,C) \: \cdot \: p(C,A) = 0.75
+\end{equation*}
+Wobei hier alle Möglichkeiten von A nach A in zwei Durchläufen zu gelangen betrachtet wurden. Ist man ferner an der Matrix $P^{2}$ interessiert, so ist es demnach hinreichend $P = P \cdot P$ zu berechnen
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c|l}
+       &  $ \begin{bmatrix} 0 & 0.5 & 0.5 \\ 1 & 0 & 0 \\ 0.5 & 0.5 & 0 \end{bmatrix} $ \\[7mm]
+      \hline \\ [-3mm]
+    $ \begin{bmatrix} 0 & 0.5 & 0.5 \\ 1 & 0 & 0 \\ 0.5 & 0.5 & 0 \end{bmatrix} $ &
+    $ \begin{bmatrix} \textcolor{red} {0 \cdot 0 + 0.5 \cdot 1 + 0.5 \cdot 0.5 }& 0.25 & 0\\ 
+                 0 & 0.5 & 0.5 \\ 
+                  0.5 & 0.25 & 0.25    \end{bmatrix} $
+  \end{tabular}
+\end{table}
+\end{bsp}
+%End_Zusatz
+\begin{bsp}
+Sei $E = \lbrace 1,2 \rbrace$ und $\alpha, \beta \in [0,1]$
+\begin{figure}[H]
+\includegraphics[scale=0.4]{beispiel15}
+\caption{Veranschaulichung einer stochastischen Matrix mittels Übergangsgraphen}
+\end{figure}
+\end{bsp}
+\begin{defi}[zeithomogene Markovkette]
+\label{zeithomogene Markovkette}
+Sei  $P =(p(x,y))_{x,y \in E}$ eine stochastische Matrix und $\nu: E \to [0,1]$ ein Wahrscheinlichkeitsvektor. Ein stochastischer Prozess $(X_{n})_{n \in \mathbb{N}_{0}}$ auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum E heißt (zeithomogene) Markovkette mit Übergangsmatrix $P$ und Startverteilung $\nu$ (kurz: $(\nu,P)$-Markovketten), falls
+\\
+\\
+(i) Für alle $n \in \mathbb{N}_{0}$ und $x_{0},...,x_{n+1} \in E$ mit $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$ gilt
+\begin{equation*}
+\mathbb{P}[X_{n+1} = x_{n+1} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}] = p(x_{n},x_{n+1})
+\end{equation*}
+(ii) Für alle $x_{0} \in E$ gilt
+\begin{equation*}
+\mathbb{P}[X_{0} = x_{0}]  = \nu(x_{0})
+\end{equation*}
+\end{defi}
+\begin{noti}
+Um die Startverteilung zu betonen, schreiben wir auch $\mathbb{P}_{\nu}$ bzw. $\mathbb{P}_{x}$ falls $\nu = \mathbbm{1}_{ \lbrace x \rbrace}$.
+%Begin_Zusatz
+Dabei steht $\mathbb{P}_{\nu} = [X_{n} = y]$ bzw. $\mathbb{P}_{x} = [X_{n} = y]$ für die Wahrscheinlichkeit bei Anfangsverteilung $\nu$ bzw. Start im Zustand $x_{0}$ im n-ten Schritt y zu realisieren
+%End_Zusatz
+\end{noti}
+\begin{bem}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ ein E-wertiger stochastischer Prozess, der die zeithomogene Markoveigenschaft besitzt. Dann ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette mit Zustandsraum E, Startverteilung $\nu = \mathbb{P} \circ {X_{0}}^{-1}$ und Übergangsmatrix $P =(p(x,y))_{x,y \in E}$ mit
+\begin{equation*}
+p(x,y) := \mathbb{P}[X_{1} = y \: | \: X_{0} = x]
+\end{equation*}
+\end{bem}
+\begin{bsp}
+Sei $(Y_{n})_{n \in \mathbb{N}_{0}}$ eine Folge u.i.v. Zufallsvariablen mit 
+\\
+$\mathbb{P}[Y_{1} = 1] = \mathbb{P}[Y_{1} = -1] =\dfrac{1}{2}$. Setze $X_{0} = 1$ und $X_{n} = Y_{n}, n \in \mathbb{N}$. Dann besitzt $(X_{n})_{n \in \mathbb{N}_{0}}$ wegen Beispiel 1.3 die zeithomogene Markoveigenschaft und ist somit wegen Bemerkung 1.6 eine Markovkette auf dem Zustandsraum $E = \lbrace -1,+1  \rbrace$ mit Startverteilung $\nu = \mathbbm{1}_{\lbrace 1 \rbrace}$ und Übergangsmatrix 
+\begin{equation*}
+P =(p(x,y))_{x,y \in E} \: \: \:  und \: \: \: p(x,y) = \dfrac{1}{2}
+\end{equation*}
+\end{bsp}
+%Begin_Zusatz
+\begin{bsp}[Irrfahrt auf $\mathbb{Z}$]
+Sei $E = \mathbb{Z}$ mit
+\\
+\\
+$p(x,y)=
+\begin{cases}
+\dfrac{1}{2} &  |x - y| = 1\\
+0 & sonst
+\end{cases}$
+\\
+\\
+Diese Markovkette beschreibt ein Teilchen, das pro Zeiteinheit auf $\mathbb{Z}$ um eins nach rechts oder
+links springt, und zwar immer mit Wahrscheinlichkeit $\dfrac{1}{2}$. Die Übergangsmatrix $P = (p(x,y))_{x,y \in \mathbb{Z}}$
+ist dann eine unendlich große Triagonalmatrix, die auf der Hauptdiagonalen ausschließlich Nullen hat und auf den beiden Nebendiagonalen immer den Wert $\dfrac{1}{2}$.
+Das Anfangsstück eines Pfades der symmetrischen Irrfahrt (mit Start in Null) kann zum Beispiel so aussehen (linear interpoliert):
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.55]{beispiel18}
+\caption{Realisierung einer symmetrischen Irrfahrt}
+\end{figure}
+\end{bsp}
+%End_Zusatz
+
+\begin{bsp}[Irrfahrt auf $\mathbb{Z}^{d}$]
+Sei $\mu$ eine Wahrscheinlichkeitsverteilung auf $\mathbb{Z}^{d}$ . Setze
+\begin{equation*}
+p(x,y) = \mu(x-y) \qquad \forall \: x,y \in \mathbb{Z}^{d}
+\end{equation*}
+Offensichtlich ist $P =(p(x,y))_{x,y \in \mathbb{Z}^d}$ eine stochastische Matrix. Dann nennt man $(\mathbbm{1}_{x},\mathbb{P})$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Irrfahrt(random walk) auf $\mathbb{Z}^{d}$ mit Start in $x \in \mathbb{Z}^{d}$. Im Spezialfall, dass
+\begin{equation*}
+\mu(x)=
+\begin{cases}
+\dfrac{1}{2d} &  ,|x|=1\\
+0 & ,\mathrm{sonst}
+\end{cases}
+\end{equation*}
+nennt man $(X_{n})_{n \in \mathbb{N}_{0}}$ eine einfache, symmetrische Irrfahrt.
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.85]{beispiel17(2)}
+\caption{Symmetrische Irrfahrt auf $\mathbb{Z}^2$}
+\end{figure}
+\end{bsp}
+\begin{bsp}[Irrfahrt auf $\lbrace 0,...,N \rbrace$]
+Eine $(\nu,P)$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ ist eine einfache Irrfahrt auf $E = \lbrace0,...,N \rbrace$ mit Startverteilung $\nu$, wenn $P$ durch folgenden Übergangsgraphen gegeben ist
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.36]{beispiel19}
+\caption{Irrfahrt auf $\lbrace 0,...,N \rbrace$}
+\end{figure}
+\noindent
+Der Rand x = 0 heißt absorbierend, wenn p(0,0) = 1 (d.h. a=0) bzw. refklektierend, wenn p(0,1) = 1 (d.h. a=1).
+
+\end{bsp}
+
+\begin{bsp}[Irrfahrt auf dem Torus ${(\mathbb{Z}/N\mathbb{Z})}^{d}$]
+Sei $E = (\mathbb{Z} \: mod \: N)$ = $( \mathbb{Z}/N)$ für $N \in \mathbb{N}$, $N \ge 2$, $\mu$ eine Wahrscheinlichkeitsverteilung auf E  und $P =(p(x,y))_{x,y \in E}$ mit $p(x,y) = \mu(y-x)$. Dann ist die $(\nu,P)$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Irrfahrt auf dem Torus mit Startverteilung $\nu$, wenn $P$ durch folgende Übergangsmatrix gegeben ist
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.3]{beispiel110}
+\caption{Irrfahrt auf dem Torus}
+\end{figure}
+\end{bsp}
+\begin{bsp}[einfache Irrfahrt auf dem Graphen]
+Sei G = (V,E(V)) ein Graph mit Knotenmenge V und Kantenmenge E(V).
+\\
+\\
+\underline{Schreibweise}: $x \sim y$ $:\Leftrightarrow$ $x,y \: \in V \:$ sind durch eine Kante aus E(V) verbunden. Betrachte
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+\dfrac{1}{deg(x)} &  ,x \sim y\\
+0 & ,\mathrm{sonst}
+\end{cases}
+\end{equation*}
+wobei deg(x) die Anzahl der von x ausgehenden Kanten ist. Dann ist $P =(p(x,y))_{x,y \in V}$ eine stochastische Matrix, und die ($\nu$,P)-Markovkette  $(X_{n})_{n \in \mathbb{N}_{0}}$ bezeichnet man als Irrfahrt auf dem Graphen G mit Startverteilung $\nu$. 
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.35]{beispiel111}
+\caption{Irrfahrt auf einem Graphen}
+\end{figure}
+\noindent
+Dabei ist $V = \lbrace 1,2,3,4 \rbrace$ die Knotenmenge und $E(V) = \lbrace \lbrace 1,2 \rbrace, \lbrace 1,3 \rbrace, \lbrace 2,3 \rbrace, \lbrace 3,4 \rbrace \rbrace$ die Kantenmenge.
+\end{bsp}
+\begin{bsp}[Verzweigungsprozesse]
+Sei $X_{n}$ die Anzahl der Individuen in der n-ten Generation. Jedes Individuum der n-ten Generation wird unabhängig von allen anderen in der folgenden Generation mit Wahrscheinlichkeit $\mu(y)$ mit $y \in \mathbb{N}_{0}$ Nachkommen ersetzt. Dann lässt sich $(X_{n})_{n \in \mathbb{N}_{0}}$ durch eine Markovkette auf $E = \mathbb{N}_{0}$ mit Übergangsmatrix $P =(p(x,y))_{x,y \in E}$ 
+\begin{equation*}
+p(x,y) = \mu^{*x}(y) = \sum_{y_{1} +...+ y_{x} = y} \: \mu(y_{1})... \mu(y_{2}) \qquad \mathrm{mit} \: \mu^{*0}(y) = \mathbbm{1}_{\lbrace 0 \rbrace}(y)
+\end{equation*}
+\textcolor{red}{Frage?} Woher kommt die Faltung?
+\\
+\\
+Sei $({X_{n}}^{(i)})_{n,i \in \mathbb{N}_{0}}$ eine Folge u.i.v. Zufallsvariablen mit $\mathbb{P}[{X_{n}}^{(i)} = k] = \mu(k)$. Setze
+\begin{equation*}
+X_{0} = x \qquad  \mathrm{und}  \qquad X_{n} = \sum_{i = 1}^{x_{n-1}} X_{n-1}^{(i)}
+\end{equation*}
+Dann gilt
+\begin{equation*}
+\mathbb{P}[X_{n+1} = x_{n+1} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}] = \mathbb{P}[X_{n}^{1}+...+X_{n}^{(x_{n})} = x_{n+1}]
+\end{equation*}
+\begin{equation*}
+= \mu^{*x_{n}}[x_{n+1}] = p(x_{n},x_{n+1}).
+\end{equation*}
+\end{bsp}
+\noindent
+\textcolor{red}{Frage?} Besitzen Markovketten die Markoveigenschaft?
+\begin{sat}
+\label{Besitzen Markovketten die Markoveigenschaft}
+Sei ${(X_{n})}_{n \in \mathbb{N}_{0}}$ eine Folge von E-wertigen Zufallsvariablen auf $(\Omega, \mathfrak{F}, \mathbb{P})$, $\nu$ eine Verteilung auf E und $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix.
+\\
+\\
+(i) ${(X_{n})}_{n \in \mathbb{N}_{0}}$ ist genau dann eine $(\nu,P)$-Markovkette, wenn für alle $n \in \mathbb{N}_{0}$  und $x_{0},...,x_{n} \in E$ gilt
+\begin{equation*}
+\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}] = \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x_{n}).
+\end{equation*}
+\\
+\\
+(ii) Ist ${(X_{n})}_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette, so gilt
+\begin{equation*}
+\mathbb{P}[X_{n+1} = y \: | \: X_{n} = x] = p(x,y)
+\end{equation*} 
+für alle $n \in \mathbb{N}_{0}$ und $x,y \in E$ mit $P[X_{n} = x]>0$.
+\end{sat}
+\begin{proof}
+(i) $\dq \Leftarrow \dq$ Sei $n \in \mathbb{N}_{0}$ und $x_{0},...,x_{n+1} \in E$ mit $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$. Dann gilt
+\begin{itemize}
+\item $\mathbb{P}[X_{n+1} = x_{n+1} \: | \: X_{0} = x_{0},...,X_{n} = x_{n}]$
+\begin{equation*}
+=\dfrac{\mathbb{P}[X_{0} = x_{0},...,X_{n+1} = x_{n+1}]}{\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]} = \dfrac{\nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x_{n})p(x_{n},x_{n+1})}{\nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x_{n})} = p(x_{n},x_{n+1})
+\end{equation*}
+\item $\mathbb{P}[X_{0} = x_{0}] = \nu(x_{0})$
+\end{itemize}
+Folglich ist ${(X_{n})}_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette.
+\\
+\\
+$\dq \Rightarrow n\dq$ Beweis durch vollständige Induktion über  n
+\\
+\\
+\textbf{IA}
+\\
+n=0 : $\mathbb{P}[X_{0} = x_{0}] \stackrel{\mathrm{Def.} \ref{zeithomogene Markovkette} \:        \mathrm{(ii)}}{=} \nu(x_{0})$
+\\
+n=1 : $\mathbb{P}[X_{0} = x_{0},X_{1} = x_{1}] = \mathbb{P}[X_{0} = x_{0}]\mathbb{P}[X_{1} = x_{1} \: | \: X_{0} = x_{0}]  \stackrel{\mathrm{Def.} \ref{zeithomogene Markovkette} \: \mathrm{(i),(ii)}}{=} \nu(x_{0})p(x_{0},x_{1})$
+\\
+\\
+\textbf{IS} n $\to$ n+1
+\\
+Sei $\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]>0$ (andernfalls sind beide Seiten identisch gleich 0).
+\begin{equation*}
+\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}, X_{n+1} = x_{n+1}]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}]\mathbb{P}[X_{n+1} = x_{n+1          }\: | \: X_{0} = x_{0},...,X_{n} = x_{n}]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{IV}}{=} \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x_{n})\mathbb{P}[X_{n+1} = x_{n+1}\: | \: X_{0} = x_{0},...,X_{n} = x_{n}]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Def.}\ref{zeithomogene Markovkette} \: \mathrm{(i)}}{=} \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x_{n})p(x_{n},x_{n+1})
+\end{equation*}
+(ii) Für $n \in \mathbb{N}_{0}$ und $x,y \in E$ mit $\mathbb{P}[X_{n} = x]>0$
+\begin{equation*}
+\mathbb{P}[X_{n+1} = y \: | \: X_{n} = x] = \dfrac{\mathbb{P}[X_{0} \in E,.., X_{n-1} \in E, X_{n} = x, X_{n+1} = y]}{\mathbb{P}[X_{0} \in E,.., X_{n-1} \in E, X_{n} = x]}
+\end{equation*}
+\begin{equation*}
+= \dfrac{\sum_{x_{0},..,x_{n-1}} \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x)p(x,y)}{\sum_{x_{0},..,x_{n-1}} \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x)} = p(x,y)
+\end{equation*}
+\end{proof}
+\begin{sat}
+\label{"Satz 1.8"}
+Sei ${(X_{n})}_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Dann gilt
+\begin{equation*}
+\mathbb{P}[X_{n} = x] = \sum_{x_{0},..,x_{n-1} \in E} \nu(x_{0}) p(x_{0},x_{1}) \cdot ...\cdot p(x_{n-1},x) = (\nu P^{n})(x) \qquad \forall n \in \mathbb{N}_{0}, \: x \in E
+\end{equation*}
+Insbesondere gilt für alle $m,n \in \mathbb{N}_{0}$ und alle $x,y \in E$ mit $\mathbb{P}[X_{m} = x]>0$
+\begin{equation*}
+\mathbb{P}[X_{m+n}=y \: | \: X_{m} = x] = (P^{n})(x,y) = p_{n}(x,y).
+\end{equation*}
+\end{sat}
+\begin{proof}
+Übungsaufgabe.
+\end{proof}
+\begin{bsp}
+Sei $E = \lbrace 1,2 \rbrace$ und  $P = \begin{bmatrix} 1 - \alpha & \alpha \\ \beta & 1 - \beta  \end{bmatrix}$ mit $\alpha, \beta \in [0,1].$
+\\
+\\
+Im folgenden soll $\mathbb{P}[X_{n} = 1 \: | \: X_{0} = 1] = (P^{n})(1,1)$ berechnet werden. Es gilt
+\begin{equation*}
+p_{n}(1,1) = (P^{n-1} \cdot P)(1,1) = p_{n-1}(1,1)(1 - \alpha) + p_{n-1}(1,2)\beta
+\end{equation*}
+\begin{equation*}
+= p_{n-1}(1,1)(1-\alpha) + (1 - p_{n-1}(1,1))\beta
+\end{equation*}
+\begin{equation*}
+= (1-\alpha - \beta)p_{n-1}(1,1) + \beta
+\end{equation*}
+Mit $P^{0}(1,1) = 1$ besitzt die obige Rekursionsgleichung folgende eindeutige Lösung
+\\
+\\
+$p_{n}(1,1)=
+\begin{cases}
+\dfrac{\beta}{\alpha + \beta} + \dfrac{\alpha}{\alpha + \beta}(1 - \alpha - \beta)^{n}  &  falls \: \: \alpha + \beta > 0\\
+1 & falls \: \: \alpha + \beta = 0
+\end{cases}$
+\end{bsp}
+\begin{kol}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$  eine $(\nu,P)$-Markovkette mit Zustandsraum E. Dann gilt für alle $m.n \in \mathbb{N}_{0}$, $x \in E$ und $f \in \mathcal{L}^{\infty}(E) $ gilt
+\begin{equation*}
+\mathbb{E}[f(X_{m+n}) \: | \: X_{m} = x] = (P^{n}f)(x) \qquad \mathrm{und} \qquad \mathbb{E}[f(X_{n})] = \nu P^{n}f
+\end{equation*}
+\end{kol}
+\begin{proof}
+Aus Satz 1.4 folgt
+\begin{equation*}
+\mathbb{E}[f(X_{m+n}) \: | \: X_{m} = x] = \sum_{y \in E} f(y)\mathbb{P}[X_{m+n} = y \: | \: X_{m} = x] = (P^{n}f)(x)
+\end{equation*}
+\begin{equation*}
+\mathbb{E}[f(X_{n})] = \sum_{x \in E} f(x) \mathbb{P}[X_{n} = x] = \sum_{x \in E} (\nu P^{n})(x) f(x) = \nu P^{n}f
+\end{equation*}
+Wobei die absolute Konvergenz der beiden Reihen durch die Voraussetzung $f \in \mathcal{L}^{\infty}(E) $ garantiert ist, da $\mathbb{E}[|f(X_{n})|] \leq \sup\limits_{x \in E} |f(x)| < \infty$
+\end{proof}
+\begin{sat}
+\label{vorangegangene und zukünftige Ereignisse}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$  eine $(\nu,P)$-Markovkette. Dann gilt für alle $n \in \mathbb{N}_{0}$, $A \in \varepsilon^{ \otimes \mathbb{N}_{0}}$, $B \subseteq E^{n}$ und $x \in E$ mit $\mathbb{P}_{\nu}[(x_{0},...,x_{n-1}) \in B, \: X_{n} = x]>0$
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in A \: | \: (X_{0},...,X_{n-1})  \in B, \: X_{n} = x] = \mathbb{P}_{x}[(X_{0},X_{1},...) \in A] 
+\end{equation*}
+\end{sat}
+\begin{proof}
+\underline{Schritt 1} Für ein beliebiges $k \in \mathbb{N}_{0}$ und $x_{0},...,x_{k} \in E$ betrachte zunächst 
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{0},...,X_{n-1}) \in B ,  X_{n} = x, X_{n+i} = x_{i} \: , \forall \: i \in \lbrace 0,1,...,k \rbrace]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz \: 1.3 \: (i)}}{=} \sum_{(y_{0},...,y_{n-1}) \in B} \nu(y_{0})p(y_{0},y_{1}) \cdot ... \cdot p(y_{n-1},x) \cdot \mathbbm{1}_{ x = x_{0}} \cdot p(x_{0},x_{1})  \cdot ... \cdot p(x_{k-1},x_{k})
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\nu}[(X_{0},...,X_{n-1}) \in B, X_{n} = x] \cdot  \mathbb{P}_{x}[X_{i} = x_{i} \: , \forall \: i \in \lbrace 0,1,...,k \rbrace]
+\end{equation*}
+Da E diskret ist, folgt somit die Behauptung für alle endlich-dimensionalen Rechteckmengen.
+\\
+\\
+\underline{Schritt 2} Betrachte das Mengensystem
+\begin{equation*}
+\mathcal{D} = \lbrace A \in \varepsilon^{ \otimes \mathbb{N}_{0}} \: | \: \mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in A \: | \: (X_{0},...,X_{n-1})  \in B, \: X_{n} = x] = \mathbb{P}_{x}[(X_{0},X_{1},...) \in A] \rbrace
+\end{equation*}
+Wir wollen zeigen, dass $\mathcal{D}$ ein Dynkinssystem ist.
+\\
+\\
+1. Wir müssen zeigen dass $\mathcal{D}$ Omega(hier $E^{\mathbb{N}_{0}}$) enthält.
+\\
+\\
+Da $\mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in E^{\mathbb{N}_{0}}  \: | \: (X_{0},...,X_{n-1})  \in B, X_{n} = x] = 1 = \mathbb{P}_{x}[(X_{0},X_{1},...) \in E^{\mathbb{N}_{0}}]$ ist somit $E^{\mathbb{N}_{0}} \in \mathcal{D}$ 
+\\
+\\
+2. Wir müssen Stabiltät unter Komplementbildung zeigen.
+\\
+\\
+Sei $D \in \mathcal{D}$. Dann ist auch $D^{C} \in \mathcal{D}$, denn
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in D^{C} \: | \: (X_{0},...,X_{n-1})  \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= 1 - \mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in D \: | \: (X_{0},...,X_{n-1})  \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+\stackrel{D \in \mathcal{D}}{=} 1 - \mathbb{P}_{x}[(X_{0},X_{1},...) \in D]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[(X_{0},X_{1},...) \in D^{C}]
+\end{equation*}
+\\
+\\
+3. Wir müssen Abgeschlossenheit unter disjunkter Vereinigung zeigen.
+\\
+\\
+Seien nun $D_{1},D_{2}... \in \mathcal{D}$ disjunkt und $D = \bigcup_{i=1}^{\infty} $ $D_{i}$ Dann gilt
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in D \: | \: (X_{0},...,X_{n-1})  \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+\stackrel{\sigma \mathrm{-Additivität}}{=}  \sum_{i=1}^{\infty} \mathbb{P}_{\nu}[(X_{n},X_{n+1},...) \in D_{i} \: | \: (X_{0},...,X_{n-1})  \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+\stackrel{D_{i} \in \mathcal{D}}{=} \sum_{i=1}^{\infty} \mathbb{P}_{x}[(X_{0},X_{1},...) \in D_{i}]
+\end{equation*}
+\begin{equation*}
+\stackrel{\sigma \mathrm{-Additivität}}{=} \mathbb{P}_{x}[(X_{0},X_{1},...) \in D]
+\end{equation*}
+Also ist auch $D \in \mathcal{D}$.
+\\
+\\ 
+Da $\mathcal{D}$ nach Schritt 1 auch das $\cap$-stabile Mengensystem $\mathcal{Z}$ der endlich-dimensionalen Rechtecke enthält, folgt aus dem Hauptsatz über Dynkinsysteme  
+\begin{equation*}
+\mathcal{Z} \subseteq \mathcal{D} \qquad \Rightarrow \qquad \varepsilon^{ \otimes \mathbb{N}_{0}} = \sigma(\mathcal{Z}) = d(\mathcal{Z}) \subseteq \mathcal{D} \subseteq \varepsilon^{ \otimes \mathbb{N}_{0}}
+\end{equation*}
+\end{proof}
+\begin{kol}[Unabhängigkeit von Zukunft und Vergangenheit bei geg. Gegenwart]
+Ist $(X_{n})_{n \in \mathbb{N}_{0}}$  eine $(\nu,P)$-Markovkette, so gilt für alle $n \in \mathbb{N}_{0}$, $A \in \varepsilon^{ \otimes \mathbb{N}_{0}}$, $B \subseteq E^{n}$ und $x \in E$ mit $\mathbb{P}_{\nu}[X_{n} = x]>0$
+\begin{equation*}
+\mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B, (X_{n+1}, X_{n+2},...) \in A \: | \: X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B \: | \: X_{n} = x] \cdot \mathbb{P}[(X_{n+1}, X_{n+2},...) \in A \: | \: X_{n} = x]
+\end{equation*}
+\end{kol}
+\begin{proof}
+Sei $\mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B, X_{n} = x] > 0$. Dann folgt aus Satz $\ref{vorangegangene und zukünftige Ereignisse}$ 
+\begin{equation*}
+\mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B, (X_{n+1}, X_{n+2},...) \in A \: | \: X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B \: | \: X_{n} = x] \cdot \mathbb{P}_{\nu}[(X_{n+1}, X_{n+2},...) \in A \: | \: (X_{0},...,X_{n-1}) \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B \: | \: X_{n} = x] \cdot \mathbb{P}_{x}[(X_{1}, X_{2},...) \in A]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[(X_{0},X_{1},...,X_{n-1}) \in  B \: | \: X_{n} = x] \cdot \mathbb{P}[(X_{n+1}, X_{n+2},...) \in A \: | \: X_{n} = x]
+\end{equation*}
+\end{proof}
+\begin{sat}[Existenzsatz von Markovketten]
+\label{Existenzsatz von Markovketten}
+Zu jeder stochastischen Matrix $P = (p(x,y))_{x,y \in E}$ und jedem Wahrscheinlichkeitsvektor $\nu : E \to [0,1]$ existiert eine bezüglich Verteilung eindeutige $(\nu,P)$-Markovkette.
+\end{sat}
+\begin{proof}
+Das Ziel ist es den Satz von Daniell-Kolmogorov anzuwenden.
+\\
+\\
+\underline{Schritt 1} Definiere die Mengenfunktion $\mathbb{Q}_{\lbrace 0,1,...,n \rbrace}: \varepsilon^{ \otimes (n+1)} \to [0, \infty]$ durch 
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[\lbrace x_{0},x_{1},..,x_{n} \rbrace] := \nu(x_{0})p(x_{0},x_{1}) \cdot...\cdot p(x_{n-1},x_{n}), \: x_{0},...,x_{n} \in E
+\end{equation*}
+\dashuline{zu zeigen}:  $\mathbb{Q}_{\lbrace 0,1,...,n \rbrace}$ ist ein Wahrscheinlichkeitsmaß
+\\
+\\
+Offensichtlich ist  $\mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[\emptyset] = 0$ und für alle $A_{1},A_{2},... \in \varepsilon^{ \otimes (n+1)}$ disjunkt gilt
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[\cup_{i=1}^{\infty}A_{i}] = \sum _{x_{0},...,x_{n} \in E} \mathbbm{1}_{\bigcup_{i=1}^{\infty}A_{i}}(x_{0},...,x_{n}) \cdot \nu(x_{0})p(x_{0},x_{1}) \cdot ... \cdot p(x_{n-1},x_{n})
+\end{equation*}
+\begin{equation*}
+\stackrel{A_{i} \mathrm{\: disjunkt}}{=} \sum_{i=1}^{\infty} \sum _{x_{0},...,x_{n} \in E} \mathbbm{1}_{A_{i}}(x_{0},...,x_{n}) \cdot \nu(x_{0})p(x_{0},x_{1}) \cdot ... \cdot p(x_{n-1},x_{n})
+\end{equation*}
+\begin{equation*}
+= \sum_{i=1}^{\infty} \mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[A_{i}]
+\end{equation*}
+Zudem gilt, da P eine stochastische Matrix und $\nu$ ein Wahrscheinlichkeitsvektor ist 
+\begin{equation*}
+\sum_{x_{0},...,x_{n} \in E} \mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[\lbrace x_{0},...,x_{n} \rbrace] = \sum_{x_{0} \in E} \nu(x_{0}) \sum_{x_{1} \in E} p(x_{0},x_{1}) \: ... \sum_{x_{n} \in E}p(x_{n-1},x_{n}) = 1
+\end{equation*}
+\dashuline{zu zeigen}: $\mathbb{Q}_{\lbrace 0,1,...,n \rbrace} = \mathbb{Q}_{\lbrace 0,1,...,n+1 \rbrace} \circ ({\pi_{\lbrace 0,...,n \rbrace}}^{\lbrace 0,...,n+1 \rbrace})^{-1} \qquad \forall n \in \mathbb{N}_{0}$
+\\
+\\
+Für $A \in \varepsilon^{ \otimes (n+1)}$ gilt
+
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,1,...,n+1 \rbrace}[({\pi_{\lbrace 0,...,n \rbrace}}^{\lbrace 0,...,n+1 \rbrace})^{-1}(A)]
+\end{equation*}
+\begin{equation*}
+= \sum_{x_{0},...,x_{n} \in A} \nu(x_{0})p(x_{0},x_{1}) \cdot ... \cdot p(x_{n-1},x_{n}) \sum_{x_{n+1} \in E} p(x_{n},x_{n+1}) = \mathbb{Q}_{\lbrace 0,1,...,n \rbrace}[A] 
+\end{equation*}
+Folglich ist die Familie $\lbrace \mathbb{Q}_{\lbrace 0,1,...,n \rbrace} \: : \: n\in \mathbb{N}_{0}\rbrace$ konsistent. Aus Satz $\ref{Existenzsatz von Daniel und Kolmogorov}$ folgt somit die Existenz genau eines Wahrscheinlichkeitsmaßes $\mathbb{Q}$ auf $(E^{\mathbb{N}_{0}},\varepsilon^{ \otimes \mathbb{N}{0}})$ mit
+\begin{equation*}
+\mathbb{Q}_{\lbrace 0,1,...,n \rbrace} = \mathbb{Q} \circ {\pi_{\lbrace 0,1,...,n \rbrace}}^{-1}
+\end{equation*}
+\underline{Schritt 2} Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ ein stochastischer Prozess auf $(\Omega, \mathfrak{F}, \mathbb{P})$ mit Zustandsraum E. Definiere $\mathbb{P}_{X} = \mathbb{P} \circ X^{-1} := \mathbb{Q}$
+\\
+\\
+\dashuline{zu zeigen}: $(X_{n})_{n \in \mathbb{N}_{0}}$ ist eine $(\nu,P)$-Markovkette
+\\
+\\
+Aus Lemma $\ref{Teilmengen Lemma}$ (i) folgt zunächst einmal, dass
+\begin{equation*}
+\mathbb{P}[X_{0} = x_{0},...,X_{n} = x_{n}] = \mathbb{P}_{X_{\lbrace 0,...,n \rbrace}}[\lbrace x_{0},...,x_{n}  \rbrace] = (\mathbb{P}_{X} \circ {\pi_{\lbrace 0,1,...,n \rbrace}}^{-1})[\lbrace x_{0},...,x_{n}  \rbrace]
+\end{equation*}
+\begin{equation*}
+= (\mathbb{Q} \circ {\pi_{\lbrace 0,1,...,n \rbrace}}^{-1})[\lbrace x_{0},...,x_{n}  \rbrace]
+\end{equation*}
+\begin{equation*}
+= \mathbb{Q}_{\lbrace 0,1,...,n \rbrace}
+\end{equation*}
+\begin{equation*}
+= \nu(x_{0})p(x_{0},x_{1}) \cdot ... \cdot p(x_{n-1},x_{n})
+\end{equation*}
+Damit folgt die Behauptung aus dem Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i).
+\end{proof}
+\label{Existenz von Funktionen von Markovketten}
+\begin{sat}
+Sei $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix, $\nu$ eine beliebige Verteilung auf E und $(U_{n})_{n \in \mathbb{N}_{0}}$ eine Folge u.i.v. Zufallsvariablen mit $U_{0} \sim \mathcal{U}([0,1])$.
+\\
+Dann existieren Funktionen $f:[0,1] \to E$ und $F:E \times [0,1] \to E$ so, dass $(X_{n})_{n \in \mathbb{N}_{0}}$ mit
+\\
+\\
+$X_{n}=
+\begin{cases}
+f(U_{0})  &  , n=0  \\
+F(X_{n-1},U_{n})  & , n \in \mathbb{N}
+\end{cases}$
+\\
+\\
+\\
+eine $(\nu,P)$-Markovkette ist.
+\end{sat}
+\begin{proof}
+\underline{Schritt 1} Sei $E = \mathbb{N}$. Setze
+\\
+\begin{equation}
+\label{eq: zwei}
+\alpha(0) := 0, \alpha(i) := \sum_{k=1}^{i} \nu[\lbrace k \rbrace] \qquad und \qquad \beta(i,0) := 0, \beta(i,j) := \sum_{k=1}^{j} p(i,k) , i \in \mathbb{N}
+\end{equation}
+Weiterhin definiere die Funktionen $f:[0,1] \to \mathbb{N}$ und $F:\mathbb{N} \times [0,1] \to \mathbb{N}$ durch
+\begin{equation*}
+f(u) := \sum_{i=1}^{\infty} i \cdot \mathbbm{1}_{\alpha(i-1)\leq u \leq \alpha(i) }
+\end{equation*}
+\begin{equation*}
+F(i,u) := \sum_{j=1}^{\infty} j \cdot \mathbbm{1}_{\beta(i,j-1)\leq u \leq \beta(i,j) }
+\end{equation*}
+Dann gilt für die durch ($\ref{eq: zwei}$) definierte Folge und alle $i_{0},...,i_{n} \in \mathbb{N}$
+\begin{equation*}
+\mathbb{P}[X_{0} = i_{0},...,X_{n} = i_{n}]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}[U_{0} \in [\alpha(i_{0} - 1),\alpha(i_{0})], U_{k} \in [\beta(i_{k-1},i_{k} -1),\beta(i_{k-1},i_{k})] \: \: \forall k  \in \lbrace 1,...,n \rbrace ]
+\end{equation*}
+\begin{equation*}
+\stackrel{}{=} \mathbb{P}[U_{0} \in [\alpha(i_{0} - 1),\alpha(i_{0})] \cdot \prod_{k=1}^{n} \mathbb{P}[ U_{k} \in [\beta(i_{k-1},i_{k} -1),\beta(i_{k-1},i_{k})]]
+\end{equation*}
+\begin{equation*}
+= \nu(i_{0})p(i_{0},i_{1}) \cdot .... \cdot p(i_{n-1},i_{n})   
+\end{equation*}
+Also ist $(X_{n})_{n \in \mathbb{N}_{0}}$ nach Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i) eine $(\nu,P)$-Markovkette.
+\\
+\\
+\underline{Schritt 2} Da E abzählbar ist, gibt es eine bijektive Funktion $\varphi: \mathbb{N} \to E$. Die Aussage des Satzes folgt somit aus Schritt 1. 
+\end{proof}
+\begin{bem}
+Im Schritt 2 haben wir implizit benutzt, dass für eine Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ auf E und einer bijektiven Funktion $f:E \to E'$ gilt, dass $ (f(X_{n}))_{n \in \mathbb{N}_{0}} $ wiederum eine Markovkette ist.
+\end{bem}
+\noindent
+\textcolor{red}{Warnung!} Funktionen von Markovketten sind im Allgemeinen nicht Markovsch.
+\begin{bsp}
+Sei $E={1,2,3}, P = (p(x,y))_{x,y \in E}$ mit $p(1,2)=p(2,3)=p(3,1)$ und $\nu(x) = \dfrac{1}{3}$.
+\end{bsp}
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.35]{beispiel21}
+\caption{Markovkette auf ${\lbrace 1,2,3 \rbrace}$}
+\end{figure}
+\noindent
+\begin{equation*}
+f: E \to E', \qquad f(1) = f(2) = a \: \mathrm{und} \: f(3) = b
+\end{equation*}
+Setze $Y_{n}=f(X_{n})$. Dann gilt
+\begin{equation*}
+\mathbb{P}[Y_{2} = a \: | \: Y_{1} = a, Y_{0} = a] = 0 \neq \dfrac{1}{2} = \mathbb{P}[Y_{2} = a \: | \: Y_{1} = a]
+\end{equation*}
+\subsection{Stoppzeiten und starke Markoveigenschaften}
+\noindent
+\textcolor{red}{Frage?} Wie lassen sich zufällige Zeitpunkte beschreiben?
+\begin{defi}[erzeugte $\sigma$-Algebra]
+Sei $X=(X_{n})_{n \in \mathbb{N}_{0}}$ ein stochastischer Prozess auf $(\Omega,\mathfrak{F},\mathbb{P})$ mit Werten in $(E,\epsilon)$. Setze
+\begin{equation*}
+\mathfrak{F}_{n}^{X} := \sigma(X_{k} \: : \: k \in \lbrace 0,...,n \rbrace) := \lbrace (X_{0},...,X_{n})^{-1}(B) \: : \: B \in  \varepsilon^{ \otimes (n+1)} \rbrace, \qquad n \in \mathbb{N}_{0} 
+\end{equation*}
+Dann heißt $(\mathfrak{F}_{n}^{X})_{n \in \mathbb{N}_{0}}$ die von X erzeugte $\sigma$-Algebra.
+\end{defi}
+\noindent
+\textit{\textbf{Erinnerung:} Sei $\Omega \neq \emptyset$, $(\Omega', \mathfrak{F}')$ und $X: \Omega \to \Omega'$ ein messbarer Raum. Dann ist
+\begin{equation*}
+X^{-1}(\mathfrak{F}') := \lbrace X^{-1}(B) \: : B \in \mathfrak{F}' \rbrace
+\end{equation*}
+eine $\sigma$-Algebra. Zudem gilt für jedes System $\mathcal{A}' \subseteq \mathfrak{F}'$
+\begin{equation*}
+\sigma(X^{-1}(\mathcal{A}')) = X^{-1}(\sigma(\mathcal{A}'))
+\end{equation*}
+}
+\begin{bem}
+\mbox{}
+\begin{itemize}
+\item[(a)]Es gilt $\mathfrak{F}_{m}^{X} \subseteq \mathfrak{F}_{n}^{X} \subseteq \mathfrak{F}$ für alle $m,n \in \mathbb{N}_{0}$ mit $m<n$.
+\item[(b)]$\mathfrak{F}_{n}^{X}$ umfasst alle Informationen, die ein Beobachter von $X=(X_{n})_{n \in \mathbb{N}_{0}}$ bis zum Zeitpunkt n hat. 
+\end{itemize}
+\end{bem}
+\begin{defi}[Stoppzeit]
+Sei $X= (X_{n})_{n \in \mathbb{N}_{0}}$ ein stochastischer Prozess auf $(\Omega,\mathfrak{F},\mathbb{P})$ mit Werten in E. Eine Abbildung $T: \Omega \to \mathbb{N}_{0} \cup \lbrace \infty \rbrace $ heißt Stoppzeit bzgl. X, wenn gilt
+\begin{equation*}
+\lbrace T = n \rbrace \in \sigma(X_{0},...,X_{n}) = \mathfrak{F}_{n}^{X}, \qquad n \in \mathbb{N}_{0}
+\end{equation*}
+\end{defi}
+\begin{bem}
+Das Ereignis $\lbrace T = \infty \rbrace$ kann interpretiert werden, dass die Stoppzeit nie eintritt.  
+\end{bem}
+\begin{bsp}
+Sei $X=(X_{n})_{n \in \mathbb{N}_{0}}$ ein stochastischer Prozess mit Zustandsraum E und $A \subseteq E$.
+\begin{itemize}
+\item[(a)] Die Erste Rückkehr-bzw. Treffzeit $S_{A}$ und die Eintrittszeit $T_{A}$ ist gegeben durch 
+\begin{equation*}
+S_{A}(\omega) := \inf \lbrace n \in \mathbb{N} : X_{n}(\omega) \in A \rbrace
+\end{equation*}
+\begin{equation*}
+T_{A}(\omega) := \inf \lbrace n \in \mathbb{N}_{0} : X_{n}(\omega) \in A \rbrace
+\end{equation*}
+sind Stoppzeiten, denn
+\begin{equation*}
+\lbrace S_{A} = n \rbrace = \lbrace X_{1} \notin A,...,X_{n-1} \notin A, X_{n} \in A  \rbrace \in \mathfrak{F}_{n}^{X}
+\end{equation*}
+\begin{equation*}
+\lbrace T_{A} = n \rbrace = \lbrace X_{0} \notin A,...,X_{n-1} \notin A, X_{n} \in A  \rbrace \in \mathfrak{F}_{n}^{X}
+\end{equation*}
+Insbesondere gilt $\mathbb{P}[S_{A} = T_{A} \: | \: X_{0} = x] = 1$ für alle $x \notin A$
+\item[(b)] Die k-te Treffzeit ist gegeben durch 
+\begin{equation*}
+S_{A}^{0}(\omega) := 0 \: , \: S_{A}^{k}(\omega) := \inf \lbrace n> S_{A}^{k-1}(\omega) \: : \: X_{n} \in A \rbrace \: , \: k \in \mathbb{N}
+\end{equation*}
+\item[(c)] Jede deterministische Zeit $T(\omega) = t$, $t \in \mathbb{N}_{0}$ ist eine Stoppzeit, da
+\begin{equation*}
+\lbrace T = n \rbrace \in \lbrace \emptyset, \Omega \rbrace  \in \mathfrak{F}_{n}^{X} \:,\: n \in \mathbb{N}_{0} 
+\end{equation*}
+\item[(d)] Die letzte Austrittszeit auf der Menge A 
+\begin{equation*}
+L_{A}(\omega) := \sup \lbrace n \in \mathbb{N}_{0} \: : \: X_{n} \in A \rbrace
+\end{equation*}
+ist i.A. keine Stoppzeit, da $\lbrace L_{A} = n \rbrace$ davon abhängt, ob $(X_{n+m})_{m \in \mathbb{N}_{0}}$ die Menge A trifft oder nicht.
+\end{itemize}
+\end{bsp}
+\noindent
+\textcolor{red}{Frage?} Wie kann man die Eintrittswahrscheinlichkeit einer Markovkette in eine Menge A berechnen?
+\begin{defi}[Generator]
+Sei P eine stochastische Matrix. Dann nennt man $L := P-I$ den zugehörigen (diskreten) Generator, wobei mit I die Einheitsmatrix gemeint ist.
+\end{defi}
+
+\begin{defi}[Dirichletproblem]
+Sei $\emptyset \neq A \subsetneq E$ und $g: A \to \mathbb{R}$. Dann heißt das lineare Gleichungssystem 
+\begin{equation*}
+(Lf)(x) = 0, \: x \in A^{C}
+\end{equation*}
+
+ \begin{equation*}
+f(x) = g(x), \: x \in A
+\end{equation*}
+\noindent
+das zu L gehörige Dirichletproblem auf $A^{C}$ mit Randwerten g auf A.     
+\end{defi}
+\begin{sat}
+\label{Dirichletsatz}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Für $A \subsetneq E$ setze $h_{A}(x) := \mathbb{P}_{x}[T_{A} < \infty] $. Dann ist $h_{A}$ die kleinste Lösung des Dirichletproblems
+\begin{equation*}
+(Lh_{A})(x) = 0, \: x \in A^{C}
+\end{equation*}
+\begin{equation*}
+h_{A}(x) = 1, \: x \in A
+\end{equation*}
+\end{sat}
+\begin{proof}
+\dashuline{zu zeigen}: $h_{A}$ ist eine Lösung des obigen Dirichletproblems.
+\\
+\\
+Da $\lbrace X_{0} \in A \rbrace = \lbrace T_{A} = 0 \rbrace$, ist folglich $h_{A}(x) = 1$ für alle $x \in A$.
+\\
+Sei also nun $x \in A^{C}$. Dann folgt mit Satz \ref{vorangegangene und zukünftige Ereignisse}
+\begin{equation*}
+\mathbb{P}_{x}[T_{A} < \infty] = \mathbb{P}_{x}[T_{A} \in \mathbb{N}] = \sum_{y \in E} \mathbb{P}_{x}[T_{A} \in \mathbb{N}, X_{1} = y]
+\end{equation*}
+\begin{equation*}
+= \sum_{y \in E} \mathbb{P}[X_{1} = y \: | \: X_{0} = x] \cdot \mathbb{P}_{\nu}[T_{A} \in \mathbb{N} \: | \: X_{0} = x, X_{1} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \sum_{y \in E} p(x,y) \cdot \mathbb{P}_{y}[T_{A} \in \mathbb{N}_{0}]
+\end{equation*}
+Also,
+\begin{equation*}
+h_{A}(x) = \mathbb{P}_{x}[T_{A} < \infty] = \sum_{y \in E} p(x,y) \cdot \mathbb{P}_{y}[T_{A} \in \mathbb{N}_{0}] = \sum_{y \in E} p(x,y) \cdot h_{A}(y) \Leftrightarrow (Lh_{A})(x) = 0
+\end{equation*}
+\dashuline{zu zeigen}: $h_{A}$ ist die kleinste, nichtnegative Lösung des folgenden Dirichletproblems
+\begin{equation*}
+(Lh)(x) = 0, \: x \notin A
+\end{equation*}
+\begin{equation*}
+h(x) = 1, \: x \in A
+\end{equation*}
+\dashuline{zu zeigen}: Für alle $N \in \mathbb{N}_{0}$ gilt $\mathbb{P}_{x}[T_{A} \leq N] \leq h(x)$, $x \in E$
+\\
+\\
+Für jedes $N \in \mathbb{N}_{0}$ und $x \in A$ folgt $P_{x}[T_{A} \leq N] = 1 = h(x)$. Für jedes $x \in A^{C}$ ergibt sich mittels vollständiger Induktion über N
+\\
+\\
+\textbf{IA} $N=0$: $\mathbb{P}_{x}[T_{A} = 0] \stackrel{x \notin A}{=}0 \leq h(x)$
+\\
+\\
+\textbf{IS} $N \to N+1$: Sei also $x \notin A$. Dann gilt mittels Satz \ref{vorangegangene und zukünftige Ereignisse}
+\begin{equation*}
+P_{x}[T_{A} \leq N+1] = P_{x}[1 \leq T_{A} \leq N+1]
+\end{equation*}
+\begin{equation*}
+= \sum_{y \in E} \mathbb{P}[X_{1} = y \: | \: X_{0} = x] \cdot \mathbb{P}_{\nu}[1 \leq T_{A} \leq N+1 \: | \: X_{0} = x, X_{1} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \sum_{y \in E} p(x,y) \cdot \mathbb{P}_{y}[T_{A} \leq N]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{IV}}{\leq}\sum_{y \in E} p(x,y) \cdot h(y)
+\end{equation*}
+\begin{equation*}
+\stackrel{(Lh)(x) = 0}{=}h(x)
+\end{equation*}
+Da $\lbrace T_{A} \leq N \rbrace \uparrow \bigcup_{k \in \mathbb{N}} \lbrace T_{A} \leq k \rbrace = \lbrace T_{A} < \infty \rbrace$ für $N \to \infty$, so folgt aus der Stetigkeit des Wahrscheinlichkeitsmaßes $\mathbb{P}_{x}$
+\begin{equation*}
+h_{A}(x) = \mathbb{P}_{x}[T_{A} < \infty] = \lim_{N \to \infty} \mathbb{P}_{x}[T_{A} \leq N] \leq h(x), \: x \in E
+\end{equation*}
+\end{proof}
+\begin{bsp}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette auf $E = \lbrace 1,2,3,4 \rbrace$, deren stochastische Matrix durch folgenden Übergangsgraphen beschrieben wird
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.35]{beispiel22}
+\caption{Übergangsgraph des stochastischen Prozesses}
+\end{figure}
+\noindent
+Im folgenden soll die Eintrittswahrscheinlichkeit in den Zustand $\lbrace 4 \rbrace$, d.h.
+\begin{equation*}
+h_{\lbrace    4 \rbrace}(x) := \mathbb{P}_{x}[T_{\lbrace 4 \rbrace} < \infty], \: x \in E
+\end{equation*}
+bestimmt werden. Nach Satz \ref{Dirichletsatz} genügt es dazu, die minimale Lösung des Dirichletproblems mit $A=\lbrace 4 \rbrace$ zu berechnen. Betrachte somit folgendes Gleichungssystem.
+\begin{align*}
+     I. \quad h_{\lbrace 4 \rbrace}(1) &= c          & II. \quad h_{\lbrace 4 \rbrace}(2) &= \dfrac{1}{2}(h_{\lbrace 4 \rbrace}(1) + h_{\lbrace 4 \rbrace}(3))  \,  \\ 
+  III. \quad h_{\lbrace 4 \rbrace}(3) &= \dfrac{1}{2}(h_{\lbrace 4 \rbrace}(2) + h_{\lbrace 4 \rbrace}(4))   & IV. \quad h_{\lbrace    4 \rbrace}(1) &= 1.
+\end{align*}
+\begin{center}
+$\Leftrightarrow$ $h_{\lbrace 4 \rbrace} = (c, \dfrac{2}{3}c + \dfrac{2}{3}, \dfrac{1}{3}c + \dfrac{5}{6},1)^{T}$
+\end{center}
+Folglich besitzt obiges Gleichungssystem erst durch die Minimalitätsbedingung eine eindeutige Lösung. Wähle hierzu $c=0$. Dann folgt
+\begin{center}
+$h_{\lbrace 4 \rbrace}(2) = \mathbb{P}_{2}[T_{\lbrace 4 \rbrace} < \infty] = \dfrac{2}{3}$ und $h_{\lbrace 4 \rbrace}(3) = \mathbb{P}_{3}[T_{\lbrace 4 \rbrace} < \infty] = \dfrac{5}{6}$
+\end{center}
+\end{bsp}
+\begin{bsp}[Ruinwahrscheinlichkeit]
+Betrachte eine einfache asymmetrische Irrfahrt auf $E = \mathbb{N}_{0}$ mit Absorbtion im Zustand 0.
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.35]{beispiel23}
+\caption{asymmetrische Irrfahrt auf $\mathbb{N}_{0}$}
+\end{figure}
+\noindent
+wiederum soll die Eintrittswahrscheinlichkeit in $\lbrace 0 \rbrace$ (= Absorbtionswahrscheinlichkeit) bestimmt werden. Aus Satz \ref{Dirichletsatz} folgt, dass $h_{\lbrace 0 \rbrace}(x) := \mathbb{P}_{x}[T_{\lbrace 0 \rbrace} < \infty], \: x \in E$ die minimale, nichtnegative Lösung des folgenden Dirichletproblems ist:
+\begin{equation*}
+(Lh_{\lbrace 0 \rbrace})(x) = p(h_{\lbrace 0 \rbrace}(x+1) - h_{\lbrace 0 \rbrace}(x)) + q(h_{\lbrace 0 \rbrace}(x-1) - h_{\lbrace 0 \rbrace}(x)) = 0, \: x \neq 0
+\end{equation*}
+\begin{equation*}
+h_{\lbrace 0 \rbrace}(0) = 1
+\end{equation*}
+\underline{Beh.}: Für $p \neq q$ ist die Lösung von $(Lh)(x) = 0$ für alle $x \in E$ gegeben durch
+\begin{equation*}
+h(x) = a + b \cdot (\dfrac{q}{p})^{x}
+\end{equation*}
+Es gilt nämlich für $x \in \mathbb{N}$
+\begin{equation*}
+(Lh)(x) = pb (\dfrac{q}{p})^{x}(\dfrac{q}{p} - 1) + qb (\dfrac{q}{p})^{x} (\dfrac{p}{q} - 1) = b (\dfrac{q}{p})^{x}(q-p + p-q) = 0
+\end{equation*}
+\dashuline{Fall 1}: p<q
+\\
+\\
+Da $h_{\lbrace 0 \rbrace}(x) \in [0,1]$ für alle $x \in \mathbb{N}_{0}$, folgt $b=0$ und, wegen $h_{\lbrace 0 \rbrace}(0) = 1, \: a=1$. Also
+\begin{equation*}
+h_{\lbrace 0 \rbrace}(x) = \mathbb{P}_{x}[T_{\lbrace 0 \rbrace} < \infty] = 1 \qquad \forall x \in \mathbb{N}_{0}
+\end{equation*}
+\dashuline{Fall 2}: q<p
+\\
+\\
+Aus $h_{\lbrace 0 \rbrace}(0) = 1$ folgt zunächst einmal, dass $b = 1-a$. Also
+\begin{equation*}
+[0,1] \ni h_{\lbrace 0 \rbrace}(x) = (\dfrac{q}{p})^{x} + a(1- (\dfrac{q}{p})^{x}) \qquad \forall x \in \mathbb{N}_{0} \: \Rightarrow a \geq 0
+\end{equation*}
+Somit impliziert erst die Minimalitätsbedingung, dass $a=0$ ist, d.h.
+\begin{equation*}
+h_{\lbrace 0 \rbrace}(x) = \mathbb{P}_{x}[T_{\lbrace 0 \rbrace} < \infty] = (\dfrac{q}{p})^{x}
+\end{equation*}
+\underline{Beh.}: Für $p=q$ ist die Lösung von $(Lh)(x) = 0$ für alle  $x \in E$ gegeben durch 
+\begin{equation*}
+h(x) = a + bx
+\end{equation*}
+Denn für alle $x \in \mathbb{N}$ gilt $(Lh)(x) = \dfrac{1}{2}b(x + 1 -x) + \dfrac{1}{2}b(x -1 -x) = 0$
+\\
+Da $h_{\lbrace 0 \rbrace}(x) \in [0,1]$ für alle $x \in \mathbb{N}_{0}$, so folgt $b=0$. Wegen $h_{\lbrace 0 \rbrace}(0) = 1$ ist zudem $a = 1$:
+\begin{equation*}
+h_{\lbrace 0 \rbrace}(x) = \mathbb{P}_{x}[T_{\lbrace 0 \rbrace} \leq \infty] = 1
+\end{equation*}
+\end{bsp}
+\begin{bsp}[Aussterbewahrscheinlichkeit von Verzweigungsprozessen]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ ein Verzweigungsprozess, d.h. $(X_{n})_{n \in \mathbb{N}_{0}}$ ist eine Markovkette mit Zustandsraum $E = \mathbb{N}_{0}$ und Übergangsmatrix $P = (p(x,y))_{x,y \in E}$
+\begin{equation*}
+p(x,y) = \mu^{*x}(y) \qquad \mathrm{mit} \: \mu^{*0}(y) := \mathbbm{1}_{\lbrace 0 \rbrace}(y)
+\end{equation*}
+wobei $\mu$ eine gegebene Wahrscheinlichkeitsverteilung auf E ist.
+\\
+\\
+\underline{Ziel}: Berechne $\mathbb{P}_{x}[T_{\lbrace 0 \rbrace} < \infty ], \: x \in E$ (= Aussterbewahrscheinlichkeit)
+\\
+\underline{Beh.}: Für alle $n \in \mathbb{N}_{0}$ gilt $\mathbb{P}_{x}[X_{n} = 0] = \mathbb{P}_{1}[X_{n} = 0]^{x}$, $x \in E$
+\\
+\\
+Beweis durch vollständige Induktion über n.
+\\
+\\
+\textbf{IA} $n=0$ : $\mathbb{P}_{x}[X_{0} = 0] = \mathbbm{1}_{\lbrace x \rbrace}(0) = \mathbb{P}_{1}[X_{0} = 0]^{x}$, $(0^{0} = 1)$
+\\
+\textbf{IS} $n \to n+1$ : Es gilt nun aber
+\begin{equation*}
+\mathbb{P}_{x}[X_{n+1} = 0] = \sum_{y \in E} \mathbb{P}[X_{n+1} = 0, X_{1} = y \: | \: X_{0} = x]
+\end{equation*}
+\begin{equation*}
+=\sum_{y \in E} \mathbb{P}[X_{1} = y \: | \: X_{0} = x] \cdot \mathbb{P}[X_{n+1} = 0 \: | \: X_{0} = x, X_{1} = y ]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=}   \sum_{y \in E} p(x,y) \cdot \mathbb{P}_{y}[X_{n} = 0]
+\end{equation*}
+Nach Induktionsvoraussetzung gilt weiterhin
+\begin{equation*}
+\sum_{y \in E} p(x,y) \cdot \mathbb{P}_{y}[X_{n} = 0] \stackrel{\mathrm{IV}}{=}  \sum_{y \in E} \mu^{*x}(y) \cdot \mathbb{P}_{1}[X_{n} = 0]^{y}
+\end{equation*}
+\begin{equation*}
+\sum_{y \in E} \sum_{y_{1} +....+ y_{x} = y} \mu(y_{1}) \cdot ... \cdot \mu(y_{x}) \mathbb{P}_{1}[X_{n} = 0]^{y_{1}+...+y_{x}}
+\end{equation*}
+\begin{equation*}
+= \sum_{y_{1},...,y_{x} \geq 0 } \mu(y_{1}) \mathbb{P}_{1}[X_{n} = 0]^{y_{1}} \cdot...\cdot \mu(y_{x}) \mathbb{P}_{1}[X_{n} = 0]^{y_{x}}
+\end{equation*}
+\begin{equation*}
+= (\sum_{z \geq 0} \mu(z) \mathbb{P}_{1}[X_{n} = 0]^{z})^{x}
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{IV}}{=} (\sum_{z \in E} p(1,z) \mathbb{P}_{z}[X_{n} = 0])^{x}
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=}   \mathbb{P}_{1}[X_{n+1} = 0]^{x}
+\end{equation*}
+Da $\lbrace T_{\lbrace 0 \rbrace} \leq n \rbrace$ = $\lbrace X_{n} = 0 \rbrace$ für alle $n \in \mathbb{N}_{0}$ und $\lbrace T_{\lbrace 0 \rbrace}  \leq n \rbrace$ $\uparrow$ $\bigcup_{k=0}^{\infty}$ $\lbrace T_{\lbrace 0 \rbrace} \leq k \rbrace$ $=$ $\lbrace T_{\lbrace 0 \rbrace} < \infty \rbrace$ für $n \to \infty$ folgt aus der Stetigkeit von $\mathbb{P}_{x}$
+\begin{equation*}
+\mathbb{P}_{x}[T_{\lbrace 0 \rbrace} < \infty] = \lim_{n \to \infty} \mathbb{P}_{x}[X_{n} = 0] = \lim_{n \to \infty} \mathbb{P}_{1}[X_{n} = 0]^{x} = \mathbb{P}_{1}[T_{\lbrace 0 \rbrace} < \infty]^{x}
+\end{equation*}
+Folglich gilt $h_{\lbrace 0 \rbrace}(x) = h_{\lbrace 0 \rbrace}(1)^{x} =: q^{x}$ für alle $x \in E$. Im folgenden soll $q \in [0,1]$ bestimmt werden. Da nach Satz $\ref{Dirichletsatz}$ $h_{\lbrace 0 \rbrace}$ die kleinste, nichtnegative Lösung des Dirichletproblems ist, gilt
+\begin{equation*}
+(Lh_{\lbrace 0 \rbrace})(1) = 0 \: \Leftrightarrow \: q = h_{\lbrace 0 \rbrace}(1) = \sum_{y \in E} \mu(y) \cdot  h_{\lbrace 0 \rbrace}(1)^{y} = G_{\mu}(q),
+\end{equation*} 
+wobei
+\begin{equation*}
+G_{\mu}(s) := \sum_{y \in E} \mu(y) s^{y}, \: s \in [0,1]
+\end{equation*}
+Die erzeugende Funktion von $\mu$ ist. Also ist q ein Fixpunkt der Gleichung
+\begin{equation*}
+s = G_{\mu}(s)
+\end{equation*}
+Ist nun $\overline{q}$ ein weiterer Fixpunkt, so genügt die Funktion $h(x) := \overline{q}^{x}$ ebenfalls dem Dirichletproblem. Dann folgt aus Satz \ref{Dirichletsatz}
+\begin{equation*}
+\overline{q} = h(1) \geq  h_{\lbrace 0 \rbrace}(1) = q,
+\end{equation*}
+d.h. q ist der kleinste, nichtnegative Fixpunkt der Gleichung $s = G_{\mu}(s)$.
+\\
+\\
+Nachfolgend soll der kleinste nichtnegative Fixpunkt der Gleichung $s = G_{\mu}(s)$ genauer analysiert werden. Da $\mu$ ein Wahrscheinlichkeitsmaß auf E ist, gilt
+\begin{equation*}
+G_{\mu}(1) = \sum_{y \in E} \mu(y) = 1
+\end{equation*}
+Falls $\mu$ entweder linear $(\mu(0) + \mu(1) = 1)$  oder strikt konvex mit
+\begin{equation*}
+G'_{\mu}(1) = \lim_{s \uparrow 1} G'_{\mu}(s) = \lim_{s \uparrow 1} \sum_{ k \geq 1} k \cdot \mu(k) \cdot s^{k-1} = \sum_{ k \geq 0} k \cdot \mu(k) < \infty
+\end{equation*}
+so gilt
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.35]{beispiel24}
+\caption{Fixpunktanalyse}
+\end{figure}
+\noindent
+\end{bsp}
+\noindent
+\begin{defi}[harmonische Funktion]
+Sei $A \subsetneq E$. Eine Funktion $f: \: E \to R$ heißt harmonisch auf $A^{C}$, wenn für alle $x \in A^{C}$
+\begin{equation*}
+(Lf)(x) \: \: \mathrm{existiert} \qquad \mathrm{und} \qquad (Lf)(x) = 0.
+\end{equation*}
+\end{defi}
+\noindent
+\textcolor{red}{Frage?} Gilt die Markoveigenschaft auch an Stoppzeiten?
+\begin{defi}[T-Vergangenheit]
+\label{T-Vergangenheit}
+Ist $T: \Omega \to \mathbb{N}_{0} \cup \lbrace \infty \rbrace$ eine Stoppzeit bzgl. eines stochastischen Prozesses $X = (X_{n})_{n \in \mathbb{N}_{0}}$ auf $(\Omega, \mathfrak{F}, \mathbb{P})$, so bezeichnet
+\begin{equation*}
+\mathfrak{F}_{T}^{X} := \lbrace A \in \mathfrak{F} \: : \: A \cap \lbrace T = n \rbrace \in \mathfrak{F}_{n}^{X} \: \forall \: n \in \mathbb{N}_{0} \rbrace
+\end{equation*}
+die Menge der Ereignisse der T-Vergangenheit
+\end{defi}
+\begin{bem}
+$\mathfrak{F}_{T}^{X}$ ist eine $\sigma$-Algebra. Da T eine Stopppzeit bzgl. X ist, ist $\Omega \in \mathfrak{F}_{T}^{X}$. Weiterhin gilt für jedes $n \in \mathbb{N}_{0}$ und $A \in \mathfrak{F}_{T}^{X}$
+\begin{equation*}
+A^{C} \cap \lbrace T = n \rbrace = \underbrace{(A \cap \lbrace T = n \rbrace)^{C}}_{ \in \mathfrak{F}_{T}^{X}} \cap \underbrace{\lbrace T = n \rbrace}_{ \in \mathfrak{F}_{T}^{X}} \in \mathfrak{F}_{T}^{X}
+\end{equation*}
+Somit ist auch $A^{C} \in \mathfrak{F}_{T}^{X}$. Seien nun $A_{1},A_{2},... \in \mathfrak{F}_{T}^{X}$. Dann gilt für alle $n \in \mathbb{N}_{0}$
+\begin{equation*}
+(\bigcup_{i=1}^{\infty} A_{i}) \cap \lbrace T = n \rbrace = (\bigcup_{i=1}^{\infty} \underbrace { A_{i} \cap \lbrace T = n \rbrace}_{ \in \mathfrak{F}_{T}^{X}}) \in \mathfrak{F}_{T}^{X}
+\end{equation*}
+Also ist auch $\bigcup_{i=1}^{\infty} A_{i} \in \mathfrak{F}_{T}^{X}$.
+\end{bem}
+\begin{sat}[starke Markoveigenschaft] 
+\label{starke Markoveigenschaft}
+Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und T eine Stoppzeit, so gilt für alle $A \in \varepsilon^{ \otimes \mathbb{N}_{0}}$, $F \in \mathfrak{F}_{T}^{X}$ und $x \in E$ mit $\mathbb{P}_{\nu}[F,X_{T} = x, T < \infty] > 0$
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T < \infty] = \mathbb{P}_{x}[(X_{0},X_{1},...) \in A],
+\end{equation*}
+wobei $X_{T}$ auf $\lbrace T < \infty \rbrace$ definiert ist durch $X_{T}(\omega) := X_{T(\omega)}(\omega)$
+\end{sat}
+\begin{proof}
+Sei also $ A \in \varepsilon^{ \otimes \mathbb{N}_{0}}$, $F \in \mathfrak{F}_{T}^{X}$ und $x \in E$ mit $\mathbb{P}_{\nu}[F, X_{T} = x, T < \infty] > 0$. Dann gibt es zu jedem $n \in \mathbb{N}_{0}$ ein $B \subseteq E^{n}$ mit
+\begin{equation*}
+F \cap \lbrace T = n \rbrace \cap \lbrace X_{T} = x \rbrace = \lbrace (X_{0},...,X_{n-1}) \in B, X_{n} = x \rbrace
+\end{equation*}
+Falls zudem $\mathbb{P}_{\nu}[(X_{0},...,X_{n-1}) \in B, X_{n} = x] > 0$ ist, so folgt aus Satz $\ref{vorangegangene und zukünftige Ereignisse}$
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T = n]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: (X_{0},...,X_{n-1}) \in B, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \mathbb{P}_{x}[(X_{0},X_{1},...) \in A]
+\end{equation*}
+Also,
+\begin{equation*}
+\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T < \infty]
+\end{equation*}
+\begin{equation*}
+= \sum_{n=0}^{\infty} \dfrac{\mathbb{P}_{\nu}[(X_{T},X_{T+1},...) \in A \: | \: F, X_{T} = x, T = n] \cdot \mathbb{P}_{\nu}[F, X_{T} = x, T = n]}{ \mathbb{P}_{\nu}[F, X_{T} = x, T < \infty]} 
+\end{equation*}
+\begin{equation*}
+= \sum_{n=0}^{\infty} \dfrac{\mathbb{P}_{x}[(X_{0},X_{1},...) \in A] \cdot \mathbb{P}_{\nu}[F, X_{T} = x, T = n]}{ \mathbb{P}_{\nu}[F, X_{T} = x, T < \infty]} 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[(X_{0},X_{1},...) \in A]
+\end{equation*}
+\end{proof}
+\begin{kol}
+\label{Anzahl Besuche}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und 
+\begin{equation*}
+V_{x} := \sum_{n=0}^{\infty} \mathbbm{1}_{X_{n} = x} \: , \quad x \in E
+\end{equation*}
+Dann gilt für alle $k \in \mathbb{N}$ 
+\begin{equation*}
+\mathbb{P}_{x}[V_{x} > k] = (1-\mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty] )^{k}.
+\end{equation*}
+Falls $\mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty] > 0$, so gilt
+\begin{equation*}
+\mathbb{E}[V_{x}] = \dfrac{1}{\mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty]}
+\end{equation*}
+\end{kol}
+\begin{proof}
+Für $x \in E$ definiere 
+\begin{equation*}
+S_{\lbrace x \rbrace}^{0} := 0 \quad und \quad S_{\lbrace x \rbrace}^{k} := \inf \lbrace n > S_{\lbrace x \rbrace}^{k-1} \: : \: X_{n} = x \rbrace \: , \quad k \in \mathbb{N}
+\end{equation*}
+Dann gilt für alle $k \in \mathbb{N}$
+\begin{equation*}
+\lbrace V_{ \lbrace x \rbrace} > k \rbrace \cap \lbrace X_{0} = x \rbrace = \lbrace S_{\lbrace x \rbrace}^{k} < \infty \rbrace \cap \lbrace X_{0} = x \rbrace .
+\end{equation*}
+Aus der starken Markoveigenschaft folgt somit
+\begin{equation*}
+\mathbb{P}_{x}[V_{ \lbrace x \rbrace} > k+1 \: | \: V_{ \lbrace x \rbrace} > k] = \mathbb{P}_{\lbrace x \rbrace}[S_{\lbrace x \rbrace}^{k+1} < \infty \: | \: S_{\lbrace x \rbrace}^{k} < \infty] 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k+1} < \infty \: | \: X_{S_{\lbrace x \rbrace}^{k}} = x, S_{\lbrace x \rbrace}^{k} < \infty]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\nu}[\inf \lbrace n>0 \: : \: X_{S_{\lbrace x \rbrace}^{k} + n} = x \rbrace + S_{\lbrace x \rbrace}^{k} < \infty  \: | \: X_{0} = x,X_{S_{\lbrace x \rbrace}^{k}} = x, S_{\lbrace x \rbrace}^{k} < \infty]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{starke Markoveigenschaft}}{=} \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} < \infty]
+\end{equation*}
+Daraus folgt dann
+\begin{equation*}
+\mathbb{P}_{x}[V_{x} > k] = \prod_{l=1}^{k-1} \mathbb{P}_{x}[V_{x} > l + 1 \: | \: V_{x} > l] \cdot \mathbb{P}_{x}[V_{x} > 1] \stackrel{\mathrm{Satz} \: \ref{starke Markoveigenschaft}}{=} \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} < \infty]^{k}.
+\end{equation*}
+Weiterhin gilt im Falle $\mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} < \infty] < 1$
+\begin{equation*}
+\mathbb{E}_{x}[V_{x}] = \sum_{k=0}^{\infty}\mathbb{P}_{x}[V_{x} > k] = 1 + \sum_{k=1}^{\infty}\mathbb{P}_{x}[V_{x} > k] = 1 + \sum_{k=1}^{\infty}\mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} < \infty]^{k}
+\end{equation*}
+\begin{equation*}
+= \dfrac{1}{1-\mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} < \infty]} = \dfrac{1}{\mathbb{P}_{x}[S_{\lbrace x \rbrace}^{1} = \infty]}
+\end{equation*}
+\end{proof}
+\vspace{15cm}
+\section{Struktureigenschaften der Übergangsmatrix}
+Im folgenden sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette auf $(\Omega, \mathfrak{F},\mathbb{P})$ mit höchstens abzählbaren Zustandsraum E. Bezeichne wieder mit $P^{n} = (p_{n}(x,y))_{x,y \in E}$ das n-fache Matrixprodukt ($P^{0}$ = Einheitsmatrix auf E), $n \in \mathbb{N}_{0}$
+\subsection{Klassifikation von Zuständen}
+\begin{defi}[absorbierender, rekurrenter, transienter Zustand]
+Ein Zustand $x \in E$ heißt
+\begin{itemize}
+\item[(i)] absorbierend, falls $p(x,x)=1$
+\item[(ii)] rekurrent, falls $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] = 1$
+\item[(iii)] transient, falls $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1$
+\end{itemize}
+wobei $S_{\lbrace x \rbrace} := \inf \lbrace n \in \mathbb{N} \: : \: X_{n} = x \rbrace$ die Treffzeit ist. 
+\end{defi}
+\begin{bem}
+x ist absorbierend $\Rightarrow$ x ist rekkurent.
+\end{bem}
+\noindent
+\textcolor{red}{Frage?} Wie kann man einen rekurrenten/transienten Zustand alternativ charakterisieren?
+\clearpairofpagestyles
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{sat}
+\label{alternative Chrakterisierung von rekurrent/transient}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Dann gilt
+\begin{itemize}
+\item[a)] x ist rekurrent $\Leftrightarrow$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 1$ $\Leftrightarrow$ $\sum_{n=1}^{\infty} p_{n}(x,x) = \infty$
+\item[b)] x ist transient $\Leftrightarrow$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 0$ $\Leftrightarrow$ $\sum_{n=1}^{\infty} p_{n}(x,x) < \infty$
+\end{itemize}
+Insbesondere ist jeder Zustand $x \in E$ entweder rekurrent oder transient.
+\end{sat}
+\begin{proof}
+Für $x \in E$ sei $V_{x} := \sum_{n=0}^{\infty} \mathbbm{1}_{X_{n} = x}$ die Gesamtzahl der Besuche von $(X_{n})_{n \in \mathbb{N}_{0}}$ in x. Insbesondere ist $\mathbb{E}_{x}[V_{x}] = 1 + \sum_{n=1}^{\infty} p_{n}(x,x)$.
+\begin{itemize}
+\item[a)] $\dashuline{zu \: zeigen}:$ x rekurrent $\Rightarrow$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 1$
+\\
+\\
+Sei also x rekurrent, d.h. $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] = 1$. Dann folgt aus Korollar $\ref{Anzahl Besuche}$:
+\begin{equation*}
+\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = \mathbb{P}_{x}[V_{x} = \infty] = \lim_{k \to \infty} \mathbb{P}_{x}[V_{x} > k] = \lim_{k \to \infty} {\underbrace{\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty]}_{=1}}^{k} = 1 
+\end{equation*}
+$\mathrm{\dashuline{zu \: zeigen}:}$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 1$ $\Rightarrow$ $\sum_{n=1}^{\infty} p_{n}(x,x) = \infty$
+\\
+\\
+Es gilt nun aber
+\begin{equation*}
+\mathbb{P}_{x}[V_{x} = \infty] = \mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 1 \Rightarrow \mathbb{E}_{x}[V_{x}] = \infty 
+\end{equation*}
+\begin{equation*}
+\Rightarrow \sum_{n=1}^{\infty} p_{n}(x,x) = \mathbb{E}_{x}[V_{x}] - 1 = \infty
+\end{equation*}
+$\dashuline{zu \: zeigen}:$ $\sum_{n=1}^{\infty} p_{n}(x,x) = \infty$ $\Rightarrow$ $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] = 1$ 
+\\
+\\
+Angenommen $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1$. Dann folgt aus Korollar $\ref{Anzahl Besuche}$
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(x,x) = \mathbb{E}_{x}[V_{x}] - 1 \leq \mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty]^{-1} < \infty \: \: \lightning
+\end{equation*}
+Also ist $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] = 1$.
+\item[b)] $\dashuline{zu \: zeigen}:$ x transient $\Rightarrow$ $\sum_{n=1}^{\infty} p_{n}(x,x) < \infty$ $\Rightarrow$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 0$
+\\
+\\
+Sei also x transient, d.h. $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1$. Dann folgt aus Korollar $\ref{Anzahl Besuche}$
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(x,x) = \mathbb{E}_{x}[V_{x}] - 1 \leq \mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty]^{-1} < \infty
+\end{equation*}
+Insbesondere impliziert $\mathbb{E}_{x}[V_{x}] < \infty$, dass $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 0$
+\\
+\\
+$\dashuline{zu \: zeigen}:$ $\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = 0$ $\Rightarrow$ $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1$
+\\
+\\
+Angenommen $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] = 1$. Dann folgt aus Korollar $\ref{Anzahl Besuche}$
+\begin{equation*}
+\mathbb{P}_{x}[X_{n} = x \: \: u.o.] = \mathbb{P}_{x}[V_{x} = \infty] = \lim_{k \to \infty} \mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty]^{k} = 1 \: \: \lightning
+\end{equation*}
+Also gilt $\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1$.
+\end{itemize}
+\end{proof}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{defi}[Greenfunktion von X]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette auf E und $V_{x} := \sum_{n=0}^{\infty} \mathbbm{1}_{X_{n} = x} \: , \: x \in E $. Dann heißt 
+\begin{equation*}
+G(x,y) = \mathbb{E}_{x}[V_{y}] = \sum_{n=0}^{\infty} p_{n}(x,y) \quad \in [0,\infty]
+\end{equation*}
+die Greenfunktion von $(X_{n})_{n \in \mathbb{N}_{0}}$.
+\end{defi}
+\begin{kol}
+\label{transienter Zustand dann lim n -> unendl. pn(x,y) = 0}
+Ist $y \in E$ ein transienter Zustand, dann gilt
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y) = 0 \quad \forall x \in E.
+\end{equation*}
+\end{kol}
+\begin{proof}
+Sei $y \in E$ ein transienter Zustand. Dann folgt aus Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(y,y) < \infty \: \Rightarrow \: \lim_{n \to \infty} p_{n}(y,y) = 0
+\end{equation*}
+Sei also nun $x \in E$, $x \neq y$. Dann gilt
+\begin{equation*}
+p_{n}(x,y) = \mathbb{P}_{x}[X_{n} = y] = \sum_{k=1}^{n} \mathbb{P}_{x}[X_{n} = y, S_{\lbrace y \rbrace} = k]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{n} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] \cdot \mathbb{P}_{x}[X_{n} = y \: | \: X_{k} = y, S_{\lbrace y \rbrace} = k] 
+\end{equation*}
+Somit folgt aus Satz $\ref{vorangegangene und zukünftige Ereignisse}$
+\begin{equation*}
+p_{n}(x,y) = \sum_{k=1}^{n} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] \cdot \mathbb{P}_{y}[X_{n-k} = y] = \sum_{k=1}^{n} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] \cdot p_{n-k}(y,y)
+\end{equation*}
+Also,
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(x,y) = \sum_{k=1}^{\infty} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] \sum_{n=k}^{\infty} p_{n-k}(y,y) = \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty](1 + \underbrace{\sum_{n=1}^{\infty} p_{n}(y,y)}_{< \infty}) < \infty
+\end{equation*}
+Damit erhält man $\lim \limits_{n \to \infty} p_{n}(x,y) = 0$ für alle $x \neq y$.
+\end{proof}
+\begin{bsp}[Kartenhausprozess]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette mit Zustandsraum $E = \mathbb{N}_{0}$, dessen Übergangsmatrix $P = (p(x,y))_{x,y \in E}$ durch folgenden Übergangsgraphen beschrieben wird
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.5]{Beispiel_Kartenhausprozess}
+\caption{Übergangsgraph des Kartenhausprozesses}
+\end{figure}
+\noindent
+\textcolor{red}{Frage?} Unter welchen Bedingungen an $(p_{i})_{i \in \mathbb{N}_{0}}$ ist der Zustand $x=0$ rekurrent?
+\\
+\\
+Da es für jedes $n \in \mathbb{N}$ genau einen Pfad gibt, der bei Start in $x=0$ nach genau n-Schritten wieder in 0 trifft (nämlich $(X_{0},X_{1},...,X_{n}) = (0,1,2,...,n-1,0)$) folgt
+\begin{equation*}
+\mathbb{P}_{0} [S_{\lbrace 0 \rbrace} = n] = (1-p_{0}) \cdot ... \cdot (1-p_{n-2}) \cdot p_{n-1} \: , \quad n \in \mathbb{N}
+\end{equation*} 
+Setze nun $u_{0} := 1$ und $u_{n} = (1-p_{0}) \cdot ... \cdot (1-p_{n-1})$, $\:$ $n \in \mathbb{N}$. Dann gilt
+\begin{equation*}
+\mathbb{P}_{0} [S_{\lbrace 0 \rbrace} = n] = u_{n-1} - u_{n}
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{P}_{0} [S_{\lbrace 0 \rbrace} < \infty] = \lim_{N \to \infty} \sum_{n=1}^{N} \mathbb{P}_{0} [S_{\lbrace 0 \rbrace} = n] = \lim_{N \to \infty}(1-u_{N}) = 1 - \lim_{N \to \infty } \prod_{n=0}^{N-1}  (1 - p_{n})
+\end{equation*}
+\underline{Beh.}: Falls $p_{i} \in (0,1)$ für alle $i \in \mathbb{N}_{0}$ so gilt
+\begin{equation*}
+\lim_{N \to \infty} \prod_{n=0}^{N} (1-p_{n}) = 0 \quad \Leftrightarrow \quad \sum_{n=0}^{\infty} p_{n} = \infty
+\end{equation*}
+$"\Leftarrow"$ Da $e^{-x} \geq 1-x$ für alle $x \geq 0$, folgt
+\begin{equation*}
+0 \leq \lim_{N \to \infty} \prod_{n=0}^{N} (1-p_{n}) \leq \lim_{N \to \infty} exp(-\sum_{n=0}^{N}p_{n}) \stackrel{\sum_{n=0}^{\infty}p_{n} = \infty}{=} 0
+\end{equation*}
+$"\Rightarrow"$ $\dashuline{zu \: zeigen}:$ Für jedes $m \in \mathbb{N}_{0}$ gilt $\prod_{n=m}^{m+N}(1-p_{n}) \geq 1 - \sum_{n=m}^{m+N}p_{n}$, $\forall N \in \mathbb{N}_{0}$
+\\
+\\
+\textbf{IA} $N=0$: $\checkmark$
+\\
+\\
+\textbf{IS} $N \to N+1$: Es gilt nun aber
+\begin{equation*}
+\prod_{n=m}^{m+N+1} (1-p_{n}) \stackrel{\mathrm{IV}}{\geq} (1 - \sum_{n=m}^{m+N}p_{n})(1-p_{m+N+1}) = 1 - p_{m+N+1} - (\underbrace{1-p_{m+N+1}}_{\leq 1}) \cdot \sum_{n=m}^{m+N}p_{n} \geq 1 - \sum_{n=m}^{m+N+1} p_{n}
+\end{equation*}
+Angenommen $\sum_{n=0}^{\infty}p_{n} < \infty$. Dann existiert ein $m \in \mathbb{N}$ so, dass $0 < \sum_{n=m}^{\infty} p_{n} < 1$.
+\\
+Daraus folgt
+\begin{equation*}
+0 = \lim_{N \to \infty} \prod_{n=0}^{N} (1-p_{n}) = \prod_{n=0}^{m-1} (1-p_{n})  \lim_{N \to \infty} \prod_{n=m}^{N} (1-p_{n}) \geq \prod_{n=0}^{m-1} (1-p_{n}) \cdot (1 - \underbrace{\sum_{n=m}^{\infty} p_{n}}_{<1}) > 0 \: \: \lightning
+\end{equation*}
+Folglich ist $\sum_{n=0}^{\infty} p_{n} = \infty$.
+\end{bsp}
+\begin{bsp}[Einfache Irrfahrt auf $\mathbb{Z}$]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E=\mathbb{Z}$ mit folgendem Übergangsgraphen:
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.4]{Beispiel_Einfache_Irrfahrt_auf_Z}
+\caption{Einfache Irrfahrt auf $\mathbb{Z}$}
+\end{figure}
+\noindent
+Dann gilt $p_{2n+1}(0,0) = 0$ für jedes $n \in \mathbb{N}_{0}$ und $p_{2n}(0,0) = \binom{2n}{n} p^{n} (1-p)^{n}$ für jedes $n \in \mathbb{N}$. Aus der Stirlingformel
+\begin{equation*}
+n! \sim \sqrt{2 \pi n} \cdot n^{n} e^{-n} \qquad (a_{n} \sim b_{n} :\Leftrightarrow \lim_{n \to \infty} \dfrac{a_{n}}{b_{n}} = 1)
+\end{equation*}
+folgt dann
+\begin{equation*}
+p_{2n}(0,0) = \dfrac{(2n)!}{(n!)^{2}} \cdot p^{n}(1-p)^{n} \sim \dfrac{\sqrt{4 \pi n}}{2 \pi n} \dfrac{(2n)^{2n}}{n^{2n}} \cdot p^{n} (1-p)^{n} = \dfrac{1}{\sqrt{\pi n}} (4p(1-p))^{n}
+\end{equation*}
+\underline{1.Fall}: $p=\dfrac{1}{2}$ $\:$  $\Rightarrow$ $\:$  $p_{2n}(0,0)$ $\sim$ $\dfrac{1}{\sqrt{\pi n}}$ $\:$  $\Rightarrow$ $\:$ $\exists$ $n_{0} \in \mathbb{N} \: : \: p_{2n}(0,0) \geq \dfrac{1}{2\sqrt{n}}$ $\:$  $\forall n \geq n_{0}$
+\\
+Also
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(0,0) \geq \sum_{n=n_{0}}^{\infty}p_{2n}(0,0) \geq \dfrac{1}{2} \sum_{n=n_{0}}^{\infty}\dfrac{1}{\sqrt{n}} = \infty
+\end{equation*}
+Aus Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ folgt somit, dass $x=0$ rekurrent ist.
+\\
+\\
+\underline{2.Fall}: $p \neq \dfrac{1}{2}$ $\:$  $\Rightarrow$ $\:$ $4p(1-p) =: r < 1$ $\:$  $\Rightarrow$ $\:$ $\exists$ $n_{0} \in \mathbb{N} \: : \: p_{2n}(0,0) \leq r^{n}$ $\:$  $\forall n \geq n_{0}$
+\\
+Also,
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(0,0) = \sum_{n=1}^{\infty} p_{2n}(0,0) \leq n_{0} + \sum_{n=n_{0}}^{\infty} r^{n} < \infty
+\end{equation*}
+Aus Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ folgt somit, dass $x=0$ transient ist.
+\end{bsp}
+\begin{bsp}[einefache, symmterische Irrfahrt auf $\mathbb{Z}^{2}$]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E=\mathbb{Z}^2$ mit $p(x,y)=\dfrac{1}{4} \mathbbm{1}_{\vert \vert x-y \vert \vert = 1}$. Zunächst einmal ist $p_{2n+1}(0,0)=0$ für alle $n \mathbb{N}_{0}$. Um in 2n Schritten nach $x=0$ zurückzukehren muss $(X_{n})_{n \in \mathbb{N}_{0}}$ gleich oft (k-Mal) nach rechts bzw. links und gleich oft ((n-k)-Mal) nach oben bzw. unten gelaufen sein. Daraus folgt
+\begin{equation*}
+p_{2n}(0,0) = 4^{-2n} \sum_{k=0}^{n} \dfrac{(2n)!}{(k!)^{2}((n-k)!)^{2}} = 4^{-2n} \binom{2n}{n} \underbrace{\sum_{k=0}^{n} \binom{n}{k} \binom{n}{n-k}}_{= \binom{2n}{n}} = ({\underbrace{\binom{2n}{n} 2^{-n}}_{\sim \dfrac{1}{\sqrt{\pi n}}}})^{2} \sim \dfrac{1}{\pi n}
+\end{equation*}
+Also existiert wiederum ein $n_{0} \in \mathbb{N}$ mit $p_{2n}(0,0) \geq \dfrac{1}{4n}$ für alle $n \geq n_{0}$. Daraus folgt 
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{n}(0,0) \geq \sum_{n = n_{0}}^{\infty} p_{2n}(0,0) \geq \dfrac{1}{4} \sum_{n = n_{0}}^{\infty} \dfrac{1}{n} = \infty
+\end{equation*}
+$\Rightarrow$ x=0 ist rekurrent.
+\end{bsp}
+\begin{defi}[positiv und nullrekurrent]
+Ein rekurrenter Zustand $x \in E$ heißt
+\begin{itemize}
+\item[(i)] positiv rekurrent, falls $\mathbb{E}_{x}[S_{\lbrace x \rbrace}] < \infty$,
+\item[(ii)] nullrekurrent, falls $\mathbb{E}_{x}[S_{\lbrace x \rbrace}] = \infty$.
+\end{itemize}
+\end{defi}
+\begin{beti}[Unterschied positiv und nullrekurrent]
+Bei einem nullrekurrenten Zustand wissen wir zwar mit Sicherheit, dass die Rückkehrzeit endlich ist, aber die Wahrscheinlichkeiten für hohe Rückkehrzeiten sind zu groß, als dass es eine endliche Erwartung gäbe.
+\end{beti}
+\begin{sat}
+\label{nullrekurrent und limes}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Ein rekurrenter Zustand $x \in E$ ist genau dann nullrekurrent, wenn $\lim \limits_{n \to \infty} p_{n}(x,x) = 0$.
+\end{sat}
+\begin{kol}
+Ist $y \in E$ ein nullrekurrenter Zustand, dann gilt
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y) = 0 \quad \forall x \in E.
+\end{equation*} 
+\end{kol}
+\begin{proof}
+Sei $y \in E$ nullrekurrent. Dann folgt aus Satz $\ref{nullrekurrent und limes}$, dass $\lim \limits_{ n \to \infty} p_{n}(y,y) = 0$. Zudem ist 
+\begin{equation*}
+p_{n}(x,y) = \sum_{k=1}^{n} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] p_{n-k}(y,y) = \sum_{k=1}^{\infty} \mathbb{P}_{x}[S_{\lbrace y \rbrace} = k] \mathbbm{1}_{k \geq n} p_{n-k}(y,y).
+\end{equation*}
+Setze $f_{n}(k) := \mathbbm{1}_{k \geq n} p_{n-k}(y,y), \: k \in \mathbb{N}$. Dann gilt $f_{n}(k)$ $\stackrel{n \to \infty}{\to}$ 0, $\forall \: k \in \mathbb{N}$ und $\vert \vert f_{n} \vert \vert_{\infty} \leq 1$, $\forall n \in \mathbb{N}$.
+\end{proof}
+\noindent
+Also folgt die Behauptung aus dem Satz von Lebesgue.
+\begin{defi}[Periode]
+Für jedes $x \in E$ heißt $d(x):=ggT \lbrace n \in \mathbb{N}_{0} \: : \: p_{n}(x,x) > 0  \rbrace$ die Periode des Zustandes x.
+Ist $d(x)=1$, so heißt der Zustand x aperiodisch.
+\end{defi}
+\begin{bem}
+\label{Bemerkung zu Teilern}
+Sei $D \subseteq \mathbb{Z}$. Dann ist $d \in \mathbb{N}$ ein gemeinsamer Teiler von D (Schreibweise: $d \: \vert \: D$), falls $\dfrac{x}{d} \in \mathbb{Z}$ für alle $x \in D$. Ist $D = \lbrace 0 \rbrace$, so gilt $d \: \vert \: D$ für alle $d \in \mathbb{N}$, also $ggT(D)=\infty$. Falls $D \neq \lbrace 0 \rbrace$, so gilt
+\begin{equation*}
+d \: \vert \: D \quad \Rightarrow \quad d \leq \min \lbrace \vert x \vert \: : \: x \in D\setminus \lbrace 0 \rbrace \rbrace
+\end{equation*}
+Insbesondere ist
+\begin{equation*}
+ggT(D) = \min \lbrace \vert x \vert \: : \: x \in D\setminus \lbrace 0 \rbrace \rbrace \quad \Leftrightarrow \quad \lbrace ggT(D), -ggT(D) \rbrace \cap D \neq \emptyset 
+\end{equation*}
+\end{bem}
+\begin{bsp}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine einfache Irrfahrt auf dem Torus $E=(\mathbb{Z} / N \mathbb{Z})$, $N \geq 2$.
+\\
+Dann ist für alle $x \in E$
+\begin{equation*}
+d(x) =
+\begin{cases}
+1 & , \mathrm{falls} \: N \: \mathrm{ungerade}\\
+2 & , \mathrm{ falls }\: N \: \mathrm{gerade}
+\end{cases}
+\end{equation*}
+\end{bsp}
+\begin{sat}
+\label{Teiler als Linearkombi}
+Sei $\emptyset \neq D \subseteq \mathbb{Z}$ mit $D \neq \lbrace 0 \rbrace$.
+\begin{itemize}
+\item[a)] Dann existieren ein $k \in \mathbb{N}$, $a_{1},...,a_{k} \in \mathbb{Z}$ und $d_{1},...,d_{k} \in D$ mit
+\begin{equation*}
+ggT(D) = \sum_{i=1}^{k} a_{i} d_{i}
+\end{equation*} 
+\item[b)] Falls zusätzlich $D \subseteq \mathbb{N}_{0}$ mit $d_{1},d_{2} \in D$ $\Rightarrow$ $d_{1} + d_{2} \in D$, so existiert ein $N \in \mathbb{N}$ so, dass
+\begin{equation*}
+\lbrace n \cdot ggT(D) \: : \: n \geq N \rbrace \: \: = \: \: \lbrace d \in D \: : \: d \geq N \cdot ggT(D) \rbrace
+\end{equation*}
+\end{itemize}
+\end{sat}
+\begin{proof}
+a) Sei \^{D} die kleinste Teilmenge von $\mathbb{Z}$ mit der Eigenschaft, dass
+\begin{equation*}
+D \subseteq \hat{D} \quad \mathrm{und} \quad \forall d_{1},d_{2} \in \hat{D} \quad \Rightarrow \quad d_{1} \pm d_{2} \in \hat{D}
+\end{equation*}
+Betrachte nun die Menge
+\begin{equation*}
+\mathcal{D} := \lbrace \hat{d} \in \hat{D} \: : \: \exists k \in \mathbb{N}, \: a_{1},...,a_{k} \in \mathbb{Z}, \: d_{1},...,d_{k} \in D \: \: s.d. \: \: \hat{d} = \sum_{i=1}^{k} a_{i}d_{i} \rbrace
+\end{equation*}
+\dashuline{zu zeigen}: $\hat{D} = \mathcal{D}$
+\\
+\\
+Zunächst einmal gilt $D \subseteq \mathcal{D}$. Betrachte nun $x,y \in \mathcal{D}$. Dann gilt $x \pm y \in \mathcal{D}$. Da aber $\hat{D}$ die kleinste Teilmenge ist, die D enthält und abgeschlossen bzgl. Addition/Subtraktion ist, folgt $\hat{D} \subseteq \mathcal{D}$. Also $\hat{D} = \mathcal{D}$
+\\
+\\
+\dashuline{zu zeigen}: $ggT(D) = ggT(\hat{D})$
+\\
+\\
+Da $ggT(D) \: | \: \sum_{i=1}^{k} a_{i}d_{i}$ für alle $k \in \mathbb{N}$, $a_{1},...,a_{k} \in \mathbb{Z}$, $d_{1},...,d_{k} \in D$ folgt $ggT(D) \: | \: \hat{D}$. Also
+\begin{equation*}
+ggT(D) \leq ggT(\hat{D})
+\end{equation*}
+Adererseits ist $D \subseteq \hat{D}$, weshalb $ggT(\hat{D}) \: | \: D$. Also,
+\begin{equation*}
+ggT(\hat{D}) \leq ggT(D)
+\end{equation*}
+und somit gilt $ggT(D) = ggT(\hat{D})$.
+\\
+\\
+\dashuline{zu zeigen}: $ggT(\hat{D}) \in \hat{D}$
+\\
+\\
+Setze $m := \min \lbrace x \in \mathbb{N} \: : \: x \in \hat{D} \rbrace$. Aufgrund von Bemerkung $\ref{Bemerkung zu Teilern}$ gilt $ggT(\hat{D}) \leq m$. Durch die Anwendung des euklidischen Algorithmus ergibt sich für jedes $\hat{d} \in \hat{D}$, dass
+\begin{equation*}
+\hat{d} = a \cdot m + r \qquad \mathrm{für} \: a \in \mathbb{Z} \: \mathrm{und} \: r \in \lbrace 0,...,m-1 \rbrace
+\end{equation*}
+Also,
+\begin{equation*}
+r = \underbrace{\hat{d}}_{\in \hat{D}} - \underbrace{a \cdot m}_{\in \hat{D}} \in \hat{D}
+\end{equation*}
+Angenommen $r \neq 0$, so ist $r<m$ $\lightning$. Also ist $m \: | \: \hat{D}$ und folglich $m \leq ggT(\hat{D})$. Somit gilt $m=ggT(\hat{D})$ und $ggT(\hat{D}) \in \hat{D}$
+\\
+\\
+b) Sei zusätzlich angenommen, dass $D \subseteq \mathbb{N}_{0}$ und $d_{1}, d_{2} \in D$ $\Rightarrow$ $d_{1} + d_{2} \in D$.\\
+\\
+\\
+\dashuline{zu zeigen}: $\exists \: N \in \mathbb{N}:$ $\lbrace
+ n \cdot ggT(D) \: : \: n \geq N \rbrace$ $\subseteq$ D
+\\
+\\
+Da D abgeschlossen unter Addition ist, folgt $\hat{D} = \lbrace d_{2} - d_{1} \: : \: d_{1},d_{2} \in D \cup \lbrace 0 \rbrace \rbrace$. Da
+\begin{equation*}
+ggT(D) = ggT(\hat{D}) = \min \lbrace x \in \mathbb{N} \: : \: x \in \hat{D} \rbrace \quad (\mathrm{nach \: Beweisteil \: a}))
+\end{equation*}
+gibt es somit $d_{1} \in D \cup \lbrace 0 \rbrace$ und $d_{2} \in D$, $d_{2} > d_{1}$ so, dass
+\begin{equation*}
+ggT(D) = d_{2} - d_{1}
+\end{equation*}
+Falls $d_{1} = 0$, so gilt
+\begin{equation*}
+n \cdot ggT(D) = n \cdot d_{2} \in D \quad \forall n \in \mathbb{N} \quad \Rightarrow \quad N=1
+\end{equation*}
+Falls $d_{1} \neq 0$, so wähle ein $a \in \mathbb{N}$ mit $d_{1} = a \cdot ggT(D)$. Dann gilt für alle $m,r \in \mathbb{N}_{0}$ mit $0 \leq r < m$
+\begin{equation*}
+(a^{2} + m \cdot a +r)\cdot ggT(D) = (a+m)\cdot a \cdot ggT(D) + r \cdot ggT(D) = (a+m) \cdot d_{1} + r \cdot d_{2} \in D
+\end{equation*}
+Wähle somit $N = a^{2}$. Dann gilt $\lbrace n \cdot ggT(D) \: : \: n \geq N \rbrace \subseteq D.$ 
+\end{proof}
+\begin{kol}
+\label{Korollar 2.6}
+Sei$ (X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Dann gilt für jedes $x \in E$
+\begin{itemize}
+\item[a)] $d(x) < \infty$ $\quad$ $\Rightarrow$ $\quad$ $\exists \: N(x) \in \mathbb{N}$ $\quad$ : $\quad$ $p_{n \cdot d(x)}(x,x)>0$ $\quad$  $\forall n \geq N(x)$
+\item[b)] x ist aperiodisch $\quad$ $\Leftrightarrow$ $\quad$ $\exists \: N(x) \in \mathbb{N}$ $\quad$ : $\quad$ $p_{n}(x,x)>0$ $\quad$  $\forall n \geq N(x)$
+\end{itemize}
+\end{kol}
+\begin{proof}
+Für $x \in E$ sei $D(x) := \lbrace n \in \mathbb{N}_{0} \: : \: p_{n}(x,x)>0 \rbrace$. Falls $D(x) \neq \lbrace 0 \rbrace$, so ergibt sich für alle $n_{1},n_{2} \in D(x)$ aus der Chapman-Kolmogorov-Gleichung (Satz $\ref{Chapman-Kolmogorov Gleichung}$)
+\begin{equation*}
+p_{n_{1} + n_{2}}(x,x) = \sum_{z \in E} p_{n_{1}}(x,z)p_{n_{2}}(z,x) \geq p_{n_{1}}(x,x)p_{n_{2}}(x,x) > 0 
+\end{equation*}
+Also, $n_{1} + n_{2} \in D(x)$. Folglich ist $D(x)$ abgeschlossen unter der Addition.
+\begin{itemize}
+\item[a)] $d(x) < \infty$ $\Rightarrow$ $D(x) \neq \lbrace 0 \rbrace$ $\stackrel{\mathrm{Satz} \: \ref{Teiler als Linearkombi} \: b)}{\Rightarrow}$ $\: \exists \: N(x) \in \mathbb{N} \: : \: p_{n \cdot d(x)}(x,x) > 0, \: \forall n \geq N(x)$
+\item[b)] $"\Rightarrow"$ Folgt direkt aus a)
+\\
+$"\Leftarrow"$ Sei also nun $p_{n}(x,x)>0$ für alle $n \geq N(x) \in \mathbb{N}$. Dann enthält $D(x)$ unendlich viele Primzahlen. Folglich ist $d(x)=ggT(D(x))=1$
+\end{itemize}
+\end{proof}
+\begin{bsp}[Träge Markovkette]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Angenommen der Zustand $x \in E$ ist periodisch $(d(x) \geq 2)$. Betrachte man die Markovkette $(X'_{n})_{n \in \mathbb{N}_{0}}$ mit Startverteilung $\nu$ und Übergangsmatrix $P' = \epsilon I + (1-\epsilon)P, \epsilon \in (0,1)$, wobei I die Einheitsmatrix auf E ist. Dann gilt $d(x)=1$ für alle $x \in E$, da
+\begin{equation*}
+\lbrace 1 \rbrace \in \lbrace n \in \mathbb{N}_{0} \: : \: p'_{n}(x,x)>0 \rbrace
+\end{equation*}
+Die Markovkette  $(X'_{n})_{n \in \mathbb{N}_{0}}$ nennt man auch träge Markovkette.
+\end{bsp}
+\subsection{Klassifikation von Markovketten}
+\begin{defi}[erreichbar, kommunizieren, wesentlich]
+\mbox{}
+\begin{itemize}
+\item[a)] Ein Zustand $y \in E$ heißt erreichbar von $x \in E$ $(x \rightarrow y)$, falls ein $n \in \mathbb{N}_{0}$ existiert mit $p_{n}(x,y)>0$
+\item[b)] Die Zustände $x,y \in E$ kommunizieren $(x\leftrightarrow y)$, falls $x \rightarrow y$ und $y \rightarrow x$. 
+\item[c)] Eine nichtleere Teilmenge $\emptyset \neq K \subseteq E$ heißt kommunizierende Klasse, falls
+\begin{itemize}
+\item[(i)] $x \leftrightarrow y$ für alle $x,y \in K$
+\item[(ii)] aus $x \in K$ und $y \in E$ mit $x \leftarrow y$ folgt $y \in K$ $\quad (Abgeschlossenheit)$
+\end{itemize}
+\item[d)] Ist $x \in E$ Element einer kommunizierenden Klasse, so heißt x wesentlich(sonst unwesentlich).
+\end{itemize}
+\end{defi}
+\begin{bem}
+Jedes $x \in E$ liegt höchstens in einer kommunizierenden Klasse. 
+\end{bem}
+\begin{bsp}
+\mbox{}
+\begin{itemize}
+\item kommunizierende Klassen: $\lbrace 1,2,3 \rbrace$, $\lbrace 5 \rbrace$
+\item unwesentliche Zustände: $\lbrace 4,6,7 \rbrace$
+\end{itemize}
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.4]{Beispiel_Kommunizierende_Klasse}
+\caption{Markovkette mit zwei kommunizierenden Klassen}
+\end{figure}
+\noindent
+\end{bsp}
+\begin{sat}
+Die Relation $\leftrightarrow$ ist eine Äquivalenzrelation. Auf der Menge der wesentlichen Zustände sind die zugehörigen Äquivalenzklassen die kommunizierenden Klassen.
+\end{sat}
+\begin{proof}
+Offensichtlich ist die Relation $\leftrightarrow$ symmetrisch und reflexiv. Seien nun $x,y,z \in E$ mit $x \leftrightarrow y$ und $y \leftrightarrow z$. Dann gibt es $n_{1},n_{2} \in \mathbb{N}$ mit $p_{n_{1}}(x,y)>0$ und $p_{n_{2}}(y,z)>0$.
+\\
+Aus der Chapman-Kolmogorov-Gleichung folgt
+\begin{equation*}
+p_{n_{1} + n_{2}}(x,z) \geq p_{n_{1}}(x,y) \cdot p_{n_{2}}(y,z) > 0 \Rightarrow x \rightarrow z
+\end{equation*}
+Analog ergibt sich $z \rightarrow x$. Somit ist $\leftrightarrow$ auch transitiv. Die zweite Aussage folgt direkt aus der Definition der kommunizierenden Klasse.
+\end{proof}
+\begin{sat}
+\label{rekkurent und x -> y so gilt y -> x und y rekurrent}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E. Wenn $x \in E$ rekurrent ist und $x \rightarrow y$, so gilt $y \rightarrow x$ und y ist rekurrent.  
+\end{sat}
+\begin{proof}
+\dashuline{zu zeigen}: $y \rightarrow x$
+\\
+\\
+Angenommen $y \not\rightarrow x$, d.h. $p_{n}(y,x) = 0$ für alle  $n \in \mathbb{N}$. Wähle $n_{0} \in \mathbb{N}_{0}$ so, dass
+\begin{equation*}
+p_{n_{0}}(x,y) > 0.
+\end{equation*}
+Da x rekurrent ist, gilt
+\begin{equation*}
+0 \stackrel{\mathrm{Satz} \: \ref{alternative Chrakterisierung von rekurrent/transient}}{=} \mathbb{P}_{x}[X_{n} = x \: für \: endlich \: viele \: n \in \mathbb{N}_{0}]
+\end{equation*}
+\begin{equation*}
+\geq \mathbb{P}_{x}[X_{n_{0}} = y, X_{n_{0} + 1} \neq x, X_{n_{0} + 2} \neq x,...]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[X_{n_{0}}=y] \cdot \mathbb{P}_{x}[X_{n_{0}} = y,  X_{n_{0} + 1} \neq x, X_{n_{0} + 2} \neq x,... \: | \: X_{n_{0}} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} p_{n_{0}}(x,y) \cdot \mathbb{P}_{y}[X_{1} \neq x, X_{2} \neq x,...]
+\end{equation*}
+Setze $A_{n} = \lbrace X_{1} \neq x,...,X_{n} \neq x \rbrace.$ Dann gilt 
+\begin{equation*}
+A_{n} \downarrow \bigcap_{k=1}^{\infty} A_{k} = \lbrace X_{1} \neq x, X_{2} \neq x,...\rbrace 
+\end{equation*}
+und
+\begin{equation*}
+\mathbb{P}_{y}[X_{1} \neq x,..., X_{n} = x] = 1 - \mathbb{P}_{y}[{\lbrace X_{1} \neq x,..., X_{n} = x \rbrace}^{C}] \geq 1 - \sum_{k =1}^{n} \underbrace{\mathbb{P}_{y}[X_{k} = x]}_{p_{n}(y,x) = 0} = 1
+\end{equation*}
+Damit erhält man aus der Stetigkeit des Wahrscheinlichkeitsmaßes $\mathbb{P}_{y}$
+\begin{equation*}
+\mathbb{P}_{y}[X_{1} \neq x, X_{2} \neq x,...] = \lim_{n \to \infty} \mathbb{P}_{y}[X_{1} \neq x,...,X_{n} \neq x] = 1.
+\end{equation*}
+Also
+\begin{equation*}
+0 \geq p_{n_{0}}(x,y) \cdot \mathbb{P}_{y}[X_{1} \neq x, X_{2} \neq x,...] = p_{n_{0}}(x,y) > 0 \: \: \lightning
+\end{equation*}
+Folglich gilt $y \rightarrow x$.
+\end{proof}
+\noindent
+\dashuline{zu zeigen}: y ist rekurrent
+\\
+\\
+Seien nun $k,l \in \mathbb{N}$ so gewählt, dass $p_{k}(x,y) > 0$ und $p_{l}(y,x) > 0$. Dann ergibt sich aus der Chapman-Kolmogorov-Gleichung
+\begin{equation*}
+ p_{k+l+n}(y,y) \geq p_{l}(y,x) \cdot p_{n}(x,x) \cdot p_{k}(x,y) \qquad \forall n \in \mathbb{N}
+\end{equation*} 
+Also
+\begin{equation*}
+\sum_{n=1}^{\infty} p_{k+l+n}(y,y) \geq \underbrace{p_{l}(y,x)}_{>0} \cdot \underbrace{p_{k}(x,y)}_{>0} \cdot \sum_{n=1}^{\infty} p_{n}(x,x) \stackrel{\mathrm{Satz} \: \ref{alternative Chrakterisierung von rekurrent/transient}}{=} \infty.
+\end{equation*}
+da x rekurrent ist.
+\begin{kol} 
+Rekurrente Zustände sind wesentlich.
+\end{kol}
+\begin{proof}
+Sei $x \in E$ rekurrent, und setze $K(x) := \lbrace y \in E \: : \: x \rightarrow y \rbrace$. Nach Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ gilt aber $y \rightarrow x$ für alle $y \in K(x)$. Folglich ist $K(x)$ eine kommunizierende Klasse, d.h. x ist wesentlich.
+\end{proof} 
+\begin{bem}
+Unwesentliche Zustände sind transient.
+\end{bem}
+\begin{sat}
+\label{x und y selbe Periode, x transient y auch x nullrekurrent y auch}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und $x,y \in E$. Wenn $x \leftrightarrow y$, so gilt
+\begin{itemize}
+\item[a)] x und y haben die selbe Periode, d.h. $d(x) = d(y)$ 
+\item[b)] x ist transient $\Leftrightarrow$ y ist transient
+\item[c)] x ist nullrekurrent $\Leftrightarrow$ y ist nullrekurrent
+\end{itemize}
+\end{sat}
+\begin{bem}
+\label{Bemerkung 16}
+Ist $x \in E$ positiv rekurrent und gilt $x \rightarrow y$, so ist auch y positiv rekurrent.
+\end{bem}
+\begin{proof}
+a) \dashuline{zu zeigen}: $x \leftrightarrow y \quad \Rightarrow \quad d(x) = d(y)$
+\\
+\\
+Bezeichne mit $D(x) := \lbrace n \in \mathbb{N}_{0} \: : \: p_{n}(x,x)>0 \rbrace$, $x \in E$. Seien nun $x,y \in E$ mit x $\leftrightarrow$ y. Wähle $m,n \in \mathbb{N}_{0}$ so, dass $p_{m}(x,y)>0$ und $p_{n}(y,x)>0$. Dann gilt für jedes $k \in D(y)$ aufgrund der Chapman-Kolmogorov-Gleichung
+\begin{equation*}
+p_{m+k+n}(x,x) \geq p_{m}(x,y) \cdot p_{k}(y,y) \cdot p_{n}(y,x) > 0
+\end{equation*}
+Folglich ist $m+k+n \in D(x)$. Ist nun d ein Teiler von D(x), so gilt
+\begin{equation*}
+ d \: | \: \lbrace m+k+n \: : \: k \in D(y) \rbrace
+\end{equation*} 
+Da aber $m+n \in D(x)$ und somit $d \: | \: (m+n)$, folgt $d \: | \: D(y)$. Also, 
+\begin{equation*}
+d(x) = ggT(D(x)) \leq ggT(D(y)) = d(y)
+\end{equation*}
+Durch Vertauschen der Rollen von x und y folgt analog $d(y) \leq d(x)$. Also $d(x) = d(y)$.
+\\
+\\
+b) $"\Rightarrow"$ Sei x transient. Da x $\leftrightarrow$ y, existieren $k,l \in \mathbb{N}$ so, dass  $p_{k}(x,y)>0$ und $p_{l}(y,x)>0$. Dann folgt aus der Chapman-Kolmogorov-Gleichung
+\begin{equation*}
+p_{k+l+n}(x,x) \geq p_{k}(x,y) \cdot p_{n}(y,y) \cdot p_{l}(y,x) > 0 \quad \forall n \in \mathbb{N}.
+\end{equation*}
+Daraus folgt aus Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ 
+\begin{equation*}
+\infty > \sum_{n=1}^{\infty} p_{k+l+n}(x,x) \geq \underbrace{p_{k}(x,y)}_{>0} \cdot \underbrace{p_{l}(y,x)}_{>0} \sum_{n=1}^{\infty} p_{n}(y,y) \quad \Rightarrow \quad \sum_{n=1}^{\infty} p_{n}(y,y) < \infty
+\end{equation*}
+Also ist y transient.
+\\
+$"\Leftarrow"$ Analog.
+\\
+\\
+c) \: $"\Rightarrow"$ Sei x nullrekurrent. Da $x \leftrightarrow y$ existieren somit $k,l \in \mathbb{N}$ mit $p_{k}(x,y) > 0$ und $p_{l}(y,x) > 0$. Wiederum folgt aus der Chapman-Kolmogorov-Gleichung
+\begin{equation*}
+p_{k+l+n}(x,x) \geq p_{k}(x,y) \cdot p_{n}(y,y) \cdot p_{l}(y,x) \quad \forall n \in \mathbb{N}
+\end{equation*}
+Dann folgt aus Satz $\ref{nullrekurrent und limes}$
+\begin{equation*}
+0 = \lim_{n \to \infty}p_{k+l+n}(x,x) \geq \limsup_{n \to \infty} \underbrace{p_{k}(x,y)}_{>0} \cdot \underbrace{p_{l}(y,x)}_{>0} \cdot p_{n}(y,y) \quad \Rightarrow \quad \lim_{n \to \infty} p_{n}(y,y) = 0
+\end{equation*}
+Folglich ist y nach Satz $\ref{nullrekurrent und limes}$ nullrekurrent.
+\\
+$"\Leftarrow"$ Analog.
+\end{proof}
+\begin{defi}[irreduzibel]
+Eine stochastische Matrix P auf E heißt irreduzibel, falls E nur aus einer kommunizierenden Klasse besteht. Eine $(\nu,P)$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ heißt irreduzibel, falls P irreduzibel ist.
+\end{defi}
+\begin{sat}
+\label{irr. Markovkette x positiv rekurrent}
+Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette auf einem endlichen Zustandsraum E, so ist $x \in E$ positiv rekurrent.
+\end{sat}
+\begin{proof}
+Zunächst einmal gilt für jedes $x \in E$
+\begin{equation*}
+\sum_{y \in E}G(x,y) = \sum_{n=0}^{\infty} \sum_{y \in E} p_{n}(x,y) = \sum_{n=0}^{\infty} 1 = \infty
+\end{equation*}
+Da E endlich ist, gibt es folglich ein $y \in E$ mit $G(x,y) = \infty$. Da E aufgrund der Irreduzibilität nur aus einer kommunizierenden Klasse besteht, ist insbesondere $y \rightarrow x$. Folglich existiert ein $m \in \mathbb{N}$ mit $p_{m}(x,y)>0$. Aus der Chapman-Kolmogorov-Gleichung folgt zudem $p_{m+n}(x,x) \geq p_{n}(x,y) \cdot p_{m}(y,x)$. Also,
+\begin{equation*}
+G(x,x) \geq \sum_{n=0}^{\infty} p_{n}(x,y)p_{m}(y,x) = \underbrace{p_{m}(y,x)}_{>0} \cdot G(x,y) = \infty
+\end{equation*}
+Somit ist x nach Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ rekurrent. Aus Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ folgt dann aber, dass jeder Zustand in E rekurrent ist. Angenommen $x \in E$ wäre nullrekurrent. Dann folgt aus Satz $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$, dass jeder Zustand nullrekurrent ist. Aber dann folgt aus Korollar $\ref{nullrekurrent und limes}$
+\begin{equation*}
+1 = \lim_{n \to \infty} \sum_{y \in E} p_{n}(x,y) \stackrel{\vert E \vert < \infty}{=} 0 \: \: \lightning 
+\end{equation*}
+$\Rightarrow$ alle Zustände in E sind positiv rekurrent.  
+\end{proof}
+\mbox{}
+\\
+\begin{sat}
+\label{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }
+Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette mit Zustandsraum E. Dann gilt
+\begin{itemize}
+\item[a)]$y \in E$ ist rekurrent $\quad$ $\Rightarrow$ $\quad$ $\mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] = 1$ $\quad$ $\forall x,y \in E$ 
+\item[b)]$y \in E$ ist transient $\quad$ $\Rightarrow$ $\quad$ $\mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] < 1$ $\quad$ $\forall x,y \in E$  
+\end{itemize}
+\end{sat}
+\begin{proof}
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, folgt $x \leftrightarrow y$ für alle $x,y \in E$. Insbesondere sind nach Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ und $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$ alle Zustände entweder rekurrent oder transient, d.h.
+\begin{itemize}
+\item[a)] $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] = 1 \: \forall y \in E$
+\item[b)] $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] < 1 \: \forall y \in E$
+\end{itemize}
+Sei nun $x,y \in E$ mit $x \neq y$. Dann existieren wegen $x \leftrightarrow y$ ein $n \in \mathbb{N}$ so, dass
+\begin{equation*}
+n = \min \lbrace k \in \mathbb{N} \: : \: p_{k}(y,x)>0 \rbrace.
+\end{equation*}
+Dann gilt für jedes N>n
+\begin{equation*}
+\mathbb{P}_{y}[S_{\lbrace y \rbrace} \leq N, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{N} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{n-1} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k]\mathbb{P}_{y}[X_{n} = x \: | \: X_{S_{\lbrace y \rbrace}} = y, S_{\lbrace y \rbrace} = k] + \sum_{k=n+1}^{N} \mathbb{P}_{y}[X_{n} =x]\mathbb{P}_{y}[S_{\lbrace y \rbrace} = k \: | \: X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \sum_{k=1}^{n-1} \mathbb{P}_{y}[S_{\lbrace y \rbrace} = k]\mathbb{P}_{y}[X_{n-k} = x] + \sum_{k=n+1}^{N} \mathbb{P}_{y}[X_{n} =x]\mathbb{P}_{y}[S_{\lbrace y \rbrace} = k-n]
+\end{equation*}
+wobei im letzten Schritt sowohl die Markoveigenschaft als auch die starke Markoveigenschaft benutzt wurde. Zudem gilt nach Wahl von n, dass
+\begin{equation*}
+\mathbb{P}_{y}[X_{n-k} = x] = 0 \quad \forall \; k \in \lbrace 1,2,...,n-1 \rbrace
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= \lim_{N \to \infty} \mathbb{P}_{y}[S_{\lbrace y \rbrace} \leq N, X_{n} = x]
+\end{equation*}
+\begin{equation*}
+= p_{n}(y,x) \sum_{k=n+1}^{\infty}\mathbb{P}_{x}[S_{\lbrace y \rbrace} = k-n]
+\end{equation*}
+\begin{equation*}
+ = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty]
+\end{equation*}
+\begin{itemize}
+\item[a)] Ist nun $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] = 1$, so folgt
+\begin{equation*}
+p_{n}(y,x) = \mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x] = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] \: \Leftrightarrow \: \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] = 1 
+\end{equation*}
+\item[b)] Ist nun $\mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty] < 1$, so gilt
+\begin{equation*}
+p_{n}(y,x) > \mathbb{P}_{y}[S_{\lbrace y \rbrace} < \infty, X_{n} = x] = p_{n}(y,x) \cdot \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] \: \Leftrightarrow \: \mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] < 1 
+\end{equation*}
+\end{itemize}
+\end{proof}
+\begin{defi}[Rekurrenz/Transienz einer Markovkette]
+Eine irreduzible $(\nu,P)$-Markovkette heißt rekurrent/transient, wenn ein Zustand rekurrent/transient ist.
+\end{defi}
+\subsection{Kriterium für Rekurrenz und Transienz}
+\begin{sat} 
+Sei $h:E \to [0,\infty)$ eine Funktion mit der Eigenschaft, dass $(Lh)(x) \leq 0$ für alle $x \in E$. Falls es ein $y \in E$ gibt mit $(Lh)(y) < 0$, so ist y transient.
+\begin{proof}
+Zunächst einmal gilt für jede beschränkte Funktion $f: E \to \mathbb{R}$ und jedes $n \in \mathbb{N}$
+\begin{equation*}
+(P^{n}f)(x) - f(x) = \sum_{k=0}^{n-1} (P^{k+1}f)(x) - (P^{k}f)(x) = \sum_{k=0}^{n-1} (P^{k} Lf)(x) \quad \forall x \in E.
+\end{equation*}
+Setze $g:= -Lh \geq 0$. Dann gilt nach Voraussetzungen, dass $g(y) > 0$. Daraus folgt
+\begin{equation*}
+h(y) \geq h(y) - (P^{n}h)(y) = \sum_{k=0}^{n-1} (P^{k}g)(y) = \sum_{k=0}^{n-1} \sum_{z \in E} p_{k}(y,z)g(z) \geq g(y) \sum_{k=0}^{n-1} p_{k}(y,y)
+\end{equation*}
+für jedes $n \in \mathbb{N}$. Also,
+\begin{equation*}
+\sum_{k=1}^{\infty} p_{k}(y,y) \leq \lim_{n \to \infty} \sum_{k=0}^{n-1} p_{k}(y,y) \leq \dfrac{h(y)}{g(y)} < \infty
+\end{equation*}
+Folglich ist der Zustand y nach Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ transient.
+\end{proof}
+\end{sat}
+\begin{bem}
+Eine derartige Funktion h bezeichnet man auch als eine Lyapunovfunktion.
+\end{bem}
+\begin{sat}[Dynkin-Formel]
+\label{Dynkin-Formel}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und T eine Stoppzeit mit $\mathbb{E}_{x}[T]< \infty$ für alle $x \in E$. Dann gilt für jede beschränkte Funktion $f: E \to \mathbb{R}$
+\begin{equation*}
+\mathbb{E}_{x}[f(X_{T})] - f(x) = \mathbb{E}_{x}[\sum_{k=0}^{T-1}(Lf)(X_{k})] \quad \forall x \in E.
+\end{equation*}
+\end{sat}
+\begin{proof}
+Zunächst einmal ist $\lbrace T \leq n-1 \rbrace \in \mathfrak{F}_{n-1}^{X}$ für jedes $n \in \mathbb{N}$. Weiterhin gilt 
+\begin{equation*}
+\mathbb{P}_{x}[X_{T \wedge n} = y] = \mathbb{P}_{x}[X_{T \wedge n} = y, T \leq n - 1] + \mathbb{P}_{x}[X_{T \wedge n} = y, T > n - 1]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[X_{T} = y, T \leq n-1] + \sum_{z \in E} \mathbb{P}_{x}[X_{n-1}=z, T > n-1]\mathbb{P}_{x}[X_{n}=y \:| \: \underbrace{T > n-1}_{\in \mathfrak{F}_{n-1}^{X}}, X_{n-1} = z]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[X_{T} = y, T \leq n-1] + \sum_{z \in E} \mathbb{P}_{x}[X_{n-1}=z, T > n-1]p(z,y)
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{E}_{x}[f(X_{T \wedge n})] = \sum_{y \in E} f(y) \mathbb{P}_{x}[X_{T \wedge n}=y]
+\end{equation*}
+\begin{equation*}
+= \sum_{y \in E} f(y) \mathbb{P}_{x}[X_{T} = y, T \leq n-1] + \sum_{z \in E} (Pf)(z) \mathbb{P}_{x}[X_{n-1}=z, T > n-1]
+\end{equation*}
+\begin{equation*}
+= \mathbb{E}_{x}[f(X_{T \wedge (n-1)}) \mathbbm{1}_{T \leq n-1}] + \mathbb{E}_{x}[(Pf)(X_{n-1})\mathbbm{1}_{T > n-1}]
+\end{equation*}
+Daraus ergibt sich dann aber
+\begin{equation*}
+\mathbb{E}_{x}[f(X_{T \wedge n})] = \mathbb{E}_{x}[f(X_{T \wedge (n-1)})] + \mathbb{E}_{x}[(Lf)(X_{n-1})\mathbbm{1}_{T > n-1}]
+\end{equation*}
+Induktiv folgt somit
+\begin{equation*}
+\mathbb{E}_{x}[f(X_{T \wedge n})] - f(x) = \sum_{k=1}^{n} \mathbb{E}_{x}[(Lf)(X_{k-1})\mathbbm{1}_{T > k-1}]
+\end{equation*}
+\begin{equation*}
+= \mathbb{E}_{x}[\sum_{k=0}^{n-1} (Lf)(X_{k})\mathbbm{1}_{T > k}] = \mathbb{E}_{x}[\sum_{k=0}^{T \wedge n-1} (Lf)(X_{k})]
+\end{equation*}
+Da nach Vorraussetzung f beschränkt ist und $\mathbb{E}_{x}[T]<\infty$ ist, so folgt aus dem Satz von Lebesgue
+\begin{equation*}
+\mathbb{E}_{x}[f(X_{T})] - f(x) = \lim_{n \to \infty} \mathbb{E}_{x}[f(X_{T \wedge n})] - f(x)
+\end{equation*}
+\begin{equation*}
+= \lim_{n \to \infty} \mathbb{E}_{x}[\sum_{k=0}^{(T \wedge n)-1} (Lf)(X_{k})] =  \mathbb{E}_{x}[\sum_{k=0}^{T-1} (Lf)(X_{k})].
+\end{equation*}
+\end{proof}
+\begin{lemi}
+\label{Px[SA < unendlich] < 1, so y transient}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette mit Zustandsraum E und $\emptyset \neq A \subsetneq E$.
+\begin{itemize}
+\item[a)] Falls $\mathbb{P}_{x}[S_{A} < \infty]<1$ für ein $x \in A$, so ist jeder Zustand $y \in E$ transient.
+\item[b)] Falls A endlich und $\mathbb{P}_{x}[S_{A}<\infty]=1$ für alle $x \in A$, so ist jeder Zustand $y \in E$ rekurrent.  
+\end{itemize}
+\end{lemi}
+\begin{proof}
+Da nach Vorraussetzungen $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, gibt es nach Definition nur eine kommunizierende Klasse.
+\begin{itemize}
+\item[a)] Für $x \in A$ gilt $S_{\lbrace x \rbrace}(\omega) \geq S_{A}(\omega)$ für alle $\omega \in \Omega$. Daraus folgt
+\begin{equation*}
+0<\mathbb{P}_{x}[S_{A}=\infty] = \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq S_{A}, S_{A} = \infty] \leq \mathbb{P}_{x}[S_{\lbrace x \rbrace} = \infty] \: \Leftrightarrow \: \mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty] < 1
+\end{equation*}
+Also ist jeder Zustand x transient. Der Satz $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$ impliziert nun, dass jeder Zustand $y \in E$ transient ist. 
+\item[b)] Bezeichne wieder mit $S_{A}^{k}$ die k-te Treffzeit der Menge A, d.h.
+\begin{equation*}
+S_{A}^{0} := 0 \quad und \quad S_{A}^{k} := \inf \lbrace n> S_{A}^{k-1} \: : \: X_{n} \in A \rbrace, \quad k \in \mathbb{N}
+\end{equation*}
+Da $\mathbb{P}_{x}[S_{A} < \infty] = 1$ für alle $x \in A$, so folgt für jedes $n \in \mathbb{N}$
+\begin{equation*}
+\mathbb{P}_{x} [S_{A}^{n} < \infty] 
+\end{equation*}
+\begin{equation*}
+= \sum_{y \in A} \mathbb{P}_{x}[S_{A}^{n} < \infty \: | \: S_{A}^{n-1} < \infty, X_{S_{A}^{n}}=y]\mathbb{P}_{x} [S_{A}^{n-1} < \infty, X_{S_{A}^{n-1}} = y] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{starke Markoveigenschaft}}{=} \sum_{y \in A} \underbrace{\mathbb{P}_{y}[S_{A} < \infty]}_{= 1} \mathbb{P}_{x} [S_{A}^{n-1} < \infty, X_{S_{A}^{n-1}} = y]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{A}^{n-1} < \infty]
+\end{equation*}
+Induktiv ergibt sich daraus, dass $\mathbb{P}_{x}[S_{A}^{k} < \infty] = 1$ für alle $n \in \mathbb{N}$ und $x \in A$.
+\\
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, gilt für alle $x \in A$ und $y \in E \setminus A$, dass $x \leftrightarrow y$, d.h.
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} = \infty] < 1
+\end{equation*}
+Folglich existiert zu jedem $x \in A$ ein $N_{x} \in \mathbb{N}$ und $\epsilon_{x} > 0$ mit 
+\begin{equation*}
+\mathbb{P}_{x}[n < S_{\lbrace y \rbrace}] \leq 1 - \epsilon_{x} \qquad \forall \: n \geq N_{x}
+\end{equation*}
+Setze $N := \max \lbrace N_{x} \: : \: x \in A \rbrace$ und $\epsilon := \min \lbrace \epsilon_{x} \: : \: x \in A \rbrace$. Da A endlich ist, gilt $N < \infty, \: \epsilon > 0 $ und
+\begin{equation*}
+\mathbb{P}_{x}[n < S_{\lbrace y \rbrace}] \leq 1 - \epsilon \qquad \forall n \geq N, \: x \in A
+\end{equation*}
+Da $S_{A}^{n} \geq n$, folgt somit
+\begin{equation*}
+\mathbb{P}_{x}[S_{A}^{n} < S_{\lbrace y \rbrace}] \leq 1 - \epsilon \qquad \forall n \geq N, \: x \in A
+\end{equation*}
+Zudem gilt für alle $k \in \mathbb{N}$
+\begin{equation*}
+\mathbb{P}_{x}[S_{A}^{kN} < S_{\lbrace y \rbrace}] = 
+\end{equation*}
+\begin{equation*}
+\sum_{z \in A} \mathbb{P}_{x}[S_{A}^{kN} < S_{\lbrace y \rbrace} \: | \: S_{A}^{(k-1)N} < S_{\lbrace y \rbrace}, X_{S_{A}^{(k-1)N}} = z] \mathbb{P}_{x}[ S_{A}^{(k-1)N} < S_{\lbrace y \rbrace}, X_{S_{A}^{(k-1)N}} = z]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{starke Markoveigenschaft}}{=} \sum_{z \in A} \underbrace{\mathbb{P}_{z}[S_{A}^{N} < S_{\lbrace y \rbrace}]}_{\leq 1-\epsilon} \mathbb{P}_{x}[ S_{A}^{(k-1)N} < S_{\lbrace y \rbrace}, X_{S_{A}^{(k-1)N}} = z]
+\end{equation*}
+\begin{equation*}
+\leq (1- \epsilon)\mathbb{P}_{x}[ S_{A}^{(k-1)N} < S_{\lbrace y \rbrace}].
+\end{equation*}
+Daraus ergibt sich induktiv, dass
+\begin{equation*}
+\mathbb{P}_{x}[S_{A}^{kN} < S_{\lbrace y \rbrace}] \leq (1- \epsilon)^{k} \qquad \forall \: k \in \mathbb{N}, \: x \in A
+\end{equation*}
+Somit erhält man 
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} = \infty] = \limsup_{k \to \infty} \mathbb{P}_{x}[S_{A}^{kN} < \infty, S_{\lbrace y \rbrace} = \infty]
+\end{equation*}
+\begin{equation*}
+\leq \limsup_{k \to \infty} \mathbb{P}_{x}[S_{A}^{kN} < S_{\lbrace y \rbrace}] = \limsup_{k \to \infty} (1 - \epsilon)^{k} = 0
+\end{equation*}
+Also,
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] = 1
+\end{equation*}
+Angenommen y wäre transient. Dann folgt aus Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$, dass
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] < 1 \quad \lightning
+\end{equation*}
+Folglich ist y rekurrent. Aus Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ folgt dann aber, dass jeder Zustand $y \in E$ rekurrent ist.
+\end{itemize}
+\end{proof}
+\begin{sat}
+\label{Folgerung Dynkin Formel, (LR), (LT)}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette mit Zustandsraum E.
+\begin{itemize}
+\item[a)] Falls $\emptyset \neq A \subsetneq E$ und $h: E \to [0, \infty)$ existieren mit
+\begin{equation*}
+(Lh)(x) \leq 0 \quad \forall x \in A^{C} \quad und \quad h(y) < \inf_{z \in A} h(z) \: für \: ein \: y \in E \qquad (LT)
+\end{equation*} 
+so gilt
+\begin{equation*}
+\mathbb{P}_{y}[S_{A} < \infty] \leq \dfrac{h(y)}{\inf_{z \in A} h(z)} < 1
+\end{equation*}
+Insbesondere ist jeder Zustand $y \in E$ transient.
+\item[b)] Falls eine endliche Menge $\emptyset \neq A \subsetneq E$ und $h: E \to [0, \infty)$ existieren mit
+\begin{equation*}
+(Lh)(x) \leq 0 \quad \forall x \in A^{C} \quad und \quad \vert \lbrace x \: : \: h(x) \leq c \rbrace \vert < \infty \quad c \geq 0 \qquad (LR)
+\end{equation*}
+so gilt $\mathbb{P}_{x}[S_{A}< \infty] = 1$ für alle $x \in E$. Insbesondere ist jeder Zustand $y \in E$ rekurrent.
+\end{itemize}
+\end{sat}
+\begin{proof}
+\mbox{}
+\begin{itemize}
+\item[a)] Offensichtlich gilt für die Stoppzeit $S_{A} \wedge n$, dass $\mathbb{E}_{x}[S_{A} \wedge n] \leq n$ für alle $x \in E$ und $n \in \mathbb{N}$. Aus der Dynkin-Formel(Satz $\ref{Dynkin-Formel}$) angewendet auf $T = S_{A} \wedge n$ und $f = h \wedge n$ folgt zusammen mit dem Lemma von Fatou
+\begin{equation*}
+h(y) = \liminf_{m \to \infty} h(y) \wedge m \geq \liminf_{m \to \infty}
+\liminf_{n \to \infty} \mathbb{E}_{y}[h(X_{S_{A} \wedge n}) \wedge m] 
+\end{equation*}
+\begin{equation*}
+\geq \mathbb{E}_{y}[h(X_{S_{A}})\mathbbm{1}_{S_{A} < \infty}] \geq \inf_{z \in A} h(z) \mathbb{P}_{y}[S_{A} < \infty]
+\end{equation*}
+Also,
+\begin{equation*}
+\mathbb{P}_{y}[S_{A}< \infty] \leq \dfrac{h(y)}{\inf_{z \in A} h(z)} < 1
+\end{equation*}
+Zusammen mit Lemma $\ref{Px[SA < unendlich] < 1, so y transient}$ a) folgt somit, dass jeder Zustand in E transient ist.
+\item[b)] \dashuline{zu zeigen}: Für jedes $c \geq 0$ gilt $\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} < \infty] = 1 \quad \forall x \in \lbrace h \leq c \rbrace$
+\\
+\\
+Aus der Irreduziblität folgt zunächst einmal, dass für jedes $c \geq 0$
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} = \infty] < 1 \qquad \forall x \in \lbrace h \leq c \rbrace
+\end{equation*}
+Folglich existiert zu jedem $x \in \lbrace h \leq c \rbrace$ ein $N_{x} \in \mathbb{N}$ und $\epsilon_{x} > 0$ so, dass
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > n] \leq 1 - \epsilon_{x} \qquad n \geq N_{x}
+\end{equation*}
+Setze $N := \max {\lbrace N_{x} \: : \: x \in {\lbrace h \leq c \rbrace}  \rbrace}$ und $\epsilon := \min \lbrace \epsilon_{x} \: : \: x \in \lbrace h \leq c \rbrace \rbrace$. Da nach Voraussetzungen die Menge $\lbrace h \leq c \rbrace$ endlich ist für jedes $c \geq 0$, folgt $N < \infty$, $\epsilon > 0$ und
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > n] \leq 1 - \epsilon \quad \forall n \geq N \quad \mathrm{und} \quad x \in {\lbrace h \leq x \rbrace}
+\end{equation*}
+Weiterhin gilt für jedes $k \in \mathbb{N}$
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace h > c \rbrace}> kN]
+\end{equation*}
+\begin{equation*}
+= \sum_{y \in {\lbrace h \leq c \rbrace}} \mathbb{P}_{x}[S_{\lbrace h > c \rbrace}> kN \: | \: S_{\lbrace h > c \rbrace} > (k-1)N, X_{(k-1)N}=y] \mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > (k-1)N, X_{(k-1)N}=y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \sum_{y \in {\lbrace h \leq c \rbrace}} \underbrace{\mathbb{P}_{y}[S_{\lbrace h > c \rbrace}> N]}_{\leq 1 - \epsilon} \mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > (k-1)N, X_{(k-1)N}=y]
+\end{equation*}
+\begin{equation*}
+\leq (1-\epsilon) \mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > (k-1)N]
+\end{equation*}
+Folglich ergibt sich induktiv, dass $\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} > (k-1)N] \leq (1-\epsilon)^{k}$ für alle $k \in \mathbb{N}$ und $x \in \lbrace h \leq c \rbrace$.
+\\
+Somit erhält man 
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} = \infty] = \limsup_{k \to \infty} \mathbb{P}_{x}[S_{\lbrace h > c \rbrace} = kN] \leq \limsup_{k \to \infty} (1-\epsilon)^{k} = 0 \quad \forall x \in {\lbrace h > c \rbrace}
+\end{equation*}
+\dashuline{zu zeigen}: $\mathbb{P}_{x}[S_{\lbrace h > c \rbrace} < \infty] = 1 \quad \forall x \in A$
+\\
+\\
+Für jedes $c \geq 0$ gilt für die Stoppzeit $S_{A} \wedge n \wedge S_{{\lbrace h > c \rbrace}}$, dass $\mathbb{E}_{x}[S_{A} \wedge n \wedge S_{{\lbrace h > c \rbrace}}] \leq n < \infty$ für alle $n \in \mathbb{N}$ und $x \in E$. Mit der Dynkin-Formel (Satz $\ref{Dynkin-Formel}$) angewendet auf $T=S_{A} \wedge n \wedge S_{{\lbrace h > c \rbrace}}$ und $f = h \wedge m$ folgt zusammen mit dem Lemma von Fatou
+\begin{equation*}
+h(x) = \liminf_{m \to \infty} h(x) \wedge m
+\end{equation*} 
+\begin{equation*}
+\geq \liminf_{m \to \infty} \liminf_{n \to \infty} \mathbb{E}_{x}[h(X_{S_{A} \wedge n \wedge S_{\lbrace h > c \rbrace}} ) \wedge m] \geq \mathbb{E}_{x}[h(X_{S_{A} \wedge n \wedge S_{\lbrace h > c \rbrace}} )]
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+h(x) \geq \mathbb{E}_{x}[h(X_{S_{{\lbrace h > c \rbrace}}}) \mathbbm{1}_{S_{{\lbrace h > c \rbrace} < \infty}}\mathbbm{1}_{S_{{\lbrace A \rbrace} = \infty}}] \geq c \cdot \mathbb{P}_{x}[S_{{\lbrace h > c \rbrace}} < \infty, S_{{\lbrace h > c \rbrace}} = \infty]
+\end{equation*}
+\begin{equation*}
+= c \cdot \mathbb{P}_{x}[S_{A} = \infty]
+\end{equation*}
+Da dies für jedes $c \geq 0$ gilt, folgt schließlich
+\begin{equation*}
+\mathbb{P}_{x}[S_{A} = \infty] \leq \limsup_{c \to \infty} \dfrac{h(x)}{c} = 0 \quad \Leftrightarrow \quad \mathbb{P}_{x}[S_{A} < \infty] = 1 \qquad \forall x \in E
+\end{equation*}
+Folglich ist nach Lemma $\ref{Px[SA < unendlich] < 1, so y transient}$ b) jeder Zustand $y \in E$ rekurrent.
+\end{itemize}
+\end{proof}
+\begin{bsp}[Einfache Irrfahrt auf $\mathbb{Z}$] Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E = \mathbb{Z}$ mit folgendem Übergangsgraphen
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.5]{einfache Irrfahrt auf Z}
+\caption{Einfache Irrfahrt auf $\mathbb{Z}$}
+\end{figure}
+\noindent
+Betrachte zunächst den Fall $p \neq \dfrac{1}{2}$. Dann gilt für $h(x) = {\left(\dfrac{1-p}{p} \right)}^{x}$, $x \in E$
+\begin{equation*}
+(Lh)(x) = p(h((x+1)-h(x)) + (1-p)(h(x-1)-h(x)) = h(x)(1-2p+(2p-1)) = 0
+\end{equation*}
+für alle $x \in E$. Wähle nun $A = \lbrace 0 \rbrace$ und 
+\begin{equation*}
+y =
+\begin{cases}
+\: \: \:1 & , p > \dfrac{1}{2}\\
+& \\
+-1 & , p < \dfrac{1}{2}
+\end{cases}
+\end{equation*}
+Dann gilt 
+\begin{equation*}
+(Lh)(x) = 0 \quad \forall \: x \in A^{C} \quad und \quad h(y) < h(0) = 1
+\end{equation*}
+Somit ist die Bedingung (LT) erfüllt. Da zudem $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, folgt aus Satz $\ref{Folgerung Dynkin Formel, (LR), (LT)}$ a), dass jeder Zustand transient ist.
+\\
+Im Falle $p = \dfrac{1}{2}$ betrachte die Funktion $h(x) = \vert x \vert$. Dann gilt
+\begin{equation*}
+(Lh)(x) = \dfrac{1}{2} (\vert x +1 \vert - \vert x \vert) + \dfrac{1}{2}(\vert x -1 \vert - \vert x \vert) =
+\begin{cases}
+0 & , x \neq 0\\
+
+1 & , x = 0
+\end{cases}
+\end{equation*}
+Wähle nun $A = \lbrace 0 \rbrace$. Dann gilt
+\begin{equation*}
+(Lh)(x) = 0 \quad \forall \: x \in A^{C} \quad und \quad \vert \lbrace h \leq c\rbrace \vert < \infty \quad \forall \: c \geq 0.
+\end{equation*}
+Somit ist die Bedingung (LR) erfüllt. Da $(X_{n})_{n \in \mathbb{N}_{0}}$ zudem irreduzibel ist, ist folglich nach Satz $\ref{Folgerung Dynkin Formel, (LR), (LT)}$ b) jeder Zustand rekurrent.
+\end{bsp}
+\begin{bsp}[Einfache, symmetrische Irrfahrt auf $\mathbb{Z}^{d}$, $d \geq 3$]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E = \mathbb{Z}^{d}$, $d \geq 3$ mit folgender Übergangswahrscheinlichkeiten
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+\dfrac{1}{2d} & ,  \vert \vert x - y \vert \vert = 1\\
+0 & , sonst
+\end{cases}
+\end{equation*}
+Betrachte nun die Funktion $h(0)=1$ und $h(x)= {\vert \vert x \vert \vert}_{2}^{-\alpha}, \: x \neq 0$. Dann gilt für jedes $x \in \mathbb{Z}^{d}$ mit ${\vert \vert x \vert \vert}_{2} > 1$ und $e \in \mathbb{Z}^{d}$ mit ${\vert \vert e \vert \vert}_{2} = 1$
+\begin{equation*}
+h(x+e) - h(x) = h(x)\left(\left(\dfrac{{\vert \vert x + e \vert \vert}_{2}^{2}}{{\vert \vert x \vert \vert}_{2}^{2}}\right)^{-\alpha} - 1 \right) = h(x)\left(\left( 1 + \dfrac{{2\langle x,e \rangle + 1}}{{\vert \vert x \vert \vert}_{2}^{2}}\right)^{-\alpha} - 1 \right)
+\end{equation*}
+\begin{equation*}
+ = h(x)\left(1 - \alpha \dfrac{{2\langle x,e \rangle + 1}}{{\vert \vert x \vert \vert}_{2}^{2} } + 2\alpha(\alpha + 1)\dfrac{{{\langle x,e \rangle}^{2}}}{{\vert \vert x \vert \vert}_{2}^{4} } + \mathcal{O}({\vert \vert x \vert \vert}_{2}^{-3}) - 1 \right)
+\end{equation*}
+wobei die Taylorentwicklung der Funktion $f(z)=(1+z)^{-\alpha}= 1 - \alpha z + \dfrac{1}{2} \alpha(\alpha +1)z^{2} + \mathcal{O}({\vert z \vert}^{3})$ benutzt wurde. Da zudem gilt
+\begin{equation*}
+\sum_{{\vert \vert e \vert \vert}_{2} = 1} 1 = 2d, \quad \sum_{{\vert \vert e \vert \vert}_{2} = 1} \langle x,e \rangle = 0 \quad und \quad \sum_{{\vert \vert e \vert \vert}_{2} = 1} {\langle x,e \rangle}^{2} = 2 {\vert \vert x \vert \vert}_{2}^{2}
+\end{equation*}
+folgt
+\begin{equation*}
+\sum_{{\vert \vert e \vert \vert}_{2} = 1} \dfrac{1}{2d} \left(h(x+e) - h(x)\right) = \dfrac{1}{2d}h(x)(-2 \alpha d {\vert \vert x \vert \vert}_{2}^{-2} + 4 \alpha (\alpha + 1){\vert \vert x \vert \vert}_{2}^{-2} + \mathcal{O}({\vert \vert x \vert \vert}_{2}^{-3}) )
+\end{equation*}
+\begin{equation*}
+= \dfrac{\alpha}{d} {\vert \vert x \vert \vert}_{2}^{-2 \alpha - 2} (2(\alpha + 1) - d + \mathcal{O}({\vert \vert x \vert \vert}_{2}^{-1}))
+\end{equation*}
+Daraus folgt für $d \geq 3$ $\alpha \in \left(0,\dfrac{d-2}{2}\right)$ und $A := \lbrace x \: : \: {\vert \vert x \vert \vert}_{2} \leq r \rbrace$ für ein hinreichend großes $r>0$, dass
+\begin{equation*}
+(Lh)(x) \leq 0 \quad \forall \: x \in A^{C} \quad und \quad h(y) < \inf_{z \in A} h(z) \quad für \: ein \: y \: mit \: {\vert \vert y \vert \vert}_{2} > 2r.
+\end{equation*}
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ zudem irreduzibel ist, folgt aus Satz $\ref{Folgerung Dynkin Formel, (LR), (LT)}$ a), dass die einfache, symmetrische Irrfahrt auf $E = \mathbb{Z}^{d}$ für jedes $d \geq 3$ transient ist.
+\end{bsp}
+\begin{sat}[Chung-Fuchs]
+\label{Chung-Fuchs}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible Irrfahrt auf $E = \mathbb{Z}^{d}$ mit $p(x,y) = \mu (y-x), \: \: x,y \in E$, wobei $\mu$ ein Wahrscheinlichkeitsmaß auf E ist. Bezeichne mit $\varphi$ die charakteristische Funktion von $\mu$, d.h.
+\begin{equation*}
+\varphi(t) = \int_{\mathbb{R}^{d}} e^{i \langle t,x \rangle} \mu (\diff x ) = \sum_{x \in E} e^{i \langle t,x \rangle} p(0,x) \quad , \qquad t \in [-\pi, \pi)^{d}
+\end{equation*}
+Die Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ ist genau dann rekurrent, wenn
+\begin{equation*}
+\lim_{\lambda \uparrow 1} \int_{[-\pi, \pi)^{d}} \Re (\dfrac{1}{1-\lambda \varphi(t)}) \diff t  = \infty
+\end{equation*}
+\end{sat}
+\begin{bem}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Irrfahrt auf $\mathbb{Z}^{d}$ mit Start in $x \in \mathbb{Z}^{d}$ und $p(x,y) = \mu(y-x)$, d.h.
+\begin{equation*}
+X_{n} = x + \sum_{k=1}^{n} Z_{k} \quad mit \: (Z_{n})_{k \in \mathbb{N}} \: u.i.v\quad mit \quad \mathbb{P}[Z_{1} = y] = \mu(y).
+\end{equation*}
+\begin{itemize}
+\item[a)]  $\varphi(0) = 1$ und $\vert \varphi(t) \vert \leq \mathbb{E}[\vert e^{i \langle t, Z_{1} \rangle} \vert] = 1 $
+\item[b)] Es gilt
+\begin{equation*}
+\sum_{x \in \mathbb{Z}^{d}} e^{i \langle t, x \rangle} p_{n}(0,x) = \mathbb{E}_{0}[e^{i \langle t, X_{n} \rangle} ] = \mathbb{E}[\prod_{k=1}^{n} e^{i \langle t, Z_{k} \rangle}] = \mathbb{E}[e^{i \langle t, Z_{1} \rangle}]^{n} = {\varphi (t)}^{n}
+\end{equation*}
+Insbesondere folgt aus dem Satz von Lebesgue
+\begin{equation*}
+(2 \pi)^{-d} \int_{[-\pi, \pi)^{d}} e^{i \langle t, x \rangle} {\varphi (t)}^{n} \diff t = \lim_{r \to \infty} \sum_{\substack{{z \in \mathbb{Z}^{d}} \\ {\vert \vert z \vert \vert < r}}} \underbrace{ p_{n}(0,z) (2 \pi)^{-d} \int_{[-\pi, \pi)^{d}} e^{i \langle t, z- x \rangle} \diff t }_{= (2\pi)^{d} \mathbbm{1}_{x=
+z}} = p_{n}(0,x)
+\end{equation*}
+\end{itemize}
+\end{bem}
+\begin{proof}
+Für $\lambda \in (0,1)$ folgt aus dem Satz von Lebesgue
+\begin{equation*}
+R(\lambda) = \sum_{n=0}^{\infty} \lambda^{n} p_{n}(0,0) = \sum_{n = 0}^{\infty} \lambda^{n} (2 \pi)^{-d}  \int_{[-\pi, \pi)^{d}} {\varphi (t)}^{n} \diff t
+\end{equation*}
+\begin{equation*}
+= (2\pi)^{-d}  \int_{[-\pi, \pi)^{d}} \sum_{n=0}^{\infty} {\lambda \varphi (t)}^{n} \diff t = (2\pi)^{-d}  \int_{[-\pi, \pi)^{d}} \dfrac{1}{1 - \lambda \varphi(t)} \diff t
+\end{equation*}
+Da die linke Seite rein reel ist, folgt somit
+\begin{equation*}
+R(\lambda) = (2\pi)^{-d}  \int_{[-\pi, \pi)^{d}} \mathfrak{R}({\dfrac{1}{1 - \lambda \varphi(t)}}) \diff t
+\end{equation*}
+Da nun aber $G(0,0) = \lim \limits_{\lambda \uparrow 1} R(\lambda)$ und $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, so folgt die Behauptung aus Satz $\ref{alternative Chrakterisierung von rekurrent/transient}$ und Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$.
+\end{proof}
+
+\begin{bsp}[Einfache, symmtetrische Irrfahrt auf $\mathbb{Z}^{d}$]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette mit Zustandsraum $E= \mathbb{Z}^{d}$ und Übergangsmatrix $P = (p(x,y))_{x,y \in E}$ mit
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+\dfrac{1}{2d} & , \vert \vert x - y \vert \vert = 1\\
+& \\
+0 & , \mathrm{sonst}
+\end{cases}
+\end{equation*}
+Dann gilt 
+\begin{equation*}
+\varphi (t) = \sum_{x \in E} e^{i \langle t,x \rangle} p(0,x) = \dfrac{1}{d} \sum_{i=1}^{d} \cos(t_{i})
+\end{equation*}
+Da aber 
+\begin{equation*}
+\dfrac{s^{2}}{6} \leq 1 - \cos(s) \leq \dfrac{s^{2}}{2} \qquad \forall \: s \in [- \pi, \pi)
+\end{equation*}
+so ist nach $\ref{Chung-Fuchs}$ der Zustand $x=0$ und wegen der Irreduzibilität damit nach Satz $\ref{rekkurent und x -> y so gilt y -> x und y rekurrent}$ jeder Zustand genau dann rekurrent, wenn für jedes $\epsilon > 0$
+\begin{equation*}
+\int_{{\vert \vert t \vert \vert}_{2} < \epsilon} \dfrac{1}{{\vert \vert t \vert \vert}_{2}} \diff t = c_{d} \int_{0}^{\epsilon} r^{d-1} r^{-2} \diff r = \infty \quad \Leftrightarrow \quad d \leq 2
+\end{equation*}
+D.h. die einfache, symmetrische Irrfahrt auf $\mathbb{Z}^{d}$ ist für $d \leq 2$ rekurrent und für $d>2$ transient.
+\end{bsp}
+\begin{bsp}[Symmetrische Irrfahrt auf $\mathbb{Z}$ mit 2. Moment]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible Markovkette auf $E=\mathbb{Z}$ mit Übergangswahrscheinlichkeit $p(x,y) = \mu (y-x)$, wobei das Wahrscheinlichkeitsmaß $\mu$ folgende Eigenschaft besitzt
+\begin{equation*}
+\mu (x) = \mu (-x) \qquad und \qquad \sum_{x \in \mathbb{Z}} x^{2} \mu(x) =: c_{1} < \infty
+\end{equation*} 
+Dann gilt
+\begin{equation*}
+\varphi(t) = \sum_{x \in \mathbb{Z}} e^{itx} \mu(x) = \dfrac{1}{2} \sum_{x \in \mathbb{Z}} \left( e^{itx} \mu(x) + e^{-itx} \mu(-x)  \right) \stackrel{\mu (x) = \mu (-x)}{=} \sum_{x \in \mathbb{Z}} \cos(tx)\mu(x)
+\end{equation*}
+Aus der Taylorentwicklung der Kosinusfunktion folgt $\cos(s) \geq 1 - \dfrac{1}{2} s^{2}$. Also
+\begin{equation*}
+\varphi(t) \geq  \sum_{x \in \mathbb{Z}} \left( 1 - \dfrac{t^{2}}{2} x^{2}\right) \mu(x) = 1 - \dfrac{c_{1}}{2} t^{2}
+\end{equation*}
+Damit erhält man 
+\begin{equation*}
+\lim_{\lambda \uparrow 1} \int_{-\pi}^{\pi} \mathfrak{R}(1 - \lambda \varphi(t))^{-1} \diff t \stackrel{\mathrm{Fatou}}{\geq} \int_{-\pi}^{\pi} (1 -  \varphi(t))^{-1} \diff t \geq 2 \int_{0}^{\pi} \dfrac{2}{c_{1} t^{2}} \diff t = \infty
+\end{equation*}
+Somit folgt aus dem Satz von Chung-Fuchs (Satz $\ref{Chung-Fuchs}$), dass die Irrfahrt $(X_{n})_{n \in \mathbb{N}_{0}}$ rekurrent ist.
+\end{bsp}
+\section{Gleichgewichtsverteilung und invariante Maße}
+\subsection{Eigenschaften von invarianten und reversiblen Maßen}
+\begin{defi}[invariantes Maß, Gleichgewichtsverteilung]
+Sei $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix. Ein Maß $\pi$ auf E heißt invariantes Maß bezüglich P, falls
+\begin{equation*}
+\pi (x) = (\pi P)(x) = \sum_{y \in E} \pi (y) p(y,x)
+\end{equation*}
+Falls $\pi$ invariant und eine Verteilung ist, d.h. $\pi[E] = 1$, so nennt man $\pi$ eine Gleichgewichtsverteilung (oder invariante Verteilung). Bezeichne mit
+\begin{equation*}
+Inv(P) := \lbrace \pi \: : \: E \to [0,1] \: : \: \pi P = \pi \: und \: \pi[E] = 1 \rbrace
+\end{equation*}
+die Menge der Gleichgewichtsverteilungen.
+\end{defi}
+\clearpairofpagestyles
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{bem}
+
+\label{Auflistende Bemerkung zu invarianten Maßen}
+\mbox{}
+\begin{itemize}
+\item[a)] Ein invariantes Maß $\pi : \: E \to [0,1]$ ist als Zeilenvektor $(\pi \in [0,\infty]^{E})$ aufgefasst ein (nichtnegativer) Linkseigenvektor von $P$ zum Eigenwert 1.
+\item[b)] Ist $\vert E \vert < \infty$, so kann jedes invariantes Maß zu einer Gleichgewichtsverteilung normiert werden.
+\item[c)] Ist $\pi$ ein invariantes Maß bzgl. $P$, so gilt $\pi = \pi P^{n}$ für jedes $n \in \mathbb{N}_{0}$. Falls $P$ zudem irreduzibel und $\pi \neq 0$ ist, so folgt
+\begin{equation*}
+\pi(x) > 0 \qquad \forall \: x \in E.
+\end{equation*}
+Da nämlich $\pi \neq 0$, gibt es ein $z \in E$ mit $\pi (z) > 0$. Aus der Irreduzibilität von $P$ folgt weiterhin, dass zu jedem $x \in E \setminus \lbrace z \rbrace$ ein $n \in \mathbb{N}$ existiert mit $p_{n}(z,x)>0$. Also,
+\begin{equation*}
+\pi (x) = (\pi P^{n})(x) = \sum_{y \in E} \pi (y) p_{n} (y,x) \geq
+\underbrace{\pi (z)}_{>0} \underbrace{ p_{n} (z,x)}_{>0} > 0.
+\end{equation*} 
+\item[d)] Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette mit Zustandsraum E und Übergangsmatrix $P$. Wenn $\pi$ eine Gleichgewichtsverteilung ist, so gilt für jedes $n \in \mathbb{N}_{0}$
+\begin{equation*}
+\mathbb{P}_{\pi}[X_{n} = x] = \sum_{y \in E} \pi (y) \mathbb{P}_{y}[X_{n} = x] = \sum_{y \in E} \pi (y) p_{n}(y,x) = \pi (x).  
+\end{equation*}
+Insbesondere ist
+\begin{equation*}
+\mathbb{P}_{\pi} [X_{k+1} = x_{1},...,X_{k+n} = x_{n}] = \sum_{y \in E} \mathbb{P}_{\pi} [X_{k} = y] \mathbb{P}_{\pi} [X_{k+1} = x_{1},...,X_{k+n} = x_{n} \: | \: X_{k} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \sum_{y \in E} \pi (y)  \mathbb{P}_{y} [X_{1} = x_{1},...,X_{n} = x_{n}]
+\end{equation*}
+\begin{equation*}
+\mathbb{P}_{\pi} [X_{1} = x_{1},...,X_{n} = x_{n}]
+\end{equation*}
+\item[e)] Für $\pi_{1}, \pi_{2} \in Inv(P)$ und $\lambda \in [0,1]$ gilt $(\lambda \pi_{1} + (1- \lambda) \pi_{2})[E] = \lambda + (1-\lambda)=1$ und
+\begin{equation*}
+(\lambda \pi_{1} + (1- \lambda) \pi_{2})P = \lambda \pi_{1}P + (1- \lambda) \pi_{2}P = \lambda \pi_{1} + (1- \lambda) \pi_{2}.
+\end{equation*}
+Folglich ist die Menge $Inv(P)$ der Gleichgewichtsverteilungen konvex.
+\end{itemize}
+\end{bem}
+
+\begin{bsp}
+Sei $E = \lbrace 1,2 \rbrace$ und 
+\begin{equation*}
+P=
+\begin{bmatrix}
+ 1- \alpha & \alpha \\
+ \beta & 1-\beta \\
+\end{bmatrix}
+\qquad mit \quad \alpha , \beta \in [0,1].
+\end{equation*}
+Dann ist für $\alpha + \beta \neq 0$ die Gleichgewichtsverteilung $\pi$ gegeben durch
+\begin{equation*}
+\pi(1) = \dfrac{\beta}{\alpha + \beta } \quad und \quad \pi(2) = \dfrac{\alpha}{\alpha + \beta }
+\end{equation*}
+Für $\alpha = \beta = 0$ gilt
+\begin{equation*}
+Inv(P) = \lbrace \lambda \cdot \mathbbm{1}_{\lbrace 1 \rbrace} + (1-\lambda) \cdot \mathbbm{1}_{\lbrace 2 \rbrace} \: : \: \lambda \in [0,1] \rbrace.
+\end{equation*}
+\end{bsp}
+\begin{bsp}[Irrfahrt auf dem Torus]
+Sei $E = (\mathbb{Z}/N \mathbb{Z})^{d}$ für $N \geq 2$ und $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf E mit Übergangswahrscheinlichkeit $p(x,y) = \mu (y-x)$ für ein Wahrscheinlichkeitsmaß $\mu$ auf E. Dann ist $\pi(x) = N^{-d}, \: x \in E$ eine Gleichgewichtsverteilung, denn
+\begin{equation*}
+\sum_{y \in E} \pi(y)p(x,y) = N^{-d} \sum_{y \in E} \mu (y-x) = N^{-d} \sum_{y \in E} \mu (y) =  N^{-d} = \pi (x) \qquad \forall \: x \in E.
+\end{equation*}
+\end{bsp}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{bsp}
+Sei $E= (\mathbb{Z} / (2N)\mathbb{N})$ und $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Irrfahrt auf E mit
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+p & , y = (x+2) \: mod \: 2N  \\
+1-p & , y = (x-2) \: mod \: 2N 
+\end{cases} 
+\qquad p \in (0,1)
+\end{equation*}
+Bezeichne mit
+\begin{equation*}
+G := \lbrace 2k \: : \: k \in \mathbb{N}_{0} \rbrace \cap E \quad und \quad U := \lbrace 2k +1 \: : \: k \in \mathbb{N}_{0} \rbrace \cap E
+\end{equation*}
+und setze für $\lambda \in [0,1]$
+\begin{equation*}
+\pi_{\lambda}(x) := \dfrac{\lambda}{N}\mathbbm{1}_{G}(x) + \dfrac{1-\lambda}{N}\mathbbm{1}_{U}(x) \qquad, x \in E
+\end{equation*}
+Dann gilt
+\begin{equation*}
+\sum_{y \in E} \pi_{\lambda}(y)p(y,x) = \dfrac{\lambda}{N} \sum_{y \in G} p(y,x) + \dfrac{1-\lambda}{N} \sum_{y \in U} p(y,x)
+\end{equation*}
+\begin{equation*}
+= \dfrac{\lambda}{N}\mathbbm{1}_{G}(x)(1-p+p) + \dfrac{1-\lambda}{N}\mathbbm{1}_{U}(x)(1-p+p) = \pi_{\lambda}(x)
+\end{equation*}
+für alle $x \in E$. Folglich ist $\pi_{\lambda} \in Inv(P)$ für alle $\lambda \in [0,1]$, d.h. $\vert Inv(P) \vert = \infty$. Beachte, dass die stochastische Matrix $P$ nicht irreduzibel ist und zwei kommunizierenden Klassen besitzt, nämlich die Menge G und U.
+\end{bsp}
+\begin{sat}
+\label{höchstens eine Gleichverteilung}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E.
+\begin{itemize}
+\item[a)] Falls $(X_{n})_{n \in \mathbb{N}_{0}}$  irreduzibel ist, so gilt $\vert Inv(P) \vert \in \lbrace 0,1 \rbrace$. D.h. es gibt höchstens eine Gleichgewichtsverteilung.
+\item[b)] Falls $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel und transient ist, so gilt $Inv(P) = \emptyset$. D.h. es gibt keine Gleichgewichtsverteilung.  
+\end{itemize}
+\end{sat}
+\begin{proof}
+\mbox{}
+\begin{itemize}
+\item[a)] Definiere $\bar{P} = (\bar{p}(x,y))_{x,y \in E}$ durch $\bar{p}(x,y) := \sum_{n=1}^{\infty} 2^{-n} p_{n}(x,y) \:, \quad x,y \in E$. Dann ist $\bar{P}$ eine stochastische Matrix, denn für alle $x \in E$ gilt
+\begin{equation*}
+\sum_{y \in E} \bar{p} (x,y) \stackrel{\mathrm{Fubini}}{=} \sum_{n=1}^{\infty} 2^{-n} \sum_{y \in E} p_{n}(x,y) = \sum_{n=1}^{\infty} 2^{-n} = 1
+\end{equation*}
+Da P nach Voraussetzungen irreduzibel ist, folgt $\bar{p}(x,y)>0$ für alle $x,y \in E$. Angenommen es gäbe zwei Gleichgewichtsverteilungen $\pi_{1},\pi_{2} \in Inv(P)$ mit $\pi_{1} \neq \pi_{2}$. Da
+\begin{equation*}
+(\pi_{i} \bar{P})(x) = \sum_{y \in E} \pi_{i}(y) \bar{p}(y,x) \stackrel{\mathrm{Fubini}}{=} \sum_{n=1}^{\infty} 2^{-n} \sum_{y \in E} \pi_{i} p(y,x) = \pi_{i}(x) \sum_{n=1}^{\infty} 2^{-n} = \pi_{i}(x)
+\end{equation*} 
+für alle $x \in E$ und $i \in \lbrace 1,2 \rbrace$, ist $\pi_{1}, \pi_{2} \in Inv(\bar{P})$. Betrachte nun das signierte Maß
+\begin{equation*}
+\bar{\pi} := \pi_{1} - \pi_{2}.
+\end{equation*}
+Dann gilt $\bar{\pi} \bar{P} = \pi_{1} \bar{P} - \pi_{2} \bar{P} = \pi_{1} - \pi_{2} = \bar{\pi}$. Da $\bar{\pi} \neq 0$ und $\bar{\pi}[E]=0$ existieren $x,y \in E$ mit $\bar{\pi}(x) > 0$ und $\bar{\pi}(y) < 0$. Weiterhin gilt
+\begin{equation*}
+\sum_{z \in E} \vert \bar{\pi}(z) \vert = \sum_{z \in E} \vert (\bar{\pi}\bar{P})(z) \vert
+\end{equation*}
+\begin{equation*}
+= \sum_{z \in E}\vert \underbrace{\bar{\pi}(x)\bar{p}(x,z)}_{>0} + \underbrace{\bar{\pi}(y)\bar{p}(y,z)}_{<0} +  \sum_{\substack{ z' \in E \\ z' \neq x,y } }\bar{\pi}(z')\bar{p}(z',z) \vert
+\end{equation*}
+\begin{equation*}
+< \sum_{z \in E} \sum_{z' \in E} \vert \bar{\pi}(z') \vert \bar{p}(z',z)
+\end{equation*}
+\begin{equation*}
+= \sum_{z' \in E} \vert \bar{\pi}(z') \vert \quad \lightning
+\end{equation*}
+Folglich ist $\bar{\pi}=0$, d.h. $\pi_{1} = \pi_{2}$.
+\item[b)] Angenommen $Inv(P) \neq \emptyset$, d.h. es gibt eine Gleichgewichtsverteilung $\pi$. Nach Voraussetzung ist jeder Zustand $y \in E$ transient. Also folgt aus dem Korollar $\ref{transienter Zustand dann lim n -> unendl. pn(x,y) = 0}$ und dem Satz von Lebesgue
+\begin{equation*}
+0 = \sum_{x \in E} \pi (x) \lim_{n \to \infty}p_{n}(x,y) = \lim_{n \to \infty} \sum_{x \in E} \pi(x) p_{n}(x,y) = \pi(y) \qquad \forall \: y \in E
+\end{equation*}
+\mbox{}
+\\
+Also,
+\begin{equation*}
+\sum_{y \in E} \pi (y) = 0 \neq 1 \quad \lightning
+\end{equation*}
+Folglich gibt es keine Gleichgewichtsverteilung.
+\end{itemize}
+\end{proof}
+\begin{bsp}[doppelt stochastische Übergangsmatrizen]
+\label{doppelt stochastische Übergangsmatrizen}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E, wobei die Übergangsmatrix $P$ folgende Eigenschaft besitzt
+\begin{equation*}
+\sum_{y \in E} p(y,x) = 1 \qquad \forall \: x \in E,
+\end{equation*}
+d.h. P ist doppelt stochastisch. Ein Spezialfall von doppelt stochastischen Matrizen ist
+\begin{equation*}
+ p(x,y) = \mu(y-x) \qquad, \quad x,y \in E
+\end{equation*} 
+für ein Wahrscheinlichkeitsmaß $\mu$ auf E. Dann ist $\pi(x) = 1$ für alle $x \in E$ ein invariantes Maß, denn 
+\begin{equation*}
+\sum_{y \in E} \pi(y) p(y,x) \sum_{y \in E} p(y,x) = 1 = \pi(x) \qquad , \quad x \in E.
+\end{equation*}
+\end{bsp}
+\begin{bsp}[Einfache, asymmetrische Irrfahrt auf $\mathbb{Z}$]
+\label{Einfache, asymmetrische Irrfahrt auf Z}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E=\mathbb{Z}$ mit $p(x,x+1) = p$ und $p(x,x-1)=1-p$ für alle $x \in E$ und $p \in (0,1)$. Nach Beispiel $\ref{doppelt stochastische Übergangsmatrizen}$ ist $\pi(x) = 1$ für alle $x \in E$ ein invariantes Maß. Für  $p \neq \dfrac{1}{2}$ ist zudem $\pi(x) = {\left( \dfrac{p}{1-p} \right)}^{x}$, $x \in E$ ein invariantes Maß, denn
+\begin{equation*}
+\sum_{y \in E} \pi(y) p(y,x) = \pi(x-1)p(x-1,x) + \pi(x+1)p(x+1,x)= {\left( \dfrac{p}{1-p} \right)}^{x}(1-p+p) = \pi(x)
+\end{equation*}
+\end{bsp}
+\begin{sat}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\pi,P)$-Markovkette mit Zustandsraum E, wobei angenommen sei, dass die Startverteilung $\pi$ invariant ist. Dann ist für jedes $N \in \mathbb{N}_{0}$ der stochastische Prozess $(Y_{n})_{0 \leq n \leq N}$ mit $Y_{n} := X_{N-n}$ eine $(\pi,P^{*})$-Markovkette mit
+\begin{equation*}
+p^{*}(x,y) := \dfrac{\pi (y) p(y,x)}{\pi(x)} \qquad \forall \: x,y \in E.
+\end{equation*}
+Die stochastische Matrix $P^{*}$ heißt auch duale Übergangsmatrix.
+\end{sat}
+\begin{proof}
+Da $P$ irreduzibel ist, ist nach Bemerkung $\ref{Auflistende Bemerkung zu invarianten Maßen}$ c) $\pi(x) > 0$ für alle $x \in E$. Somit sind die Matrixeinträge von $P^{*}$ wohldefiniert. Zudem gilt
+\begin{equation*}
+\sum_{y \in E} p^{*}(x,y) = \dfrac{1}{\pi (x)} \sum_{y \in E} \pi (y) p(y,x) = 1 \qquad \forall \: x \in E
+\end{equation*}
+d.h. $P^{*}$ ist eine stochastische Matrix. Aufgrund von Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i) genügt es nun
+\\
+\\
+\dashuline{zu zeigen}: $\: \forall \: n \in \lbrace 0,1,...,N \rbrace$ und $y_{0},...,y_{n} \in E$ gilt
+\begin{equation*}
+\mathbb{P}_{\pi} [Y_{0} = y_{0},...,Y_{n}=y_{n}] = \pi(y_{0})p^{*}(y_{0},y_{1}) \cdot ... \cdot p^{*}(y_{n-1},y_{n})
+\end{equation*}
+Für $n \in \lbrace 0,1,...,N \rbrace$ und $y_{0},...,y_{n} \in E$ betrachte nun
+\begin{equation*}
+\mathbb{P}_{\pi} [Y_{0} = y_{0},...,Y_{n}=y_{n}] = \mathbb{P}_{\pi} [X_{N} = y_{0},...,X_{N-n}=y_{n}] 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\pi}[X_{N-n} = y_{n}] \mathbb{P}_{\pi} [X_{N} = y_{0},...,X_{N-n+1}=y_{n-1} \: | \: X_{N-n}=y_{n}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \mathbb{P}_{\pi}[X_{N-n} = y_{n}] \mathbb{P}_{Y_{n}} [X_{n} = y_{0},...,X_{1}=y_{n-1}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{"Satz 1.8"}}{=} \underbrace{(\pi P^{N-n})}_{\pi}(y_{n}) \mathbb{P}_{Y_{n}} [X_{1} = y_{n-1},...,X_{n}=y_{0}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{Besitzen Markovketten die Markoveigenschaft}}{=} \pi(y_{n}) p(y_{n},y_{n-1}) \cdot ... \cdot p(y_{1},y_{0})
+\end{equation*}
+\begin{equation*}
+= \pi(y_{0})p^{*}(y_{0},y_{1}) \cdot ... \cdot p^{*}(y_{n-1},y_{n})
+\end{equation*}
+Somit ist nach Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i) $(Y_{n})_{0 \leq n \leq N}$ eine $(\pi,P^{*})$-Markovkette.
+\end{proof}
+\begin{defi}[reversibel]
+Ein Maß $\pi$ auf E heißt reversibel bezüglich einer stochastisch Matrix $P = (p(x,y))_{x,y \in E}$ falls die sog. "detailed balance" Bedingung erfüllt ist:
+\begin{equation*}
+\pi(x)p(x,y) = \pi(y)p(y,x) \qquad \forall \: x,y \in E
+\end{equation*}
+Eine stochastische Matrix nennt man reversibel, falls ein bzg. P reversibles Maß existiert.
+\end{defi}
+\begin{beti}
+Anschaulich ist ein Prozess im detaillierten Gleichgewicht, wenn nicht erkennbar ist, ob er sich zeitlich vorwärts oder rückwärts bewegt.
+\end{beti}
+\begin{bem}
+\mbox{}
+\begin{itemize}
+\item[a)]  $\pi$ reversibel bzgl. P $\Rightarrow$ $\pi$ invariant bzgl. P
+\item[b)] Falls P reversibel und irreduzibel ist, so ist $P = P*$
+\end{itemize}
+\end{bem}
+\begin{bsp}[Ehrenfest's Urnenmodell]
+In zwei Urnen liegen N Kugeln. Zu jedem Zeitpunkt $n \in \mathbb{N}$ wird eine Kugel zufällig mit gleicher Wahrscheinlichkeit ausgewählt, die die Urne dann wechselt. Die Anzahl der Kugeln in der ersten Urne wird durch die Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ mit Zustandsraum $E = \lbrace 0,...,N \rbrace$ und Übergangswahrscheinlichkeiten beschrieben:
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+\dfrac{x}{N} & , y = x - 1 \: \wedge \: x \geq 1\\
+ &  \\
+1 - \dfrac{x}{N} & , y = x + 1 \: \wedge \: x \leq N - 1
+\end{cases}
+\end{equation*}
+beschrieben.
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.75]{Ehrenfests Urnenmodell}
+\caption{Die Ehrenfest'sche Urne mit n = 10 Kugeln. Im nächsten Schritt wird mit Wahrscheinlichkeit $4/10$ eine Kugel von der linken Kammer in die rechte und mit Wahrscheinlichkeit $6/10$ von der rechten in die linke Kammer gelegt.}
+\end{figure}
+\noindent
+Sei $\pi(x) := 2^{-N} \binom{N}{x}$. Dann gilt für alle $x \in \lbrace 0,...,N-1 \rbrace$
+\begin{equation*}
+\pi(x)p(x,x+1) =  2^{-N} \binom{N}{x} \left( 1 - \dfrac{x}{N} \right) = 2^{-N} \dfrac{N!}{x!(N-x)!} \cdot \dfrac{N-x}{N}
+\end{equation*}
+\begin{equation*}
+= 2^{-N} \dfrac{(N-1)!}{x!(N-x-1)!} = 2^{-N} \dfrac{N!}{(x+1)!(N-(x+1))! } \cdot \dfrac{x+1}{N} = \pi(x+1)p(x+1,x)
+\end{equation*}
+Folglich ist $\pi$ ein bzgl. $P$ reversibles Wahrscheinlichkeitsmaß.
+\end{bsp}
+\begin{sat}[Kolmogorov's Zykelbedingung]
+\label{Kolmogorov's Zykelbedingung}
+Sei $P = (p(x,y))_{x,y \in E}$ eine irreduzible, stochastische Matrix. Ein Maß $\pi$ auf E ist genau dann reversibel bzgl. $P$, wenn
+\begin{itemize}
+\item[(i)] $p(x,y)>0 \quad \Rightarrow \quad p(y,x)>0 \qquad \forall \: x,y \in E$ 
+\item[(ii)] für jeden Zykel $x_{0},x_{1},...,x_{n}$ mit $x_{n} = x_{0}$ und $\prod_{i=1}^{n} p(x_{i},x_{i-1})>0$ gilt
+\begin{equation*}
+\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = 1
+\end{equation*} 
+\end{itemize}
+\end{sat}
+\begin{proof}
+$"\Rightarrow"$ Da $\pi$ reversibel bzgl. $P$ ist, ist folglich $\pi$ ein invariantes Maß. Da $P$ zudem irreduzibel ist, so folgt aus Bemerkung $\ref{Auflistende Bemerkung zu invarianten Maßen}$ c), dass $\pi(x) > 0$ für alle $x \in E$
+\\
+\\
+\dashuline{zu zeigen}: $p(x,y)>0 \quad \Rightarrow \quad p(y,x)>0$
+\\
+\\
+Sei also $p(x,y)>0$. Dann ergibt sich aus der "detailed balance"   $\:$Bedingung
+\begin{equation*}
+p(y,x) = \dfrac{\pi(y)}{\pi(y)} p(y,x) = \underbrace{\dfrac{\pi(x)}{\pi(y)}}_{>0} \underbrace{p(x,y)}_{>0} > 0.
+\end{equation*}
+Betrachte nun $x_{0},...,x_{n} \in E$ mit $x_{n} = x_{0}$ und  $\prod_{i=1}^{n} p(x_{i},x_{i-1})>0$ .
+\\
+\\
+\dashuline{zu zeigen}: $\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = 1$
+\\
+\\
+Wiederum ergibt sich aus der "detailed balance" Bedingung
+\begin{equation*}
+\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{i=1}^{n} \dfrac{\pi(x_{i-1})}{\pi(x_{i-1})} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{i=1}^{n} \dfrac{\pi(x_{i})}{\pi(x_{i-1})} = \dfrac{\pi(x_{n})}{\pi(x_{0})} \stackrel{x_{0} = x_{n}}{=} 1
+\end{equation*}
+$"\Leftarrow"$ Für ein festes $z \in E$ setze $\pi(z) = 1$. Aus der Irreduzibilität von $P$ folgt, dass zu jedem $x \in E$ ein $n \in \mathbb{N}$ existiert mit $p_{n}(z,x) > 0$. Fo0lglich existieren $x_{0},...,x_{n} \in E$ mit
+\begin{equation*}
+x_{0} = z \quad, \: x_{n} = x \quad und  \quad \prod_{i=1}^{n} p(x_{i},x_{i-1})>0.
+\end{equation*}
+Definiere
+\begin{equation*}
+\pi(x) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}
+\end{equation*}
+\\
+\\
+\dashuline{zu zeigen}: $\pi(x)$ ist unabhängig vom gewählten Pfad
+\\
+\\
+Sei $(x_{0}',...,x_{m}')$ ein weiterer Pfad in E mit $x_{0}' = z, \: x_{m}' = x$ und $\prod_{j=1}^{m} p(x_{j}',x_{j-1}')>0$. Dann folgt aus (i), dass auch $\prod_{j=1}^{m} p(x_{j-1}',x_{j}')>0$. Setze
+\begin{equation*}
+(y_{0},...,y_{n+m}) = (x_{0},...,x_{n},x_{m-1}',...,x_{0}')
+\end{equation*}
+Dann gilt
+\begin{equation*}
+y_{0} = y_{n+m} = z \quad und \quad \prod_{i=1}^{n+m} p(y_{i},y_{i-1}) \stackrel{x_{n}'=x_{n}}{=} \prod_{i=1}^{n} p(x_{i},x_{i-1})  \prod_{j=1}^{m} p(x_{j-1}',x_{j}')>0
+\end{equation*}
+Also folgt aus (ii)
+\begin{equation*}
+\pi(x) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{j=1}^{m} \dfrac{p(x_{j-1}',x_{j}')}{p(x_{j}',x_{j-1}')} \cdot \underbrace{\prod_{i=1}^{n+m} \dfrac{p(y_{i-1},y_{i})}{p(y_{i},y_{i-1})}} _{=1} = \prod_{j=1}^{m} \dfrac{p(x_{j-1}',x_{j}')}{p(x_{j}',x_{j-1}')}
+\end{equation*}
+Folglich ist $\pi(x)$ unabhängig vom gewählten Pfad.
+\\
+\\
+\dashuline{zu zeigen}: $\pi(x)p(x,y) = \pi(y) p(y,x)$
+\\
+\\
+Falls $p(x,y)=0$, so ist aufgrund von (i) auch $p(y,x)=0$ und die Aussage ist trivial. sei nun also $p(x,y)>0$. Dann ist wegen (i) auch $p(y,x)>0$. Zudem gilt
+\begin{equation*}
+\pi(x)p(x,y) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}  \cdot p(x,y)
+\end{equation*}
+\begin{equation*}
+= \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}  \cdot \dfrac{p(x,y)}{p(y,x)} \cdot p(y,x) = \pi(y)p(y,x),
+\end{equation*}
+da mit $x_{n+1}:= y$ der Pfad $(x_{0},...,x_{n},x_{n+1})$ die Eigenschaft hat, dass $x_{0} = z, \: x_{n+1} = y$ und $\prod_{i=1}^{n+1} p(x_{i},x_{i-1})>0$.
+\end{proof}
+\begin{bsp}[Geburts- und Todesprozess]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E = \mathbb{N}_{0}$, dessen Übergangsmatrix $P$ durch folgenden Übergangsgraphen beschrieben wird
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.34]{Geburts- und Todesprozess}
+\caption{Übergangsgraph eines Geburts- und Todesprozess}
+\end{figure}
+\noindent
+wobei angenommen sei, dass $q_{x} > 0$ für alle $x \in \mathbb{N}$. Setze
+\begin{equation*}
+\pi(0) := 1 \quad und \quad \pi(x) = \prod_{y=1}^{x} \dfrac{p_{y-1}}{q_{y}}, \quad x \in \mathbb{N}
+\end{equation*} 
+Dann gilt
+\begin{equation*}
+\pi(x-1)p(x-1,x) = \pi(x-1)p_{x-1} = \pi(x-1) \dfrac{p_{x-1}}{q_{x}}p(x,x-1) = \pi(x)p(x,x-1)
+\end{equation*}
+Folglich ist $\pi$ reversible bzgl. $P$ und insbesondere ein invariantes Maß. Falls zudem gilt, dass
+\begin{equation*}
+\sum_{x \in E} \pi(x) = \sum_{x \in E} \prod_{y=1}^{x} \dfrac{p_{y-1}}{q_{y}} < \infty
+\end{equation*}
+so lässt sich $\pi$ zu einer Gleichverteilung normieren.
+\end{bsp}
+\subsection{Existenz von invarianten Maßen und Verteilungen}
+\textcolor{red}{Frage?} Existenz von invarianten Maßen und Gleichgewichtsverteilungen.
+\begin{sat}
+\label{aufzählungen existenz von invarianten Maßen}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und $\emptyset \neq K \subseteq E$ eine rekurrente, kommunizierende Klasse. Für $x \in K$ definiere
+\begin{equation*}
+\mu_{x}(y) := \mu_{x}[\lbrace y \rbrace] := \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace} - 1} \mathbbm{1}_{X_{n} = y}] \quad , \quad y \in E
+\end{equation*}
+wobei $S_{\lbrace x \rbrace} := \inf \lbrace n \in \mathbb{N} \: : \: X_{n} = x  \rbrace$ die erste Treffzeit des Zustandes $x \in E$ sei.
+\begin{itemize}
+\item[a)] Dann gilt für alle $x,y \in K$ mit $x \neq y$
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}] > 0 \quad und \quad \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace} - 1} \mathbbm{1}_{X_{n} = y}] = \dfrac{\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}]}{\mathbb{P}_{y}[S_{\lbrace x \rbrace} < S_{\lbrace y \rbrace}]}
+\end{equation*} 
+Insbesondere ist $\mu_{x}(x)=1, \: \mu_{x}(y) =0$ für alle $y \in K^{C}$ und $\mu_{x}(y) \in (0,\infty)$ für alle $y \in K$.
+\item[b)] Für jedes $x \in K$ ist $\mu_{x}$ ein invariantes Maß bzgl. $P$.
+\item[c)] Ist $\lambda$ ein invariantes Maß bzgl. $P$ mit $\lambda(x) =1$ für ein $x \in K$ und $\lambda(y) = 0$ für alle $y \in K^{C}$, so gilt $\lambda = \mu_{x}$ 
+\end{itemize}
+\end{sat}
+\begin{proof}
+\mbox{}
+\begin{itemize}
+\item[a)] Da K eine rekurrente, kommunizierende Klasse ist, so folgt aus Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$, dass
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace y \rbrace} < \infty] = 1 \qquad \forall \: x,y \in K
+\end{equation*}
+Bezeichne wieder mit $S_{\lbrace x \rbrace}^{k}$ die k-te Treffzeit des Zustandes $x \in E$, d.h.
+\begin{equation*}
+S_{\lbrace x \rbrace}^{0} := 0 \qquad und \qquad S_{\lbrace x \rbrace}^{k} := \inf \lbrace n > S_{\lbrace x \rbrace}^{k-1} \: : \: X_{n} = x \rbrace \qquad , \quad k \in \mathbb{N}.
+\end{equation*}
+Dann folgt aus der starken Markoveigenschaft (Satz $\ref{starke Markoveigenschaft}$) für $x,y \in K$ mit $x \neq y$ und $k \in \mathbb{N}$
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k} < S_{\lbrace y \rbrace}] = \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k} < S_{\lbrace y \rbrace}, S_{\lbrace x \rbrace}^{k-1} < S_{\lbrace y \rbrace}]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k-1} < S_{\lbrace y \rbrace}]\cdot \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k} < S_{\lbrace y \rbrace} \: | \: \underbrace{S_{\lbrace x \rbrace}^{k-1} < S_{\lbrace y \rbrace}}_{\in \mathfrak{F}_{S_{\lbrace x \rbrace}^{k-1}}^{X}}, X_{S_{\lbrace x \rbrace}^{k-1}} = x, S_{\lbrace x \rbrace}^{k-1}< \infty]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{starke Markoveigenschaft}}{=} \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k-1} < S_{\lbrace y \rbrace}] \cdot \mathbb{P}_{x}[S_{\lbrace x \rbrace} < S_{\lbrace y \rbrace}]
+\end{equation*}
+\\
+\begin{equation*}
+= \: \: ... \: \:
+\end{equation*}
+\\
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace x \rbrace} < S_{\lbrace y \rbrace}]^{k}
+\end{equation*}
+Angenommen $\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}]=0$. Dann gilt, da $S_{\lbrace x \rbrace}^{k}(\omega) \geq k$ für alle $\omega \in \Omega$, 
+\begin{equation*}
+\mathbb{P}_{x}[k < S_{\lbrace y \rbrace}] \geq \mathbb{P}_{x}[S_{\lbrace x \rbrace}^{k} < S_{\lbrace y \rbrace}] = \left( 1 - \underbrace{\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}}_{=0}] \right)^{k} = 1
+\end{equation*}
+Also,
+\begin{equation*}
+0 = \mathbb{P}_{x}[S_{\lbrace y \rbrace} = \infty] = \lim_{k \to \infty} \mathbb{P}_{x}[k < S_{\lbrace y \rbrace}] \geq 1 \quad \lightning
+\end{equation*}
+Folglich ist $\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}]>0.$
+\\
+\\
+\dashuline{zu zeigen}: Für $x,y \in K$ mit $x \neq y$ gilt 
+\begin{equation*}
+\mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}-1} \mathbbm{1}_{X_{n} = y}] = \dfrac{\mathbb{P}_{x}[S_{\lbrace y \rbrace } < S_{\lbrace x \rbrace}]}{\mathbb{P}_{y}[S_{\lbrace x \rbrace } < S_{\lbrace y \rbrace}]}
+\end{equation*}
+zunächst einmal folgt aus der starken Markoveigenschaft für $N \in \mathbb{N}$ und $z \in E$
+\begin{equation*}
+\mathbb{P}_{z}[X_{S_{\lbrace y \rbrace} + n} = y, n < S_{\lbrace x \rbrace} \wedge N - S_{\lbrace y \rbrace}, S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{z}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N] \mathbb{P}_{z}[X_{S_{\lbrace y \rbrace} + n} = y, n < S_{\lbrace x \rbrace} \wedge N - S_{\lbrace y \rbrace} \: | \: X_{\lbrace y \rbrace} = y,S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz \: \ref{starke Markoveigenschaft}}}{=} \mathbb{P}_{z}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N] \mathbb{P}_{y}[X_{n} = y, n < S_{\lbrace x \rbrace} \wedge N] \qquad \forall \: n \in \mathbb{N}_{0}
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}] = \mathbb{E}_{x}[\sum_{n=S_{\lbrace y \rbrace}}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y} \mathbbm{1}_{S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N}]
+\end{equation*}
+\begin{equation*}
+= \sum_{n=0}^{\infty} \mathbb{P}_{x}[X_{S_{\lbrace y \rbrace} + n}=y,n<S_{\lbrace x \rbrace} \wedge N - S_{\lbrace y \rbrace}, S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]= \sum_{n=0}^{\infty} \mathbb{P}_{x}[X_{n}=y,n<S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]\mathbb{E}_{y}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}]
+\end{equation*}
+sowie
+\begin{equation*}
+\mathbb{E}_{y}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}] = 1 + \mathbb{E}_{y}[\sum_{n=S_{\lbrace y \rbrace}}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y} \mathbbm{1}_{S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N}]
+\end{equation*}
+\begin{equation*}
+= 1 + \sum_{n=0}^{\infty} \mathbb{P}_{y}[X_{S_{\lbrace y \rbrace} + n}=y,n<S_{\lbrace x \rbrace} \wedge N - S_{\lbrace y \rbrace}, S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+= 1 + \mathbb{P}_{y}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]= \sum_{n=0}^{\infty} \mathbb{P}_{x}[X_{n}=y,n<S_{\lbrace x \rbrace} \wedge N]
+\end{equation*}
+\begin{equation*}
+= 1 + \mathbb{P}_{y}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N]\mathbb{E}_{y}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}]
+\end{equation*}
+\begin{equation*}
+\Leftrightarrow \mathbb{E}_{y}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}] = \dfrac{1}{ \mathbb{P}_{y}[S_{\lbrace x \rbrace} \wedge N < S_{\lbrace y \rbrace}]}
+\end{equation*}
+Aus der monotonen Konvergenz und der Stetigkeit der Maße $\mathbb{P}_{x}$ und $\mathbb{P}_{y}$ ergibt sich
+\begin{equation*}
+\mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace} -1}  \mathbbm{1}_{X_{n} = y}] \stackrel{\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty]=1}{=} \lim_{N \to \infty} \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace} \wedge N -1}  \mathbbm{1}_{X_{n} = y}]
+\end{equation*}
+\begin{equation*}
+= \lim_{N \to \infty} \dfrac{\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace} \wedge N ]}{\mathbb{P}_{y}[S_{\lbrace x \rbrace} \wedge N < S_{\lbrace y \rbrace}]} \stackrel{\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty]=1}{=} \dfrac{\mathbb{P}_{x}[S_{\lbrace y \rbrace} < S_{\lbrace x \rbrace}]}{\mathbb{P}_{y}[S_{\lbrace x \rbrace} < S_{\lbrace y \rbrace}]}
+\end{equation*}
+Insbesondere ist $\mu_{x}(x) =1$ nach Definition. $\mu_{x}(y) \in (0, \infty)$ für alle $y \in K$ und $\mu_{x}(y) = 0$ für alle $y \in K^{C}$, da in diesem Fall $p_{n}(x,y) = 0$ für alle $n \in \mathbb{N}$.
+\item[b)] Für $y \in K^{C}$ folgt wegen $z \not\rightarrow y$ für alle $z \in K$
+\begin{equation*}
+\sum_{z \in E} \mu_{x}(z)p(z,y) = \sum_{z \in K}\mu_{x}(z)p(z,y) = 0 = \mu_{x}(y)
+\end{equation*}
+Sei also nun $y \in K$. Da $x \in K$ nach Voraussetzung rekurrent ist, gilt
+\begin{equation*}
+\mu_{x}(y) = \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}}  \mathbbm{1}_{X_{n} = y}] + \mathbb{P}_{x}[X_{0} = y] - \mathbb{P}_{x}[X_{S_{\lbrace x \rbrace}} = y, S_{\lbrace x \rbrace} < \infty]  \qquad (\star)
+\end{equation*} 
+\begin{equation*}
+= \sum_{n=1}^{\infty} \mathbb{P}_{x}[X_{n}=y, S_{\lbrace x \rbrace} \geq n] + \mathbbm{1}_{x=y} \left( 1 - \underbrace{\mathbb{P}_{x}[S_{\lbrace x \rbrace} < \infty]}_{=1} \right)
+\end{equation*}
+\begin{equation*}
+= \sum_{n=1}^{\infty} \sum_{z \in E}\mathbb{P}_{x}[X_{n}=y, X_{n-1} = z, S_{\lbrace x \rbrace} \geq n]
+\end{equation*}
+\begin{equation*}
+= \sum_{n=1}^{\infty} \sum_{z \in K}\mathbb{P}_{x}[X_{n-1} = z, S_{\lbrace x \rbrace} \geq n]\mathbb{P}_{x}[X_{n}=y \: | \: X_{n-1} = z, S_{\lbrace x \rbrace} \geq n]
+\end{equation*}
+Da $\lbrace S_{\lbrace x \rbrace} \geq n \rbrace = {\lbrace S_{\lbrace x \rbrace} \leq n-1 \rbrace}^{C} \in \mathfrak{F}^{X}_{n-1} $, folgt aus Satz $\ref{vorangegangene und zukünftige Ereignisse}$
+\begin{equation*}
+= \sum_{n=1}^{\infty} \sum_{z \in K}\mathbb{P}_{x}[X_{n-1} = z, S_{\lbrace x \rbrace} - 1 \geq n-1]\mathbb{P}_{z}[X_{1}=y]
+\end{equation*}
+\begin{equation*}
+= \sum_{z \in K} p(z,y)\mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}-1}  \mathbbm{1}_{X_{n} = z}]
+\end{equation*}
+\begin{equation*}
+= \sum_{z \in K} p(z,y) \mu_{x}(z)
+\end{equation*}
+Also ist $\mu_{x}$ invariant bzgl. $P$.
+\item[c)] Sei $\lambda$ ein invariantes Maß bzgl. $P$ auf E mit $\lambda(x) = 1$ für ein $x \in K$ und $\lambda(y) = 0$ für alle $y \in K^{C}$.
+\\
+\\
+\dashuline{zu zeigen}: $\quad \lambda(y) \geq \sum_{n=1}^{N} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n, X_{n} = y] \qquad \forall y \in K \quad \forall N \in \mathbb{N}$
+\\
+\\
+\textbf{IA} $N=1 \: : \: $ Da $\lambda$ invariant ist, gilt für alle $y \in K$
+\begin{equation*}
+\lambda(y) = \sum_{z \in E} \lambda(z)p(z,y) \geq \underbrace{\lambda(x)}_{=1}p(x,y) = \mathbb{P}_{x}[X_{1}=y] = \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq 1, X_{1} = y]
+\end{equation*}
+\\
+\textbf{IS} $N \to N+1 \: : \: $ Für $y \in K$ gilt
+\\
+\\
+\begin{equation*}
+\lambda(y) = \sum_{z \in E} \lambda(z)p(z,y) = \sum_{z \in K \setminus \lbrace x \rbrace} \lambda(z)p(z,y) + \lambda(x)p(x,y)
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{IV}}{\geq} \sum_{z \in K \setminus \lbrace x \rbrace} \sum_{n=1}^{N} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n, X_{n} = z]p(z,y) + \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq 1, X_{1} = y]
+\end{equation*}
+Da $\lbrace S_{\lbrace x \rbrace} \geq n + 1 \rbrace = {\lbrace S_{\lbrace x \rbrace} \leq n \rbrace}^{C} \in \mathfrak{F}^{X}_{n} $ gilt für alle $z \in K \setminus \lbrace x \rbrace$ 
+\begin{equation*}
+\mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n+1, X_{n} = z, X_{n+1} = y]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n+1, X_{n} = z] \mathbb{P}_{x}[ X_{n+1} = y \: | \: X_{n} = z, S_{\lbrace x \rbrace} \geq n+1]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \:\ref{vorangegangene und zukünftige Ereignisse}}{=} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n+1, X_{n} = z] \mathbb{P}_{z}[ X_{1} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{z \neq x}{=} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n, X_{n} = z]p(z,y)
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\lambda(y) \geq \sum_{z \in K \setminus \lbrace x \rbrace} \sum_{n=1}^{N} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n+1, X_{n} = z, X_{n+1}=y] + \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq 1, X_{1} = y]
+\end{equation*}
+\begin{equation*}
+=  \sum_{n=1}^{N} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n+1, X_{n+1}=y] + \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq 1, X_{1} = y]
+\end{equation*}
+\begin{equation*}
+= \sum_{n=1}^{N+1} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n, X_{n}=y]
+\end{equation*}
+\\
+\dashuline{zu zeigen}: $\lambda = \mu_{x}$
+\\
+\\
+Zunächst einmal folgt aus der monotonen Konvergenz, dass 
+\begin{equation*}
+\lambda(y) \geq \lim_{N \to \infty} \sum_{n=1}^{N} \mathbb{P}_{x}[S_{\lbrace x \rbrace} \geq n, X_{n}=y] = \mathbb{E}_{x}[\sum_{n=1}^{S_{\lbrace x \rbrace}}  \mathbbm{1}_{X_{n} = y}] = \mu_{x}(y)
+\end{equation*}
+Insbesondere ist $\lambda - \mu_{x}$ ein invariantes Maß mit $(\lambda - \mu_{x})(y)=0$ für alle $y \in K^{C} \cup \lbrace x \rbrace$.
+Für $y \in K \setminus \lbrace x \rbrace$ gibt es, da $x \leftrightarrow y$, ein $n \in \mathbb{N}$ mit $p_{n}(y,x)>0$. Daraus folgt
+\begin{equation*}
+0 = (\lambda - \mu_{x})(x) = \sum_{z \in E} \underbrace{(\lambda - \mu_{x})(z)}_{\geq 0}p_{n}(z,x) \geq (\lambda - \mu_{x})(y)\underbrace{p_{n}(y,x)}_{>0}
+\end{equation*}
+Folglich ist $ (\lambda - \mu_{x})(y)=0$ für jedes $y \in K \setminus \lbrace x \rbrace$. Also $\lambda = \mu_{x}$ 
+\end{itemize}
+\end{proof}
+\begin{bem}
+Im Falle, dass die Menge $\emptyset \neq K \subseteq E$ eine transiente, kommunizierende Klasse ist, so folgt aus der Gleichung $(\star)$ im Beweis von Satz $\ref{aufzählungen existenz von invarianten Maßen}$, dass
+\begin{equation*}
+\mu_{x}(y) \geq \sum_{z \in E} \mu_{x}(z)p(z,y) \qquad y \in E
+\end{equation*}
+wobei für $y \in E \setminus \lbrace x \rbrace$ die Gleichheit gilt.
+\end{bem}
+\begin{sat}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und $\emptyset \neq K \subseteq E$ eine rekurrente, kommunizierende Klasse. Dann existiert ein bzgl. $P$ invariantes Maß $\pi: E \to [0,\infty)$ mit $\pi(y) = 0$ für alle $y \in K^{C}$, dass bis auf konstantes Vielfaches in $[0,\infty)$ eindeutig bestimmt ist.
+\end{sat}
+\begin{proof}
+(Existenz) Dies folgt direkt aus Satz $\ref{aufzählungen existenz von invarianten Maßen}$ a) und b).
+\\
+(Eindeutigkeit bis auf konstantes Vielfaches) Sei also $\pi$ ein invariantes Maß bzgl. $P$ mit $\pi(y)=0$ für alle $y \in K^{C}$. Falls $\pi(y) = \infty$ bzw. $\pi(y)=0$ für alle $y \in K$, so gilt für ein festes $x \in K$, dass
+\begin{equation*}
+\pi = c \cdot \mu_{x}
+\end{equation*}
+für ein festes $x \in K$ und $c \in \lbrace 0, \infty \rbrace$
+\\
+Sei nun also $\pi(y)$ weder konstant Null bzw. unendlich. Dann existiert ein $x \in K$ mit $\pi(x) \in (0,\infty)$ Betrachte das Maß $\lambda(y):=\pi(y) / \pi(x)$. Dann genügt $\lambda $ den Voraussetzungen von Satz $\ref{aufzählungen existenz von invarianten Maßen}$ a). Folglich ist 
+\begin{equation*}
+\lambda = \mu_{x} \qquad \Leftrightarrow \qquad \pi = \pi(x)\mu_{x}.
+\end{equation*}
+\end{proof}
+\begin{bem}
+Wenn $\emptyset \neq K \subseteq E$ eine transiente, kommunizierende Klasse ist, so können invariante Maße existieren, die keine konstanten Vielfache voneinander sind (siehe Beispiel $\ref{Einfache, asymmetrische Irrfahrt auf Z}$).
+\end{bem}
+\begin{sat}
+\label{Satz 3.6}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E und $\emptyset \neq K \subseteq E$ eine kommunizierende Klasse. Dann gelten folgende Aussagen:
+\begin{itemize}
+\item[a)] Es gibt ein $\pi \in Inv(P)$ mit $\sum_{x \in K} \pi(x) = 1$ genau dann, wenn K positiv rekurrent ist. Insbesondere ist
+\begin{equation*}
+ \pi(x) = \dfrac{1}{\mathbb{E}_{x}[S_{\lbrace x \rbrace}]} \qquad \forall \: x \in K
+\end{equation*} 
+\item[b)] Wenn $K \neq E$ transient ist und $\pi \in Inv(p)$, so ist $\pi(x) = 0$ für alle $x \in K$ 
+\end{itemize}
+\end{sat}
+\begin{proof}
+$"\Rightarrow"$ Sei $\pi \in Inv(p)$ mit $\sum_{x \in K} \pi(x) = 1$. Dann gibt es ein $x \in K$ mit $\pi(x) > 0$. Für jedes $y \in K$ gilt $x \leftrightarrow y$. Also folgt aus Bemerkung $\ref{Auflistende Bemerkung zu invarianten Maßen}$ c, dass $\lambda = \mu_{x}$. Insbesondere ist
+\begin{equation*}
+\mathbb{E}_{x}[S_{\lbrace x \rbrace}] = \sum_{y \in K} \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}-1} \mathbbm{1}_{X_{n}=y}] = \sum_{y \in K} \mu_{x}(y) = \dfrac{1}{\pi(x)} \sum_{y \in K} \pi(y) = \dfrac{1}{\pi(x)} < \infty.
+\end{equation*}
+Folglich ist x positiv rekurrent und es gilt nach Bemerkung $\ref{Bemerkung 16}$, dass jedes $y \in K$ positiv rekurrent ist. Zudem gilt
+\begin{equation*}
+\pi(x) = \dfrac{1}{\mathbb{E}_{x}[S_{\lbrace x \rbrace}]} \qquad \forall  \: x \in K
+\end{equation*}
+d.h. $\pi$ ist eindeutig bestimmt.
+\\
+$"\Leftarrow"$ Sei K eine positiv rekurrente Klasse. Dann gilt für ein $x \in K$
+\begin{equation*}
+\sum_{y \in K} \mu_{x}(y) = \mathbb{E}_{x}[S_{\lbrace x \rbrace}]  < \infty
+\end{equation*}
+Folglich ist nach Satz $\ref{aufzählungen existenz von invarianten Maßen}$ $\pi(y) := \mu_{x}(y) / \mathbb{E}_{x}[S_{\lbrace x \rbrace}]$ eine Gleichgewichtsverteilung mit $\pi(y) = 0$ für alle $y \in K^{C}$. Also $\sum_{y \in K} \pi(y) = 1$.
+\\
+b) Folgt aus Satz $\ref{höchstens eine Gleichverteilung}$ b).
+\end{proof}
+\begin{kol}
+Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\nu,P)$-Markovkette auf einem endlichen Zustandsraum E. Dann existiert eine eindeutig bestimmte Gleichgewichtsverteilung.
+\end{kol}
+\begin{proof}
+Dies folgt aus Satz $\ref{irr. Markovkette x positiv rekurrent}$ und Satz $\ref{Satz 3.6}$.
+\end{proof}
+\begin{bsp}
+Betrachte eine Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ mit Zustandsraum $E = \lbrace 0,1,2,3 \rbrace$, dessen Übergangsmatrix $P$ durch den folgenden Übergangsgraphen beschrieben wird
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.55]{Beispiel 33}
+\caption{Übergangsgraph auf $\lbrace 0,1,2,3 \rbrace$}
+\end{figure}
+\noindent
+Dann bilden die Zustände $\lbrace 0 \rbrace$ und $\lbrace 2,3 \rbrace$ jeweils eine kommunizierende, positiv rekurrente Klasse, während der Zustand $\lbrace 1 \rbrace$ transient ist. Folglich sind
+\begin{equation*}
+\pi_{1} = \mathbbm{1}_{\lbrace 0 \rbrace} \quad und \quad \pi_{2} = \dfrac{2}{3}\mathbbm{1}_{\lbrace 2 \rbrace} + \dfrac{1}{3}\mathbbm{1}_{\lbrace 3 \rbrace}
+\end{equation*}
+die beiden Gleichgewichtsverteilungen in $Inv(p)$. Zudem ist $\mathbb{E}_{2}[S_{\lbrace 2 \rbrace}] = \dfrac{3}{2}$.
+\end{bsp}
+\section{Kovergenz gegen die Gleichgewichtsverteilung}
+\subsection{Kovergenzssätze für rekurrente Markovketten}
+\textcolor{red}{Frage?} Unter welchen Bedingungen konvergieren die Übergangswahrscheinlichkeiten?
+\begin{bsp}
+Betrachte die stochastische Matrix
+\begin{equation*}
+P=
+\begin{bmatrix}
+0 & 1 \\
+1  & 0 \\
+\end{bmatrix}
+\qquad
+\mathrm{auf \:} E = \lbrace 1,2 \rbrace.
+\end{equation*}
+Dann gilt
+\begin{equation*}
+P^{k} = P \quad \forall \: k \in \lbrace 2l +1 \: : \: l \in \mathbb{N}_{0}  \rbrace \quad \mathrm{und} \quad P^{k} = I \quad \forall \: k \in \lbrace 2l \: : \: l \in \mathbb{N}_{0} \rbrace
+\end{equation*}
+\end{bsp}
+\clearpairofpagestyles
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{defi}[Kopplung von Markovketten]
+Eine bivariate Markovkette $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ mit Werten im Zustandsraum $E \times E$ heißt eine (markov) Kopplung der $(\mu,P)$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ und der $(\nu,P)$-Markovkette $(Y_{n})_{n \in \mathbb{N}_{0}}$ auf E, falls für alle $n \in \mathbb{N}_{0}$ und alle $(x,y),(x',y') \in E \times E$ gilt
+\begin{equation*}
+\mathbb{P}[X_{n+1}= x' \: | \: (X_{n},Y_{n}) = (x,y)] = p(x,x')
+\end{equation*}
+\begin{equation*}
+\mathbb{P}[Y_{n+1}= y' \: | \: (X_{n},Y_{n}) = (x,y)] = p(y,y')
+\end{equation*}
+\end{defi}
+\begin{bsp}[unabhängige Kopplung]
+\label{BSP unabhängige Kopplung}
+Sei $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix und $\mu, \nu$ zwei Wahrscheinlichkeitsmaße auf E. Dann ist die Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ mit Werten im Zustandsraum $E \times E$, Startverteilung $\mu \otimes \nu$ und Übergangsmatrix $\bar{P}$ mit
+\begin{equation*}
+\bar{p} \left( (x,y),(x',y') \right) := p(x,x')p(y,y')
+\end{equation*}
+eine Kopplung einer $(\mu,P)$-Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ und einer $(\nu,P)$-Markovkette $(Y_{n})_{n \in \mathbb{N}_{0}}$ mit Zustandsraum E, denn
+\begin{equation*}
+\mathbb{P}_{\mu \otimes \nu}[X_{0} =x] = \mathbb{P}_{\mu \otimes \nu}[(X_{0},Y_{0}) \in \lbrace x \rbrace \times E] = \sum_{y \in E} \mu(x) \nu(y) = \mu(x)
+\end{equation*}
+und
+\begin{equation*}
+\mathbb{P}_{\mu \otimes \nu}[X_{n+1}=x' \: | \: (X_{n},Y_{n}) = (x,y)]
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\mu \otimes \nu}[(X_{n+1},Y_{n+1}) \in \lbrace x' \rbrace \times E \: | \: (X_{n},Y_{n}) = (x,y)]
+\end{equation*}
+\begin{equation*}
+= \sum_{y' \in E} \bar{p} \left( (x,y).(x',y') \right) = \sum_{y' \in E} p(x,x')p(y,y') = p(x,x')
+\end{equation*}
+(Analog prüft man die Bedingung für $(Y_{n})_{n \in \mathbb{N}_{0}}$ nach.)
+\end{bsp}
+\begin{bsp}[unabhängiges Verschmelzen]
+Sei $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix und $\mu,\nu$ zwei Wahrscheinlichkeitsmaße auf E. Definiere die Übergangsmatrix $\bar{P}$ durch
+\begin{equation*}
+\bar{p}((x,y),(x',y'))=
+\begin{cases}
+p(x,x')p(y,y') & , x \neq y\\
+p(x,x') & , x = y \: \mathrm{und} \: x' = y'\\
+0 & , x=y \: \mathrm{und} \: x' \neq y'
+\end{cases}
+\end{equation*}
+für alle $(x,y),(x',y') \in E \times E$. Dann ist die $(\mu \otimes \nu,\bar{P})$-Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ mit Zustandsraum $E \times E$ eine Kopplung einer $(\mu,P)$-Markovkette und einer $(\nu,P)$-Markovkette auf E.
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.65]{unabhängiges Verschmelzen}
+\caption{unabhängiges Verschmelzen zweier Markovketten}
+\end{figure}
+\noindent
+\end{bsp}
+\begin{bem}
+Selbst wenn die stochastische Matrix $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel ist, garantiert dies i.A. nicht die Irreduzibilität der stochastischen Matrrix $\bar{P}$ mit 
+\begin{equation*}
+\bar{p} \left( (x,y),(x',y') \right) := p(x,x')p(y,y') \quad , \quad (x,y),(x',y') \in E \times E.
+\end{equation*}
+\end{bem}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\begin{bsp}
+Sei $E= \lbrace 1,2 \rbrace$ und 
+$P = \begin{bmatrix}
+0 & 1 \\
+1  & 0 \\
+\end{bmatrix}$.
+Dann ist P irreduzibel. Betrachte nun die stochastische Matrix $\bar{P}$ mit 
+\begin{equation*}
+\bar{p} \left( (1,1),(1,2) \right) = \underbrace{p_{n}(1,1)}_{= 0 \: \forall \: n \: \mathrm{ungerade}} \overbrace{p_{n}(1,2)}^{= 0 \: \forall \: n \: \mathrm{gerade}} = 0 \quad \forall \: n \in \mathbb{N}_{0}
+\end{equation*}
+Folglich ist die stochastische Matrix $\bar{P}$ nicht irreduzibel.
+\end{bsp}
+\begin{sat}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible, aperiodische, rekurrente Markovkette mit Zustandsraum E und Übergangsgraph $P = (p(x,y))_{x,y \in E}$. Dann gilt für alle $x,y \in E$
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y) =
+\begin{cases}
+\dfrac{1}{\mathbb{E}_{y}[S_{\lbrace y \rbrace}]} & , \mathbb{E}_{y}[S_{\lbrace y \rbrace}] < \infty\\
+0 & , \mathbb{E}_{y}[S_{\lbrace y \rbrace}] = \infty 
+\end{cases}
+\end{equation*}
+\end{sat}
+\begin{bem}
+Im positiven rekurrenten Fall konvergiert somit $p_{n}(x,y)$ gegen die (eindeutig bestimmte) Gleichgewichtsverteilung 
+\begin{equation*}
+\pi(y) = \dfrac{1}{\mathbb{E}_{y}[S_{\lbrace y \rbrace}]}
+\end{equation*}
+\end{bem}
+\begin{proof}
+\underline{Schritt 1}: Sei  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ die Markovkette der unabhängigen Kopplung (vgl. Beispiel $\ref{BSP unabhängige Kopplung}$). Da $P$ irreduzibel und aperiodisch ist, gibt es nach Satz $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$ udn Korollar $\ref{Korollar 2.6}$ für alle $x,x',y,y' \in E$ ein $\mathbb{N}_{0} \equiv \mathbb{N}_{0}(x,x',y,y') \in \mathbb{N}$ so, dass
+\begin{equation*}
+\bar{p} \left( (x,y),(x',y') \right) = p_{n}(x,x')p_{n}(y,y') > 0 \qquad n \geq N_{0}.
+\end{equation*}
+Folglich ist die Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ irreduzibel. Für ein beliebig gewähltes $x_{0} \in E$ definiere
+\begin{equation*}
+S \equiv S_{\lbrace (x_{0},x_{0}) \rbrace} := \inf \lbrace n \in \mathbb{N} \: | \:  \left( X_{n},Y_{n} \right)  =(x_{0},x_{0}) \rbrace.
+\end{equation*}
+\dashuline{zu zeigen}: $\vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{\lbrace (x,z) \rbrace}[S>n] \qquad \forall \: n \in \mathbb{N}$
+\\
+Es gilt nun aber 
+\begin{equation*}
+\mathbb{P}_{(x,z)}[X_{n} = y, S \leq n] = \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[X_{n}=y, S = m]
+\end{equation*}
+\begin{equation*}
+= \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S = m]\mathbb{P}_{(x,z)}[X_{n}=y  \: | \: (X_{S},Y_{S})=(x_{0},x_{0}), S = m]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz \:}\ref{vorangegangene und zukünftige Ereignisse}}{=}
+\sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S = m]\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y]
+\end{equation*}
+Weiterhin gilt
+\begin{equation*}
+\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y] = \sum_{y' \in E} \underbrace{\bar{p}_{n-m}\left( (x_{0},x_{0}),(y,y') \right)}_{= \: p_{n-m}(x_{0},y)p_{n-m}(x_{0},y')}
+\end{equation*}
+\begin{equation*}
+\qquad \qquad  \qquad \qquad \:   = \sum_{y' \in E} \overbrace{\bar{p}_{n-m}\left( (x_{0},x_{0}),(y',y) \right)}
+\end{equation*}
+\begin{equation*}
+\qquad \qquad  \quad = \mathbb{P}_{(x_{0},x_{0})}[Y_{n-m}=y]
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{P}_{(x,z)}[X_{n}=y, S \leq n] = \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S=m]\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y]
+\end{equation*}
+\begin{equation*}
+= \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S=m]\mathbb{P}_{(x_{0},x_{0})}[Y_{n-m}=y] = \mathbb{P}_{(x,z)}[Y_{n}=y, S \leq n]
+\end{equation*}
+Somit ergibt sich
+\begin{equation*}
+\vert p_{n}(x,y) - p_{n}(z,y) \vert = \vert \mathbb{P}_{(x,z)}[X_{n}=y] - \mathbb{P}_{(x,z)}[Y_{n} =y] \vert
+\end{equation*}
+\begin{equation*}
+= \vert \mathbb{P}_{(x,z)}[X_{n}=y, S>n] - \mathbb{P}_{(x,z)}[Y_{n} =y, S>n] \vert
+\end{equation*}
+\begin{equation*}
+= \vert \mathbb{P}_{(x,z)}[X_{n}=y \: | \: S>n] - \mathbb{P}_{(x,z)}[Y_{n} =y \: | \: S>n] \vert \mathbb{P}_{(x,z)}[S>n]
+\end{equation*}
+\begin{equation*}
+\leq \mathbb{P}_{(x,z)}[S>n]
+\end{equation*}
+\underline{Schritt 2}: Betrachte zunächst den Fall, dass $(X_{n})_{n \in \mathbb{N}_{0}}$ positiv rekurrent ist. Dann existiert nach Satz $\ref{Satz 3.6}$ a) eine eindeutig bestimmte Gleichgewichtsverteilung $\pi$. Da aber
+\begin{equation*}
+\sum_{(x,y) \in E \times E} (\pi \otimes \pi)(x,y)\bar{p}\left( (x,y),(x',y') \right) = (\pi P)(x')(\pi P)(y') \stackrel{\pi = \pi P}{=} \pi(x') \pi(y') = (\pi \otimes \pi)(x',y')
+\end{equation*}
+ist folglich $\pi \otimes \pi$ eine Gleichverteilung von $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$. Insbesondere ist nach Satz $\ref{Satz 3.6}$ a) die Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ positiv rekurrent und damit auch rekurrent.
+\\
+Aus Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$ folgt daher
+\begin{equation*}
+\mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} < \infty] =1
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} = \infty] = 0
+\end{equation*}
+Also,
+\begin{equation*}
+\lim_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert = 0
+\end{equation*}
+Weiterhin gilt
+\begin{equation*}
+\vert p_{n}(x,y) - \pi(y) \vert = \vert \sum_{z \in E} \pi(z) \left( p_{n}(x,y) - p_{n}(z,y) \right) \vert \leq \sum_{z \in E} \pi(z) \vert  p_{n}(x,y) - p_{n}(z,y)  \vert
+\end{equation*}
+Also folgt aus dem Satz von Lebesgue
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - \pi(y) \vert \leq 0
+\end{equation*}
+Da $\pi(y) = \dfrac{1}{\mathbb{E}_{y}[S_{\lbrace y \rbrace}]}$ nach Satz $\ref{Satz 3.6}$ a) ist, folgt die Behauptung.
+\\
+\\
+\underline{Schritt 3}: Sei nun $(X_{n})_{n \in \mathbb{N}_{0}}$ nullrekurrent. Dann gibt es zwei Fälle zu untersuchen
+\\
+\\
+\underline{1. Fall}: $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ ist transient
+\\
+Nach Korollar $\ref{transienter Zustand dann lim n -> unendl. pn(x,y) = 0}$ gilt dann aber
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y)^{2} = \lim_{n \to \infty} \bar{p}_{n}((x,x),(y,y)) = 0.
+\end{equation*}
+woraus die Behauptung folgt.
+\\
+\\
+\underline{2. Fall}: $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ ist rekurrent
+\\
+Dann ist nach Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$ $\mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} < \infty] = 1$ und aus Schritt 1 folgt
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} = \infty] = 0
+\end{equation*}
+Also,
+\begin{equation*}
+\lim_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert = 0
+\end{equation*}
+Angenommen es existiert ein $(x,y) \in E \times E$ mit 
+\begin{equation*}
+\limsup_{n \to \infty} p_{n}(x,y) =: \alpha > 0
+\end{equation*}
+Dann existiert eine Teilfolge $(n_{k})_{k \in \mathbb{N}}$ derart, dass
+\begin{equation*}
+\lim_{k \to \infty} p_{n_{k}}(x,y) = \alpha
+\end{equation*}
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ nullrekurrent ist, folgt aus Satz $\ref{aufzählungen existenz von invarianten Maßen}$, dass 
+\begin{equation*}
+\mu(z)_{x} := \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}-1} \mathbbm{1}_{X_{n}=z}] \qquad , z \in E
+\end{equation*}
+ein invariantes Maß ist mit $\mu_{x}(z) \in (0,\infty)$ für alle $z \in E$ und
+\begin{equation*}
+\sum_{z \in E} \mu_{x}(z) = \mathbb{E}_{x}[S_{\lbrace x \rbrace}] = \infty
+\end{equation*}
+Also existiert eine endliche Teilmenge $M \subseteq E$ mit 
+\begin{equation*}
+\sum_{z \in M} \mu_{x}(z) > \dfrac{2}{\alpha} \mu_{x}(y).
+\end{equation*}
+Weiterhin existiert ein $k_{0} \in \mathbb{N}$ so, dass für alle $k \geq k_{0}$
+\begin{equation*}
+\vert p_{n_{k}}(x,y) - \alpha \vert < \dfrac{\alpha}{4} \qquad \mathrm{und} \qquad \max_{z \in M} \vert p_{n_{k}}(x,y) - p_{n_{k}}(z,y)  \vert < \dfrac{\alpha}{4}.
+\end{equation*}
+Daraus folgt dann aber für alle $z \in M$ und $k \geq k_{0}$
+\begin{equation*}
+p_{n_{k}}(z,y) = \alpha + p_{n_{k}}(z,y) - \alpha \geq \alpha - \underbrace{\vert p_{n_{k}}(z,y) - p_{n_{k}}(x,y) \vert}_{< \dfrac{\alpha}{4}} - \underbrace{\vert p_{n_{k}}(x,y) - \alpha \vert}_{<\dfrac{\alpha}{4}} > \alpha
+\end{equation*}
+Also
+\begin{equation*}
+\mu_{x}(y) \stackrel{\mu_{x} = \mu_{x}P}{=} \sum_{z \in E} \mu_{x}(z) p_{n_{k}}(z,y) \geq \sum_{z \in M} \mu_{x}(z) p_{n_{k}}(z,y) > \dfrac{\alpha}{2} \sum_{z \in M} \mu_{x}(z) > \mu_{x}(y) \qquad \lightning
+\end{equation*}
+Folglich war die Annahme falsch und es gilt
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y) = 0.
+\end{equation*}
+\end{proof}
+\end{document}

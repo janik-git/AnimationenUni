@@ -1,0 +1,360 @@
+\textbf{Definition 3.1}[invariantes Maß, Gleichgewichtsverteilung]
+Sei $P = (p(x,y))_{x,y \in E}$ eine stochastische Matrix. Ein Maß $\pi$ auf E heißt invariantes Maß bezüglich P, falls
+\begin{equation*}
+\pi (x) = (\pi P)(x) = \sum_{y \in E} \pi (y) p(y,x)
+\end{equation*}
+Falls $\pi$ invariant und eine Verteilung ist, d.h. $\pi[E] = 1$, so nennt man $\pi$ eine Gleichgewichtsverteilung (oder invariante Verteilung). Bezeichne mit
+\begin{equation*}
+Inv(P) := \lbrace \pi \: : \: E \to [0,1] \: : \: \pi P = \pi \: und \: \pi[E] = 1 \rbrace
+\end{equation*}
+die Menge der Gleichgewichtsverteilungen.
+
+\clearpairofpagestyles
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\textbf{Bemerkung 3.20}
+
+\label{Auflistende Bemerkung zu invarianten Maßen}
+\mbox{}
+\begin{itemize}
+\item[a)] Ein invariantes Maß $\pi : \: E \to [0,1]$ ist als Zeilenvektor $(\pi \in [0,\infty]^{E})$ aufgefasst ein (nichtnegativer) Linkseigenvektor von $P$ zum Eigenwert 1.
+\item[b)] Ist $\vert E \vert < \infty$, so kann jedes invariantes Maß zu einer Gleichgewichtsverteilung normiert werden.
+\item[c)] Ist $\pi$ ein invariantes Maß bzgl. $P$, so gilt $\pi = \pi P^{n}$ für jedes $n \in \mathbb{N}_{0}$. Falls $P$ zudem irreduzibel und $\pi \neq 0$ ist, so folgt
+\begin{equation*}
+\pi(x) > 0 \qquad \forall \: x \in E.
+\end{equation*}
+Da nämlich $\pi \neq 0$, gibt es ein $z \in E$ mit $\pi (z) > 0$. Aus der Irreduzibilität von $P$ folgt weiterhin, dass zu jedem $x \in E \setminus \lbrace z \rbrace$ ein $n \in \mathbb{N}$ existiert mit $p_{n}(z,x)>0$. Also,
+\begin{equation*}
+\pi (x) = (\pi P^{n})(x) = \sum_{y \in E} \pi (y) p_{n} (y,x) \geq
+\underbrace{\pi (z)}_{>0} \underbrace{ p_{n} (z,x)}_{>0} > 0.
+\end{equation*} 
+\item[d)] Ist $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette mit Zustandsraum E und Übergangsmatrix $P$. Wenn $\pi$ eine Gleichgewichtsverteilung ist, so gilt für jedes $n \in \mathbb{N}_{0}$
+\begin{equation*}
+\mathbb{P}_{\pi}[X_{n} = x] = \sum_{y \in E} \pi (y) \mathbb{P}_{y}[X_{n} = x] = \sum_{y \in E} \pi (y) p_{n}(y,x) = \pi (x).  
+\end{equation*}
+Insbesondere ist
+\begin{equation*}
+\mathbb{P}_{\pi} [X_{k+1} = x_{1},...,X_{k+n} = x_{n}] = \sum_{y \in E} \mathbb{P}_{\pi} [X_{k} = y] \mathbb{P}_{\pi} [X_{k+1} = x_{1},...,X_{k+n} = x_{n} \: | \: X_{k} = y]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \sum_{y \in E} \pi (y)  \mathbb{P}_{y} [X_{1} = x_{1},...,X_{n} = x_{n}]
+\end{equation*}
+\begin{equation*}
+\mathbb{P}_{\pi} [X_{1} = x_{1},...,X_{n} = x_{n}]
+\end{equation*}
+\item[e)] Für $\pi_{1}, \pi_{2} \in Inv(P)$ und $\lambda \in [0,1]$ gilt $(\lambda \pi_{1} + (1- \lambda) \pi_{2})[E] = \lambda + (1-\lambda)=1$ und
+\begin{equation*}
+(\lambda \pi_{1} + (1- \lambda) \pi_{2})P = \lambda \pi_{1}P + (1- \lambda) \pi_{2}P = \lambda \pi_{1} + (1- \lambda) \pi_{2}.
+\end{equation*}
+Folglich ist die Menge $Inv(P)$ der Gleichgewichtsverteilungen konvex.
+\end{itemize}
+
+
+\textbf{Beispiel 3.15}
+Sei $E = \lbrace 1,2 \rbrace$ und 
+\begin{equation*}
+P=
+\begin{bmatrix}
+ 1- \alpha & \alpha \\
+ \beta & 1-\beta \\
+\end{bmatrix}
+\qquad mit \quad \alpha , \beta \in [0,1].
+\end{equation*}
+Dann ist für $\alpha + \beta \neq 0$ die Gleichgewichtsverteilung $\pi$ gegeben durch
+\begin{equation*}
+\pi(1) = \dfrac{\beta}{\alpha + \beta } \quad und \quad \pi(2) = \dfrac{\alpha}{\alpha + \beta }
+\end{equation*}
+Für $\alpha = \beta = 0$ gilt
+\begin{equation*}
+Inv(P) = \lbrace \lambda \cdot \mathbbm{1}_{\lbrace 1 \rbrace} + (1-\lambda) \cdot \mathbbm{1}_{\lbrace 2 \rbrace} \: : \: \lambda \in [0,1] \rbrace.
+\end{equation*}
+
+\textbf{Beispiel 3.15}[Irrfahrt auf dem Torus]
+Sei $E = (\mathbb{Z}/N \mathbb{Z})^{d}$ für $N \geq 2$ und $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf E mit Übergangswahrscheinlichkeit $p(x,y) = \mu (y-x)$ für ein Wahrscheinlichkeitsmaß $\mu$ auf E. Dann ist $\pi(x) = N^{-d}, \: x \in E$ eine Gleichgewichtsverteilung, denn
+\begin{equation*}
+\sum_{y \in E} \pi(y)p(x,y) = N^{-d} \sum_{y \in E} \mu (y-x) = N^{-d} \sum_{y \in E} \mu (y) =  N^{-d} = \pi (x) \qquad \forall \: x \in E.
+\end{equation*}
+
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\automark{subsection}
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\small}
+\textbf{Beispiel 3.15}
+Sei $E= (\mathbb{Z} / (2N)\mathbb{N})$ und $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Irrfahrt auf E mit
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+p & , y = (x+2) \: mod \: 2N  \\
+1-p & , y = (x-2) \: mod \: 2N 
+\end{cases} 
+\qquad p \in (0,1)
+\end{equation*}
+Bezeichne mit
+\begin{equation*}
+G := \lbrace 2k \: : \: k \in \mathbb{N}_{0} \rbrace \cap E \quad und \quad U := \lbrace 2k +1 \: : \: k \in \mathbb{N}_{0} \rbrace \cap E
+\end{equation*}
+und setze für $\lambda \in [0,1]$
+\begin{equation*}
+\pi_{\lambda}(x) := \dfrac{\lambda}{N}\mathbbm{1}_{G}(x) + \dfrac{1-\lambda}{N}\mathbbm{1}_{U}(x) \qquad, x \in E
+\end{equation*}
+Dann gilt
+\begin{equation*}
+\sum_{y \in E} \pi_{\lambda}(y)p(y,x) = \dfrac{\lambda}{N} \sum_{y \in G} p(y,x) + \dfrac{1-\lambda}{N} \sum_{y \in U} p(y,x)
+\end{equation*}
+\begin{equation*}
+= \dfrac{\lambda}{N}\mathbbm{1}_{G}(x)(1-p+p) + \dfrac{1-\lambda}{N}\mathbbm{1}_{U}(x)(1-p+p) = \pi_{\lambda}(x)
+\end{equation*}
+für alle $x \in E$. Folglich ist $\pi_{\lambda} \in Inv(P)$ für alle $\lambda \in [0,1]$, d.h. $\vert Inv(P) \vert = \infty$. Beachte, dass die stochastische Matrix $P$ nicht irreduzibel ist und zwei kommunizierenden Klassen besitzt, nämlich die Menge G und U.
+
+\textbf{Satz 3.18}
+\label{höchstens eine Gleichverteilung}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E.
+\begin{itemize}
+\item[a)] Falls $(X_{n})_{n \in \mathbb{N}_{0}}$  irreduzibel ist, so gilt $\vert Inv(P) \vert \in \lbrace 0,1 \rbrace$. D.h. es gibt höchstens eine Gleichgewichtsverteilung.
+\item[b)] Falls $(X_{n})_{n \in \mathbb{N}_{0}}$ irreduzibel und transient ist, so gilt $Inv(P) = \emptyset$. D.h. es gibt keine Gleichgewichtsverteilung.  
+\end{itemize}
+
+\textbf{Beweis 3.36}
+\mbox{}
+\begin{itemize}
+\item[a)] Definiere $\bar{P} = (\bar{p}(x,y))_{x,y \in E}$ durch $\bar{p}(x,y) := \sum_{n=1}^{\infty} 2^{-n} p_{n}(x,y) \:, \quad x,y \in E$. Dann ist $\bar{P}$ eine stochastische Matrix, denn für alle $x \in E$ gilt
+\begin{equation*}
+\sum_{y \in E} \bar{p} (x,y) \stackrel{\mathrm{Fubini}}{=} \sum_{n=1}^{\infty} 2^{-n} \sum_{y \in E} p_{n}(x,y) = \sum_{n=1}^{\infty} 2^{-n} = 1
+\end{equation*}
+Da P nach Voraussetzungen irreduzibel ist, folgt $\bar{p}(x,y)>0$ für alle $x,y \in E$. Angenommen es gäbe zwei Gleichgewichtsverteilungen $\pi_{1},\pi_{2} \in Inv(P)$ mit $\pi_{1} \neq \pi_{2}$. Da
+\begin{equation*}
+(\pi_{i} \bar{P})(x) = \sum_{y \in E} \pi_{i}(y) \bar{p}(y,x) \stackrel{\mathrm{Fubini}}{=} \sum_{n=1}^{\infty} 2^{-n} \sum_{y \in E} \pi_{i} p(y,x) = \pi_{i}(x) \sum_{n=1}^{\infty} 2^{-n} = \pi_{i}(x)
+\end{equation*} 
+für alle $x \in E$ und $i \in \lbrace 1,2 \rbrace$, ist $\pi_{1}, \pi_{2} \in Inv(\bar{P})$. Betrachte nun das signierte Maß
+\begin{equation*}
+\bar{\pi} := \pi_{1} - \pi_{2}.
+\end{equation*}
+Dann gilt $\bar{\pi} \bar{P} = \pi_{1} \bar{P} - \pi_{2} \bar{P} = \pi_{1} - \pi_{2} = \bar{\pi}$. Da $\bar{\pi} \neq 0$ und $\bar{\pi}[E]=0$ existieren $x,y \in E$ mit $\bar{\pi}(x) > 0$ und $\bar{\pi}(y) < 0$. Weiterhin gilt
+\begin{equation*}
+\sum_{z \in E} \vert \bar{\pi}(z) \vert = \sum_{z \in E} \vert (\bar{\pi}\bar{P})(z) \vert
+\end{equation*}
+\begin{equation*}
+= \sum_{z \in E}\vert \underbrace{\bar{\pi}(x)\bar{p}(x,z)}_{>0} + \underbrace{\bar{\pi}(y)\bar{p}(y,z)}_{<0} +  \sum_{\substack{ z' \in E \\ z' \neq x,y } }\bar{\pi}(z')\bar{p}(z',z) \vert
+\end{equation*}
+\begin{equation*}
+< \sum_{z \in E} \sum_{z' \in E} \vert \bar{\pi}(z') \vert \bar{p}(z',z)
+\end{equation*}
+\begin{equation*}
+= \sum_{z' \in E} \vert \bar{\pi}(z') \vert \quad \lightning
+\end{equation*}
+Folglich ist $\bar{\pi}=0$, d.h. $\pi_{1} = \pi_{2}$.
+\item[b)] Angenommen $Inv(P) \neq \emptyset$, d.h. es gibt eine Gleichgewichtsverteilung $\pi$. Nach Voraussetzung ist jeder Zustand $y \in E$ transient. Also folgt aus dem Korollar $\ref{transienter Zustand dann lim n -> unendl. pn(x,y) = 0}$ und dem Satz von Lebesgue
+\begin{equation*}
+0 = \sum_{x \in E} \pi (x) \lim_{n \to \infty}p_{n}(x,y) = \lim_{n \to \infty} \sum_{x \in E} \pi(x) p_{n}(x,y) = \pi(y) \qquad \forall \: y \in E
+\end{equation*}
+\mbox{}
+\\
+Also,
+\begin{equation*}
+\sum_{y \in E} \pi (y) = 0 \neq 1 \quad \lightning
+\end{equation*}
+Folglich gibt es keine Gleichgewichtsverteilung.
+\end{itemize}
+
+\textbf{Beispiel 3.15}[doppelt stochastische Übergangsmatrizen]
+\label{doppelt stochastische Übergangsmatrizen}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine $(\nu,P)$-Markovkette mit Zustandsraum E, wobei die Übergangsmatrix $P$ folgende Eigenschaft besitzt
+\begin{equation*}
+\sum_{y \in E} p(y,x) = 1 \qquad \forall \: x \in E,
+\end{equation*}
+d.h. P ist doppelt stochastisch. Ein Spezialfall von doppelt stochastischen Matrizen ist
+\begin{equation*}
+ p(x,y) = \mu(y-x) \qquad, \quad x,y \in E
+\end{equation*} 
+für ein Wahrscheinlichkeitsmaß $\mu$ auf E. Dann ist $\pi(x) = 1$ für alle $x \in E$ ein invariantes Maß, denn 
+\begin{equation*}
+\sum_{y \in E} \pi(y) p(y,x) \sum_{y \in E} p(y,x) = 1 = \pi(x) \qquad , \quad x \in E.
+\end{equation*}
+
+\textbf{Beispiel 3.15}[Einfache, asymmetrische Irrfahrt auf $\mathbb{Z}$]
+\label{Einfache, asymmetrische Irrfahrt auf Z}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E=\mathbb{Z}$ mit $p(x,x+1) = p$ und $p(x,x-1)=1-p$ für alle $x \in E$ und $p \in (0,1)$. Nach Beispiel $\ref{doppelt stochastische Übergangsmatrizen}$ ist $\pi(x) = 1$ für alle $x \in E$ ein invariantes Maß. Für  $p \neq \dfrac{1}{2}$ ist zudem $\pi(x) = {\left( \dfrac{p}{1-p} \right)}^{x}$, $x \in E$ ein invariantes Maß, denn
+\begin{equation*}
+\sum_{y \in E} \pi(y) p(y,x) = \pi(x-1)p(x-1,x) + \pi(x+1)p(x+1,x)= {\left( \dfrac{p}{1-p} \right)}^{x}(1-p+p) = \pi(x)
+\end{equation*}
+
+\textbf{Satz 3.18}
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine irreduzible $(\pi,P)$-Markovkette mit Zustandsraum E, wobei angenommen sei, dass die Startverteilung $\pi$ invariant ist. Dann ist für jedes $N \in \mathbb{N}_{0}$ der stochastische Prozess $(Y_{n})_{0 \leq n \leq N}$ mit $Y_{n} := X_{N-n}$ eine $(\pi,P^{*})$-Markovkette mit
+\begin{equation*}
+p^{*}(x,y) := \dfrac{\pi (y) p(y,x)}{\pi(x)} \qquad \forall \: x,y \in E.
+\end{equation*}
+Die stochastische Matrix $P^{*}$ heißt auch duale Übergangsmatrix.
+
+\textbf{Beweis 3.36}
+Da $P$ irreduzibel ist, ist nach Bemerkung $\ref{Auflistende Bemerkung zu invarianten Maßen}$ c) $\pi(x) > 0$ für alle $x \in E$. Somit sind die Matrixeinträge von $P^{*}$ wohldefiniert. Zudem gilt
+\begin{equation*}
+\sum_{y \in E} p^{*}(x,y) = \dfrac{1}{\pi (x)} \sum_{y \in E} \pi (y) p(y,x) = 1 \qquad \forall \: x \in E
+\end{equation*}
+d.h. $P^{*}$ ist eine stochastische Matrix. Aufgrund von Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i) genügt es nun
+\\
+\\
+\dashuline{zu zeigen}: $\: \forall \: n \in \lbrace 0,1,...,N \rbrace$ und $y_{0},...,y_{n} \in E$ gilt
+\begin{equation*}
+\mathbb{P}_{\pi} [Y_{0} = y_{0},...,Y_{n}=y_{n}] = \pi(y_{0})p^{*}(y_{0},y_{1}) \cdot ... \cdot p^{*}(y_{n-1},y_{n})
+\end{equation*}
+Für $n \in \lbrace 0,1,...,N \rbrace$ und $y_{0},...,y_{n} \in E$ betrachte nun
+\begin{equation*}
+\mathbb{P}_{\pi} [Y_{0} = y_{0},...,Y_{n}=y_{n}] = \mathbb{P}_{\pi} [X_{N} = y_{0},...,X_{N-n}=y_{n}] 
+\end{equation*}
+\begin{equation*}
+= \mathbb{P}_{\pi}[X_{N-n} = y_{n}] \mathbb{P}_{\pi} [X_{N} = y_{0},...,X_{N-n+1}=y_{n-1} \: | \: X_{N-n}=y_{n}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{vorangegangene und zukünftige Ereignisse}}{=} \mathbb{P}_{\pi}[X_{N-n} = y_{n}] \mathbb{P}_{Y_{n}} [X_{n} = y_{0},...,X_{1}=y_{n-1}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{"Satz 1.8"}}{=} \underbrace{(\pi P^{N-n})}_{\pi}(y_{n}) \mathbb{P}_{Y_{n}} [X_{1} = y_{n-1},...,X_{n}=y_{0}] 
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz} \: \ref{Besitzen Markovketten die Markoveigenschaft}}{=} \pi(y_{n}) p(y_{n},y_{n-1}) \cdot ... \cdot p(y_{1},y_{0})
+\end{equation*}
+\begin{equation*}
+= \pi(y_{0})p^{*}(y_{0},y_{1}) \cdot ... \cdot p^{*}(y_{n-1},y_{n})
+\end{equation*}
+Somit ist nach Satz $\ref{Besitzen Markovketten die Markoveigenschaft}$ (i) $(Y_{n})_{0 \leq n \leq N}$ eine $(\pi,P^{*})$-Markovkette.
+
+\textbf{Definition 3.1}[reversibel]
+Ein Maß $\pi$ auf E heißt reversibel bezüglich einer stochastisch Matrix $P = (p(x,y))_{x,y \in E}$ falls die sog. "detailed balance" Bedingung erfüllt ist:
+\begin{equation*}
+\pi(x)p(x,y) = \pi(y)p(y,x) \qquad \forall \: x,y \in E
+\end{equation*}
+Eine stochastische Matrix nennt man reversibel, falls ein bzg. P reversibles Maß existiert.
+
+\textbf{Erklärung 3.3}
+Anschaulich ist ein Prozess im detaillierten Gleichgewicht, wenn nicht erkennbar ist, ob er sich zeitlich vorwärts oder rückwärts bewegt.
+
+\textbf{Bemerkung 3.20}
+\mbox{}
+\begin{itemize}
+\item[a)]  $\pi$ reversibel bzgl. P $\Rightarrow$ $\pi$ invariant bzgl. P
+\item[b)] Falls P reversibel und irreduzibel ist, so ist $P = P*$
+\end{itemize}
+
+\textbf{Beispiel 3.15}[Ehrenfest's Urnenmodell]
+In zwei Urnen liegen N Kugeln. Zu jedem Zeitpunkt $n \in \mathbb{N}$ wird eine Kugel zufällig mit gleicher Wahrscheinlichkeit ausgewählt, die die Urne dann wechselt. Die Anzahl der Kugeln in der ersten Urne wird durch die Markovkette $(X_{n})_{n \in \mathbb{N}_{0}}$ mit Zustandsraum $E = \lbrace 0,...,N \rbrace$ und Übergangswahrscheinlichkeiten beschrieben:
+\begin{equation*}
+p(x,y)=
+\begin{cases}
+\dfrac{x}{N} & , y = x - 1 \: \wedge \: x \geq 1\\
+ &  \\
+1 - \dfrac{x}{N} & , y = x + 1 \: \wedge \: x \leq N - 1
+\end{cases}
+\end{equation*}
+beschrieben.
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.75]{Ehrenfests Urnenmodell}
+\caption{Die Ehrenfest'sche Urne mit n = 10 Kugeln. Im nächsten Schritt wird mit Wahrscheinlichkeit $4/10$ eine Kugel von der linken Kammer in die rechte und mit Wahrscheinlichkeit $6/10$ von der rechten in die linke Kammer gelegt.}
+\end{figure}
+\noindent
+Sei $\pi(x) := 2^{-N} \binom{N}{x}$. Dann gilt für alle $x \in \lbrace 0,...,N-1 \rbrace$
+\begin{equation*}
+\pi(x)p(x,x+1) =  2^{-N} \binom{N}{x} \left( 1 - \dfrac{x}{N} \right) = 2^{-N} \dfrac{N!}{x!(N-x)!} \cdot \dfrac{N-x}{N}
+\end{equation*}
+\begin{equation*}
+= 2^{-N} \dfrac{(N-1)!}{x!(N-x-1)!} = 2^{-N} \dfrac{N!}{(x+1)!(N-(x+1))! } \cdot \dfrac{x+1}{N} = \pi(x+1)p(x+1,x)
+\end{equation*}
+Folglich ist $\pi$ ein bzgl. $P$ reversibles Wahrscheinlichkeitsmaß.
+
+\textbf{Satz 3.18}[Kolmogorov's Zykelbedingung]
+\label{Kolmogorov's Zykelbedingung}
+Sei $P = (p(x,y))_{x,y \in E}$ eine irreduzible, stochastische Matrix. Ein Maß $\pi$ auf E ist genau dann reversibel bzgl. $P$, wenn
+\begin{itemize}
+\item[(i)] $p(x,y)>0 \quad \Rightarrow \quad p(y,x)>0 \qquad \forall \: x,y \in E$ 
+\item[(ii)] für jeden Zykel $x_{0},x_{1},...,x_{n}$ mit $x_{n} = x_{0}$ und $\prod_{i=1}^{n} p(x_{i},x_{i-1})>0$ gilt
+\begin{equation*}
+\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = 1
+\end{equation*} 
+\end{itemize}
+
+\textbf{Beweis 3.36}
+$"\Rightarrow"$ Da $\pi$ reversibel bzgl. $P$ ist, ist folglich $\pi$ ein invariantes Maß. Da $P$ zudem irreduzibel ist, so folgt aus Bemerkung $\ref{Auflistende Bemerkung zu invarianten Maßen}$ c), dass $\pi(x) > 0$ für alle $x \in E$
+\\
+\\
+\dashuline{zu zeigen}: $p(x,y)>0 \quad \Rightarrow \quad p(y,x)>0$
+\\
+\\
+Sei also $p(x,y)>0$. Dann ergibt sich aus der "detailed balance"   $\:$Bedingung
+\begin{equation*}
+p(y,x) = \dfrac{\pi(y)}{\pi(y)} p(y,x) = \underbrace{\dfrac{\pi(x)}{\pi(y)}}_{>0} \underbrace{p(x,y)}_{>0} > 0.
+\end{equation*}
+Betrachte nun $x_{0},...,x_{n} \in E$ mit $x_{n} = x_{0}$ und  $\prod_{i=1}^{n} p(x_{i},x_{i-1})>0$ .
+\\
+\\
+\dashuline{zu zeigen}: $\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = 1$
+\\
+\\
+Wiederum ergibt sich aus der "detailed balance" Bedingung
+\begin{equation*}
+\prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{i=1}^{n} \dfrac{\pi(x_{i-1})}{\pi(x_{i-1})} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{i=1}^{n} \dfrac{\pi(x_{i})}{\pi(x_{i-1})} = \dfrac{\pi(x_{n})}{\pi(x_{0})} \stackrel{x_{0} = x_{n}}{=} 1
+\end{equation*}
+$"\Leftarrow"$ Für ein festes $z \in E$ setze $\pi(z) = 1$. Aus der Irreduzibilität von $P$ folgt, dass zu jedem $x \in E$ ein $n \in \mathbb{N}$ existiert mit $p_{n}(z,x) > 0$. Fo0lglich existieren $x_{0},...,x_{n} \in E$ mit
+\begin{equation*}
+x_{0} = z \quad, \: x_{n} = x \quad und  \quad \prod_{i=1}^{n} p(x_{i},x_{i-1})>0.
+\end{equation*}
+Definiere
+\begin{equation*}
+\pi(x) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}
+\end{equation*}
+\\
+\\
+\dashuline{zu zeigen}: $\pi(x)$ ist unabhängig vom gewählten Pfad
+\\
+\\
+Sei $(x_{0}',...,x_{m}')$ ein weiterer Pfad in E mit $x_{0}' = z, \: x_{m}' = x$ und $\prod_{j=1}^{m} p(x_{j}',x_{j-1}')>0$. Dann folgt aus (i), dass auch $\prod_{j=1}^{m} p(x_{j-1}',x_{j}')>0$. Setze
+\begin{equation*}
+(y_{0},...,y_{n+m}) = (x_{0},...,x_{n},x_{m-1}',...,x_{0}')
+\end{equation*}
+Dann gilt
+\begin{equation*}
+y_{0} = y_{n+m} = z \quad und \quad \prod_{i=1}^{n+m} p(y_{i},y_{i-1}) \stackrel{x_{n}'=x_{n}}{=} \prod_{i=1}^{n} p(x_{i},x_{i-1})  \prod_{j=1}^{m} p(x_{j-1}',x_{j}')>0
+\end{equation*}
+Also folgt aus (ii)
+\begin{equation*}
+\pi(x) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})} = \prod_{j=1}^{m} \dfrac{p(x_{j-1}',x_{j}')}{p(x_{j}',x_{j-1}')} \cdot \underbrace{\prod_{i=1}^{n+m} \dfrac{p(y_{i-1},y_{i})}{p(y_{i},y_{i-1})}} _{=1} = \prod_{j=1}^{m} \dfrac{p(x_{j-1}',x_{j}')}{p(x_{j}',x_{j-1}')}
+\end{equation*}
+Folglich ist $\pi(x)$ unabhängig vom gewählten Pfad.
+\\
+\\
+\dashuline{zu zeigen}: $\pi(x)p(x,y) = \pi(y) p(y,x)$
+\\
+\\
+Falls $p(x,y)=0$, so ist aufgrund von (i) auch $p(y,x)=0$ und die Aussage ist trivial. sei nun also $p(x,y)>0$. Dann ist wegen (i) auch $p(y,x)>0$. Zudem gilt
+\begin{equation*}
+\pi(x)p(x,y) = \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}  \cdot p(x,y)
+\end{equation*}
+\begin{equation*}
+= \prod_{i=1}^{n} \dfrac{p(x_{i-1},x_{i})}{p(x_{i},x_{i-1})}  \cdot \dfrac{p(x,y)}{p(y,x)} \cdot p(y,x) = \pi(y)p(y,x),
+\end{equation*}
+da mit $x_{n+1}:= y$ der Pfad $(x_{0},...,x_{n},x_{n+1})$ die Eigenschaft hat, dass $x_{0} = z, \: x_{n+1} = y$ und $\prod_{i=1}^{n+1} p(x_{i},x_{i-1})>0$.
+
+\textbf{Beispiel 3.15}[Geburts- und Todesprozess]
+Sei $(X_{n})_{n \in \mathbb{N}_{0}}$ eine Markovkette auf $E = \mathbb{N}_{0}$, dessen Übergangsmatrix $P$ durch folgenden Übergangsgraphen beschrieben wird
+\begin{figure}[H].
+\centering
+\includegraphics[scale=0.34]{Geburts- und Todesprozess}
+\caption{Übergangsgraph eines Geburts- und Todesprozess}
+\end{figure}
+\noindent
+wobei angenommen sei, dass $q_{x} > 0$ für alle $x \in \mathbb{N}$. Setze
+\begin{equation*}
+\pi(0) := 1 \quad und \quad \pi(x) = \prod_{y=1}^{x} \dfrac{p_{y-1}}{q_{y}}, \quad x \in \mathbb{N}
+\end{equation*} 
+Dann gilt
+\begin{equation*}
+\pi(x-1)p(x-1,x) = \pi(x-1)p_{x-1} = \pi(x-1) \dfrac{p_{x-1}}{q_{x}}p(x,x-1) = \pi(x)p(x,x-1)
+\end{equation*}
+Folglich ist $\pi$ reversible bzgl. $P$ und insbesondere ein invariantes Maß. Falls zudem gilt, dass
+\begin{equation*}
+\sum_{x \in E} \pi(x) = \sum_{x \in E} \prod_{y=1}^{x} \dfrac{p_{y-1}}{q_{y}} < \infty
+\end{equation*}
+so lässt sich $\pi$ zu einer Gleichverteilung normieren.

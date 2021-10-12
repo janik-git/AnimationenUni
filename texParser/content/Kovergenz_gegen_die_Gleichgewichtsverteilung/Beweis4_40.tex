@@ -1,0 +1,138 @@
+\underline{Schritt 1}: Sei  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ die Markovkette der unabhängigen Kopplung (vgl. Beispiel $\ref{BSP unabhängige Kopplung}$). Da $P$ irreduzibel und aperiodisch ist, gibt es nach Satz $\ref{x und y selbe Periode, x transient y auch x nullrekurrent y auch}$ udn Korollar $\ref{Korollar 2.6}$ für alle $x,x',y,y' \in E$ ein $\mathbb{N}_{0} \equiv \mathbb{N}_{0}(x,x',y,y') \in \mathbb{N}$ so, dass
+\begin{equation*}
+\bar{p} \left( (x,y),(x',y') \right) = p_{n}(x,x')p_{n}(y,y') > 0 \qquad n \geq N_{0}.
+\end{equation*}
+Folglich ist die Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ irreduzibel. Für ein beliebig gewähltes $x_{0} \in E$ definiere
+\begin{equation*}
+S \equiv S_{\lbrace (x_{0},x_{0}) \rbrace} := \inf \lbrace n \in \mathbb{N} \: | \:  \left( X_{n},Y_{n} \right)  =(x_{0},x_{0}) \rbrace.
+\end{equation*}
+\dashuline{zu zeigen}: $\vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{\lbrace (x,z) \rbrace}[S>n] \qquad \forall \: n \in \mathbb{N}$
+\\
+Es gilt nun aber 
+\begin{equation*}
+\mathbb{P}_{(x,z)}[X_{n} = y, S \leq n] = \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[X_{n}=y, S = m]
+\end{equation*}
+\begin{equation*}
+= \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S = m]\mathbb{P}_{(x,z)}[X_{n}=y  \: | \: (X_{S},Y_{S})=(x_{0},x_{0}), S = m]
+\end{equation*}
+\begin{equation*}
+\stackrel{\mathrm{Satz \:}\ref{vorangegangene und zukünftige Ereignisse}}{=}
+\sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S = m]\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y]
+\end{equation*}
+Weiterhin gilt
+\begin{equation*}
+\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y] = \sum_{y' \in E} \underbrace{\bar{p}_{n-m}\left( (x_{0},x_{0}),(y,y') \right)}_{= \: p_{n-m}(x_{0},y)p_{n-m}(x_{0},y')}
+\end{equation*}
+\begin{equation*}
+\qquad \qquad  \qquad \qquad \:   = \sum_{y' \in E} \overbrace{\bar{p}_{n-m}\left( (x_{0},x_{0}),(y',y) \right)}
+\end{equation*}
+\begin{equation*}
+\qquad \qquad  \quad = \mathbb{P}_{(x_{0},x_{0})}[Y_{n-m}=y]
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\mathbb{P}_{(x,z)}[X_{n}=y, S \leq n] = \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S=m]\mathbb{P}_{(x_{0},x_{0})}[X_{n-m}=y]
+\end{equation*}
+\begin{equation*}
+= \sum_{m=1}^{n} \mathbb{P}_{(x,z)}[S=m]\mathbb{P}_{(x_{0},x_{0})}[Y_{n-m}=y] = \mathbb{P}_{(x,z)}[Y_{n}=y, S \leq n]
+\end{equation*}
+Somit ergibt sich
+\begin{equation*}
+\vert p_{n}(x,y) - p_{n}(z,y) \vert = \vert \mathbb{P}_{(x,z)}[X_{n}=y] - \mathbb{P}_{(x,z)}[Y_{n} =y] \vert
+\end{equation*}
+\begin{equation*}
+= \vert \mathbb{P}_{(x,z)}[X_{n}=y, S>n] - \mathbb{P}_{(x,z)}[Y_{n} =y, S>n] \vert
+\end{equation*}
+\begin{equation*}
+= \vert \mathbb{P}_{(x,z)}[X_{n}=y \: | \: S>n] - \mathbb{P}_{(x,z)}[Y_{n} =y \: | \: S>n] \vert \mathbb{P}_{(x,z)}[S>n]
+\end{equation*}
+\begin{equation*}
+\leq \mathbb{P}_{(x,z)}[S>n]
+\end{equation*}
+\underline{Schritt 2}: Betrachte zunächst den Fall, dass $(X_{n})_{n \in \mathbb{N}_{0}}$ positiv rekurrent ist. Dann existiert nach Satz $\ref{Satz 3.6}$ a) eine eindeutig bestimmte Gleichgewichtsverteilung $\pi$. Da aber
+\begin{equation*}
+\sum_{(x,y) \in E \times E} (\pi \otimes \pi)(x,y)\bar{p}\left( (x,y),(x',y') \right) = (\pi P)(x')(\pi P)(y') \stackrel{\pi = \pi P}{=} \pi(x') \pi(y') = (\pi \otimes \pi)(x',y')
+\end{equation*}
+ist folglich $\pi \otimes \pi$ eine Gleichverteilung von $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$. Insbesondere ist nach Satz $\ref{Satz 3.6}$ a) die Markovkette  $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ positiv rekurrent und damit auch rekurrent.
+\\
+Aus Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$ folgt daher
+\begin{equation*}
+\mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} < \infty] =1
+\end{equation*}
+Daraus folgt
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} = \infty] = 0
+\end{equation*}
+Also,
+\begin{equation*}
+\lim_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert = 0
+\end{equation*}
+Weiterhin gilt
+\begin{equation*}
+\vert p_{n}(x,y) - \pi(y) \vert = \vert \sum_{z \in E} \pi(z) \left( p_{n}(x,y) - p_{n}(z,y) \right) \vert \leq \sum_{z \in E} \pi(z) \vert  p_{n}(x,y) - p_{n}(z,y)  \vert
+\end{equation*}
+Also folgt aus dem Satz von Lebesgue
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - \pi(y) \vert \leq 0
+\end{equation*}
+Da $\pi(y) = \dfrac{1}{\mathbb{E}_{y}[S_{\lbrace y \rbrace}]}$ nach Satz $\ref{Satz 3.6}$ a) ist, folgt die Behauptung.
+\\
+\\
+\underline{Schritt 3}: Sei nun $(X_{n})_{n \in \mathbb{N}_{0}}$ nullrekurrent. Dann gibt es zwei Fälle zu untersuchen
+\\
+\\
+\underline{1. Fall}: $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ ist transient
+\\
+Nach Korollar $\ref{transienter Zustand dann lim n -> unendl. pn(x,y) = 0}$ gilt dann aber
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y)^{2} = \lim_{n \to \infty} \bar{p}_{n}((x,x),(y,y)) = 0.
+\end{equation*}
+woraus die Behauptung folgt.
+\\
+\\
+\underline{2. Fall}: $((X_{n},Y_{n}))_{n \in \mathbb{N}_{0}}$ ist rekurrent
+\\
+Dann ist nach Satz $\ref{irreduzibel, y rekurrent -> Px=1 , y transient -> Px<1 }$ $\mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} < \infty] = 1$ und aus Schritt 1 folgt
+\begin{equation*}
+\limsup_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert \leq \mathbb{P}_{(x,z)}[S_{\lbrace (x_{0},x_{0}) \rbrace} = \infty] = 0
+\end{equation*}
+Also,
+\begin{equation*}
+\lim_{n \to \infty} \vert p_{n}(x,y) - p_{n}(z,y) \vert = 0
+\end{equation*}
+Angenommen es existiert ein $(x,y) \in E \times E$ mit 
+\begin{equation*}
+\limsup_{n \to \infty} p_{n}(x,y) =: \alpha > 0
+\end{equation*}
+Dann existiert eine Teilfolge $(n_{k})_{k \in \mathbb{N}}$ derart, dass
+\begin{equation*}
+\lim_{k \to \infty} p_{n_{k}}(x,y) = \alpha
+\end{equation*}
+Da $(X_{n})_{n \in \mathbb{N}_{0}}$ nullrekurrent ist, folgt aus Satz $\ref{aufzählungen existenz von invarianten Maßen}$, dass 
+\begin{equation*}
+\mu(z)_{x} := \mathbb{E}_{x}[\sum_{n=0}^{S_{\lbrace x \rbrace}-1} \mathbbm{1}_{X_{n}=z}] \qquad , z \in E
+\end{equation*}
+ein invariantes Maß ist mit $\mu_{x}(z) \in (0,\infty)$ für alle $z \in E$ und
+\begin{equation*}
+\sum_{z \in E} \mu_{x}(z) = \mathbb{E}_{x}[S_{\lbrace x \rbrace}] = \infty
+\end{equation*}
+Also existiert eine endliche Teilmenge $M \subseteq E$ mit 
+\begin{equation*}
+\sum_{z \in M} \mu_{x}(z) > \dfrac{2}{\alpha} \mu_{x}(y).
+\end{equation*}
+Weiterhin existiert ein $k_{0} \in \mathbb{N}$ so, dass für alle $k \geq k_{0}$
+\begin{equation*}
+\vert p_{n_{k}}(x,y) - \alpha \vert < \dfrac{\alpha}{4} \qquad \mathrm{und} \qquad \max_{z \in M} \vert p_{n_{k}}(x,y) - p_{n_{k}}(z,y)  \vert < \dfrac{\alpha}{4}.
+\end{equation*}
+Daraus folgt dann aber für alle $z \in M$ und $k \geq k_{0}$
+\begin{equation*}
+p_{n_{k}}(z,y) = \alpha + p_{n_{k}}(z,y) - \alpha \geq \alpha - \underbrace{\vert p_{n_{k}}(z,y) - p_{n_{k}}(x,y) \vert}_{< \dfrac{\alpha}{4}} - \underbrace{\vert p_{n_{k}}(x,y) - \alpha \vert}_{<\dfrac{\alpha}{4}} > \alpha
+\end{equation*}
+Also
+\begin{equation*}
+\mu_{x}(y) \stackrel{\mu_{x} = \mu_{x}P}{=} \sum_{z \in E} \mu_{x}(z) p_{n_{k}}(z,y) \geq \sum_{z \in M} \mu_{x}(z) p_{n_{k}}(z,y) > \dfrac{\alpha}{2} \sum_{z \in M} \mu_{x}(z) > \mu_{x}(y) \qquad \lightning
+\end{equation*}
+Folglich war die Annahme falsch und es gilt
+\begin{equation*}
+\lim_{n \to \infty} p_{n}(x,y) = 0.
+\end{equation*}
