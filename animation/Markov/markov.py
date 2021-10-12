@@ -150,10 +150,10 @@ class MarkovGraph(GraphScene):
             currentState = state
             #ADD POINT ON GRAPH
         bar = BarChart(
-            [mcString.count(i) for i in ['1','2','3']],
+            [(mcString.count(i))/len(mcString) for i in ['1','2','3']],
             height=5 , 
             width = 3,
-            max_value= 25 , 
+            max_value= 1 , 
             bar_names = ["1","2","3"]
 
         ).scale(0.7).shift(LEFT)
