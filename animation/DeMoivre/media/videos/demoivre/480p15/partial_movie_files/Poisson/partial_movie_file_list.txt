@@ -1,0 +1,9 @@
+# This file is used internally by FFMPEG.
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/3163782288_2839631542_3375671271.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_2458579825.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_1798601956.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_1694018558.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_1738859267.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_3551183043.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_4291487474.mp4'
+file 'file:/home/janik/AnimationenUni/animation/DeMoivre/media/videos/demoivre/480p15/partial_movie_files/Poisson/2201830969_2148686299_4141286182.mp4'
