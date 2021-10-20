@@ -12,6 +12,11 @@ class Poisson(Scene):
         return np.random.poisson(distribution_mean,samples)
     def normal(self,x):
         return st.norm.pdf(x)
+    def exponetial(self,x):
+        _lambda = 0.3
+        return st.expon.pdf(x,scale=1/_lambda)
+    def sampleExpo(self,samples,_lambda):
+        return np.random.exponential(1/_lambda,samples)
     def construct(self):
         """
             Draw two Charts one displaying the Distribution 
@@ -24,21 +29,21 @@ class Poisson(Scene):
             y_range=[0,0.3,0.05],
             tips = False 
             ).add_coordinates().scale(0.4).move_to([-3,2,0])
-        c1 = ax1.get_graph(self.poissonPdf,x_range=[0,20,5],color=BLUE_C)
+        c1 = ax1.get_graph(self.exponetial,x_range=[0,20,5],color=BLUE_C)
         ####
         # WE LOOP THROUGH GET N SAMPLES with sampel size 30, 
         # we store the sample Counts to draw the lines 
         # we store the normalized_sample_means with their frequency
-        distribution_mean=10
-        distribution_variance=np.sqrt(10)
+        distribution_mean=1/0.3
+        distribution_variance=(1/0.3)**2
         sampleMeans = {}
         for N in [10,20,40,80,160,320]:
             nText = Text(f"Amount of Individual Samples {N}").move_to([0,-3,0])
             self.add(ax1,c1,nText)
             for n in range(N): 
-                sample = self.samplePoisson(300,distribution_mean)
+                sample = self.sampleExpo(300,1/distribution_mean)
                 sample_mean = np.mean(sample)
-                normalized_sample_mean = round(np.sqrt(n)*((sample_mean-distribution_mean)/distribution_variance),1)
+                normalized_sample_mean = round(np.sqrt(n)*((sample_mean-distribution_mean)/distribution_variance),2)
                 print(normalized_sample_mean)
                 if normalized_sample_mean in sampleMeans:
                     sampleMeans[normalized_sample_mean].append(collections.Counter(sample))
