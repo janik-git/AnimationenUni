@@ -48,7 +48,7 @@ class MCI(Scene):
                 string += "\ldots ]"
                 uText = MathTex("U=" + string).scale(0.7).shift(LEFT*2)
                 lines = []
-                for i in (a+(b-a)*U[0][:30]): 
+                for i in (a+(b-a)*U[0][:10]): 
                     l = ax1.get_vertical_line(ax1.i2gp(i,c1),color=YELLOW)
                     lines.append(l) 
                 lines = VGroup(*lines)

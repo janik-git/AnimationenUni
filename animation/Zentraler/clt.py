@@ -43,7 +43,7 @@ class Poisson(Scene):
             for n in range(N): 
                 sample = self.sampleExpo(300,1/distribution_mean)
                 sample_mean = np.mean(sample)
-                normalized_sample_mean = round(np.sqrt(n)*((sample_mean-distribution_mean)/distribution_variance),2)
+                normalized_sample_mean = round(np.sqrt(N)*((sample_mean-distribution_mean)/distribution_variance),2)
                 print(normalized_sample_mean)
                 if normalized_sample_mean in sampleMeans:
                     sampleMeans[normalized_sample_mean].append(collections.Counter(sample))
@@ -73,7 +73,7 @@ class Poisson(Scene):
                                             .move_to(bar2.coords_to_point(mean,0)+[0,height/2,0]).set_fill(WHITE,opacity=1)
                 bars.append(meanBar)
 
-            lines = VGroup(*[ax1.get_vertical_line(ax1.i2gp(i,c1),color=YELLOW) for i in count[1][0].keys()])
+            lines = VGroup(*[ax1.get_vertical_line(ax1.i2gp(i,c1),color=YELLOW) for i in list(count[1][0].keys())[:20]])
             self.play(Write(lines))
             self.play(Transform(lines,VGroup(*bars))) 
             self.wait(2) 
